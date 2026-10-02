@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tact-lang/tact/main/src/config/configSchema.json",
+  "projects": [
+    {
+      "name": "verifier",
+      "path": "contracts/verifier.tact",
+      "output": "build/verifier"
+    },
+    {
+      "name": "mixer",
+      "path": "contracts/mixer.tact",
+      "output": "build/mixer"
+    }
+  ]
+}
