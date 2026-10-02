@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.testnet_wallet.json
+circuits/ptau/
+*.ptau
+*.zkey
