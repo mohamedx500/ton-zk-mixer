@@ -5,7 +5,7 @@ import * as path from 'path';
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-export const TON_NETWORK = (process.env.TON_NETWORK || 'testnet').toLowerCase() as 'mainnet' | 'testnet';
+export const TON_NETWORK = (process.env.TON_NETWORK || 'mainnet').toLowerCase() as 'mainnet' | 'testnet';
 export const IS_MAINNET = TON_NETWORK === 'mainnet';
 
 export const PORT = process.env.RELAYER_PORT
@@ -17,7 +17,7 @@ export const PORT = process.env.RELAYER_PORT
 export const MIXER_ADDRESS =
     process.env.MIXER_CONTRACT_ADDRESS ||
     process.env.MIXER_ADDRESS ||
-    (IS_MAINNET ? '' : '0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET');
+    (IS_MAINNET ? 'UQBc0izk6rtfjroHgkzP4pEBUHfMCtSS1CGT988kw8DbqY7A' : '0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET');
 
 export const TON_RPC_ENDPOINT =
     process.env.TON_RPC_ENDPOINT ||
