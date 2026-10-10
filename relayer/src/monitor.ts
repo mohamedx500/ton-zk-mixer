@@ -16,11 +16,11 @@ const apiKey = process.env.TONCENTER_API_KEY || undefined;
 // Configuration thresholds
 const MIN_RELAYER_BALANCE = process.env.RELAYER_MIN_BALANCE
     ? toNano(process.env.RELAYER_MIN_BALANCE)
-    : toNano('0.25'); // Threshold: 0.25 TON
+    : toNano('0.15'); // Threshold: 0.15 TON
 
 const TOPUP_AMOUNT = process.env.RELAYER_TOPUP_AMOUNT
     ? toNano(process.env.RELAYER_TOPUP_AMOUNT)
-    : toNano('1.0'); // Automated refill: 1.0 TON
+    : toNano('0.5'); // Automated refill: 0.5 TON
 
 const CHECK_INTERVAL_MS = parseInt(process.env.MONITOR_INTERVAL_MS || '15000', 10);
 
