@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { fetchMixerState, MixerProtocolState } from '../lib/ton';
 import { TESTNET_EXPLORER_URL } from '../lib/contracts';
+import { TonDiamond, TonIcon } from './TonIcons';
 
 export function StatsCard() {
     const [state, setState] = useState<MixerProtocolState | null>(null);
@@ -102,8 +103,10 @@ export function StatsCard() {
                         <Activity className="w-3.5 h-3.5 text-cyan-400" />
                         <span>Pool TVL</span>
                     </div>
-                    <div className="text-xl font-extrabold text-white">
-                        {state ? `${Number(state.balance).toFixed(2)}` : '—'} <span className="text-xs text-cyan-400 font-normal">TON</span>
+                    <div className="text-xl font-extrabold text-white flex items-center gap-1">
+                        <TonDiamond className="w-4 h-4 text-cyan-400" />
+                        <span>{state ? `${Number(state.balance).toFixed(2)}` : '—'}</span>
+                        <span className="text-xs text-cyan-400 font-normal">TON</span>
                     </div>
                     <div className="text-[10px] text-gray-500">Contract balance</div>
                 </div>

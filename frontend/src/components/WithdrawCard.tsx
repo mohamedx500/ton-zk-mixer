@@ -2,20 +2,25 @@
 
 import React, { useState } from 'react';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
-import { Address } from '@ton/core';
-import confetti from 'canvas-confetti';
+import { Address, toNano } from '@ton/core';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    ArrowRight,
+    KeyRound,
     CheckCircle2,
-    Cpu,
-    ExternalLink,
     Loader2,
-    Lock,
-    RefreshCw,
     ShieldAlert,
-    Sparkles,
+    Cpu,
+    ArrowRight,
+    ExternalLink,
     Wallet,
+    Sparkles,
     Zap,
+    RefreshCw,
+    Shield,
+    Check,
+    Lock,
+    Sliders,
+    Info,
 } from 'lucide-react';
 import { parseDepositNote, DepositNote, MerkleProof } from '../lib/crypto';
 import {
@@ -24,7 +29,9 @@ import {
     buildWithdrawTransaction,
 } from '../lib/ton';
 import { generateClientWithdrawProof, ZkWithdrawProof } from '../lib/prover';
-import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT, UPFRONT_POOL_TIERS } from '../lib/contracts';
+import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT, UPFRONT_POOL_TIERS, WITHDRAW_GAS_FEE } from '../lib/contracts';
+import { TonIcon, TonDiamond, ZkCircuitIcon } from './TonIcons';
+import { BottomSheet } from './BottomSheet';
 
 function getFormattedPayoutAmount(amountStr?: string): string {
     if (!amountStr) return '1.0 TON';
@@ -44,8 +51,10 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
     const wallet = useTonWallet();
 
     const [noteString, setNoteString] = useState('');
-    const [recipientAddress, setRecipientAddress] = useState('');
     const [parsedNote, setParsedNote] = useState<DepositNote | null>(null);
+    const [recipientAddress, setRecipientAddress] = useState('');
+
+    // Merkle tree verification state
     const [isCheckingTree, setIsCheckingTree] = useState(false);
     const [treeStatus, setTreeStatus] = useState<string | null>(null);
     const [leafIndex, setLeafIndex] = useState<number | null>(null);
@@ -64,6 +73,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [txSuccess, setTxSuccess] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isSummaryDrawerOpen, setIsSummaryDrawerOpen] = useState(false);
 
     // Step 1: Parse and verify Note against on-chain state
     const handleVerifyNote = async (inputStr: string) => {
@@ -159,80 +169,80 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             );
 
             setZkProof(proof);
+            setProvingProgress(null);
+            setIsSummaryDrawerOpen(true);
         } catch (err: any) {
             console.error('Prover error:', err);
-            setErrorMessage(err.message || 'Failed to generate zero-knowledge proof');
+            setErrorMessage(err.message || 'Proof generation failed');
         } finally {
             setIsProving(false);
         }
     };
 
-    // Step 3: Submit Anonymous Withdrawal transaction (Relayer or TonConnect)
+    // Step 3: Broadcast Withdrawal Transaction
     const handleWithdraw = async () => {
         if (!zkProof) return;
         setErrorMessage(null);
+        setTxSuccess(null);
 
         try {
             setIsSubmitting(true);
 
             if (useRelayer) {
-                // GASLESS WITHDRAWAL VIA BACKEND RELAYER
-                const relayPayload = {
-                    rawProof: zkProof.rawProof,
-                    publicSignals: zkProof.publicSignals,
-                    piABase64: zkProof.piA.toBoc().toString('base64'),
-                    piBBase64: zkProof.piB.toBoc().toString('base64'),
-                    piCBase64: zkProof.piC.toBoc().toString('base64'),
-                    root: zkProof.root.toString(),
-                    nullifierHash: zkProof.nullifierHash.toString(),
-                    recipient: zkProof.recipient.toString({ testOnly: true, bounceable: false }),
-                    assetId: zkProof.assetId.toString(),
-                };
-
-                const res = await fetch(RELAYER_ENDPOINT, {
+                // Submit gasless withdrawal payload to Relayer endpoint
+                const relayerRes = await fetch(RELAYER_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(relayPayload),
+                    body: JSON.stringify({
+                        piA: zkProof.piA.toString('hex'),
+                        piB: zkProof.piB.toString('hex'),
+                        piC: zkProof.piC.toString('hex'),
+                        root: zkProof.root.toString(),
+                        nullifierHash: zkProof.nullifierHash.toString(),
+                        recipient: zkProof.recipient.toString({ testOnly: true, bounceable: false }),
+                        assetId: 0,
+                    }),
                 });
 
-                const data = await res.json();
-                if (!res.ok || !data.success) {
-                    throw new Error(data.error || 'Relayer failed to process withdrawal transaction');
+                const data = await relayerRes.json();
+                if (!relayerRes.ok || !data.success) {
+                    throw new Error(data.error || 'Relayer failed to broadcast transaction');
                 }
 
-                setTxSuccess(`Gasless withdrawal dispatched via Relayer (${data.relayer.slice(0, 10)}...)!`);
+                setTxSuccess(data.txHash || 'Broadcasted via Gasless Relayer Network');
             } else {
-                // DIRECT TONCONNECT WALLET WITHDRAWAL
+                // Submit directly from connected wallet
                 if (!wallet) {
                     tonConnectUI.openModal();
-                    setIsSubmitting(false);
                     return;
                 }
 
-                const txRequest = buildWithdrawTransaction(zkProof);
+                const txRequest = buildWithdrawTransaction(
+                    zkProof,
+                    toNano(WITHDRAW_GAS_FEE)
+                );
+
                 const result = await tonConnectUI.sendTransaction(txRequest);
-                setTxSuccess(result.boc || 'Withdrawal dispatched via wallet');
+                setTxSuccess(result.boc || 'Broadcasted directly from connected wallet');
             }
 
-            // Trigger celebration confetti!
-            confetti({
-                particleCount: 120,
-                spread: 80,
-                origin: { y: 0.6 },
-                colors: ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'],
-            });
-
+            setIsSummaryDrawerOpen(false);
             onWithdrawSuccess?.();
         } catch (err: any) {
             console.error('Withdraw error:', err);
-            setErrorMessage(err.message || 'Withdrawal transaction cancelled or failed');
+            setErrorMessage(err.message || 'Withdrawal failed');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="bg-glass-card rounded-2xl p-6 sm:p-8 border border-white/10 relative overflow-hidden transition-all">
+        <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="bg-glass-card rounded-2xl p-5 sm:p-8 border border-white/10 relative overflow-hidden transition-all shadow-2xl backdrop-blur-2xl"
+        >
             {/* Top decorative gradient bar */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500" />
 
@@ -244,66 +254,86 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         <span>Anonymous Withdrawal</span>
                     </h2>
                     <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Prove ownership with zero-knowledge without revealing your original deposit identity.
+                        Redeem your Secret Note to any fresh TON address. Zero cryptographic link to your deposit address.
                     </p>
                 </div>
-            </div>
-
-            {/* Relayer Gasless Toggle */}
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-inner border border-white/5 mb-5 transition-all">
-                <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                        <Zap className={`w-4 h-4 ${useRelayer ? 'text-amber-400' : 'text-gray-500'}`} />
-                    </div>
-                    <div>
-                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                            <span>Use Relayer (Gasless Withdrawal)</span>
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                                Zero Balance Friendly
-                            </span>
-                        </div>
-                        <div className="text-[11px] text-gray-400">
-                            {useRelayer
-                                ? 'Gas is 100% covered by the Relayer network. No TON balance needed in wallet.'
-                                : 'Gas paid via your connected TonConnect wallet.'}
-                        </div>
-                    </div>
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold">
+                    <ZkCircuitIcon className="w-4 h-4" />
+                    <span>Groth16 Zero-Knowledge</span>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={useRelayer}
-                        onChange={(e) => setUseRelayer(e.target.checked)}
-                        className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-amber-500 peer-checked:to-orange-500"></div>
-                </label>
             </div>
 
-            {/* Upfront Fees Paid Notice Banner */}
-            <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs mb-5 shadow-sm">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <div className="leading-relaxed">
-                    <span className="font-bold">Fees were paid upfront. </span>
-                    You will receive exactly <span className="font-extrabold text-white underline decoration-emerald-400 decoration-2">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '[1 / 10 / 100] TON'}</span>.
+            {/* Gasless Relayer Mode Banner */}
+            <div className="bg-[#080d1a]/90 backdrop-blur-md border border-white/10 rounded-xl p-4 mb-6 shadow-inner">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                                useRelayer ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-800 text-gray-400 border border-white/5'
+                            }`}
+                        >
+                            <Zap className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs sm:text-sm font-bold text-white">Gasless Relayer Mode</span>
+                                {useRelayer && (
+                                    <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                                        Recommended
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-[11px] text-gray-400 mt-0.5">
+                                {useRelayer
+                                    ? 'The Relayer broadcasts for you. Recipient needs 0 TON to receive funds.'
+                                    : 'You pay message gas (~0.04 TON) directly from your connected wallet.'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <button
+                        type="button"
+                        onClick={() => setUseRelayer(!useRelayer)}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            useRelayer ? 'bg-amber-500' : 'bg-gray-700'
+                        }`}
+                        title="Toggle Gasless Relayer"
+                    >
+                        <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                useRelayer ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                        />
+                    </button>
                 </div>
             </div>
 
             {/* Step 1: Input Secret Note */}
             <div className="mb-5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-                    1. Paste Secret Note
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>1. Secret Deposit Note</span>
+                    </label>
+                    {parsedNote && (
+                        <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                            <TonDiamond className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Denomination: {getFormattedPayoutAmount(parsedNote.amount)}</span>
+                        </span>
+                    )}
+                </div>
+
                 <div className="relative">
-                    <textarea
-                        rows={2}
+                    <input
+                        type="text"
                         value={noteString}
                         onChange={(e) => {
                             setNoteString(e.target.value);
                             handleVerifyNote(e.target.value);
                         }}
                         placeholder="tonzk-1.0-TON-0000...-0000..."
-                        className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs text-cyan-200 font-mono focus:outline-none transition-all placeholder:text-gray-600"
+                        className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs text-cyan-200 font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
                     />
                 </div>
 
@@ -343,8 +373,9 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             {/* Step 2: Input Clean Recipient Address */}
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        2. Recipient Wallet Address (Clean / Unlinked)
+                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                        <Wallet className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>2. Recipient Wallet Address (Clean / Unlinked)</span>
                     </label>
                     {wallet && !useRelayer && (
                         <button
@@ -364,12 +395,12 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         setRecipientAddress(e.target.value);
                         setZkProof(null);
                     }}
-                    placeholder="0Q... or EQ... (Fresh empty recipient address)"
-                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs sm:text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600"
+                    placeholder="0Q... or UQ... (Fresh empty recipient address)"
+                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs sm:text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
                 />
                 <p className="text-[11px] text-gray-500 mt-1">
                     {useRelayer
-                        ? '✨ Relayer enables withdrawing to a brand-new empty wallet with 0 TON balance.'
+                        ? '✨ Relayer enables withdrawing directly to a brand-new wallet with 0 TON balance.'
                         : 'Tip: For maximum privacy, withdraw to a fresh address that has never interacted with your deposit wallet.'}
                 </p>
             </div>
@@ -377,14 +408,16 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             {/* Step 3: Generate ZK-SNARK Proof */}
             <div className="space-y-4">
                 {!zkProof ? (
-                    <button
+                    <motion.button
                         type="button"
+                        whileHover={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving ? {} : { scale: 1.01 }}
+                        whileTap={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving ? {} : { scale: 0.99 }}
                         disabled={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving}
                         onClick={handleGenerateProof}
-                        className={`w-full py-4 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all ${
+                        className={`w-full py-4 rounded-xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all ${
                             !merkleProof || isSpent === true || !recipientAddress.trim() || isProving
                                 ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
-                                : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black shadow-lg shadow-cyan-500/20 cursor-pointer'
+                                : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black shadow-xl shadow-cyan-500/25 cursor-pointer'
                         }`}
                     >
                         {isProving ? (
@@ -398,37 +431,41 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                                 <span>Generate Groth16 ZK-Proof Locally</span>
                             </>
                         )}
-                    </button>
+                    </motion.button>
                 ) : (
-                    <div className="bg-glass-inner rounded-xl p-5 border border-emerald-500/30 space-y-3">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-glass-inner rounded-xl p-5 border border-emerald-500/30 space-y-3.5"
+                    >
                         <div className="flex items-center justify-between text-xs">
                             <span className="font-bold text-emerald-400 flex items-center gap-1.5">
                                 <Sparkles className="w-4 h-4" />
                                 <span>Groth16 Proof Ready</span>
                             </span>
-                            <span className="text-gray-400">Generated in {zkProof.proofTimeMs}ms</span>
+                            <span className="text-gray-400 font-mono">Generated in {zkProof.proofTimeMs}ms</span>
                         </div>
 
                         <div className="p-3 bg-[#060912] rounded-lg border border-white/5 text-[11px] font-mono text-gray-400 space-y-1">
                             <div><span className="text-gray-500">Root:</span> {zkProof.root.toString().slice(0, 20)}...</div>
                             <div><span className="text-gray-500">Nullifier:</span> {zkProof.nullifierHash.toString().slice(0, 20)}...</div>
-                            <div><span className="text-gray-500">Recipient Bound:</span> {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 16)}...</div>
+                            <div><span className="text-gray-500">Recipient:</span> {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 16)}...</div>
                         </div>
 
                         <button
                             type="button"
                             disabled={isSubmitting}
                             onClick={handleWithdraw}
-                            className={`w-full py-4 rounded-xl text-black font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg transition-all cursor-pointer ${
+                            className={`w-full py-4 rounded-xl text-black font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer ${
                                 useRelayer
-                                    ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 shadow-amber-500/20'
-                                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-emerald-500/20'
+                                    ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 shadow-amber-500/25'
+                                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-emerald-500/25'
                             }`}
                         >
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>{useRelayer ? 'Relayer broadcasting transaction...' : 'Broadcasting to TON Testnet...'}</span>
+                                    <span>{useRelayer ? 'Relayer broadcasting...' : 'Broadcasting to TON...'}</span>
                                 </>
                             ) : useRelayer ? (
                                 <>
@@ -438,53 +475,110 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                                 </>
                             ) : (
                                 <>
-                                    <span>Submit Anonymous Withdrawal ({parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
+                                    <span>Submit Withdrawal ({parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
                         </button>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Live Prover Progress Message */}
                 {isProving && provingProgress && (
-                    <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                        <span>{provingProgress}</span>
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-xs text-cyan-300 flex items-center gap-2"
+                    >
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0 text-cyan-400" />
+                        <span className="font-mono">{provingProgress}</span>
+                    </motion.div>
                 )}
             </div>
 
-            {/* Error Message */}
+            {/* Error Message Display */}
             {errorMessage && (
                 <div className="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs">
                     {errorMessage}
                 </div>
             )}
 
-            {/* Success Celebration */}
+            {/* Success Banner */}
             {txSuccess && (
-                <div className="mt-4 p-5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs space-y-2.5">
-                    <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                        <span>Anonymous Withdrawal Verified & Sent!</span>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs space-y-2"
+                >
+                    <div className="flex items-center gap-2 font-bold text-emerald-300">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Withdrawal broadcasted successfully!</span>
                     </div>
-                    <p className="text-gray-300 text-xs leading-relaxed">
-                        Fees were paid upfront. Exactly {parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'} has been dispatched to your clean recipient wallet with zero fee deductions.
+                    <p className="text-gray-300">
+                        {useRelayer
+                            ? 'The transaction has been relayed. The recipient wallet will receive the full pool payout with 0 deductions.'
+                            : 'The transaction has been dispatched from your wallet to the mixer contract.'}
                     </p>
-                    <div className="pt-1">
-                        <a
-                            href={TESTNET_EXPLORER_URL(recipientAddress)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-200 underline"
-                        >
-                            <span>View Recipient Wallet on TonScan</span>
-                            <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                    <div className="font-mono text-[11px] text-cyan-300 break-all select-all pt-1">
+                        TX: {txSuccess}
                     </div>
-                </div>
+                </motion.div>
             )}
-        </div>
+
+            {/* Vaul BottomSheet for Mobile Summary */}
+            {zkProof && (
+                <BottomSheet
+                    open={isSummaryDrawerOpen}
+                    onOpenChange={setIsSummaryDrawerOpen}
+                    title={
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-emerald-400" />
+                            <span>Ready to Withdraw</span>
+                        </div>
+                    }
+                    description="Zero-Knowledge Groth16 proof successfully synthesized locally."
+                >
+                    <div className="space-y-4 pt-1">
+                        <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-2 text-xs">
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Payout Denomination:</span>
+                                <span className="text-white font-bold">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 TON'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Target Recipient:</span>
+                                <span className="text-cyan-300 font-mono text-[11px]">
+                                    {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 14)}...
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Execution Mode:</span>
+                                <span className={useRelayer ? 'text-amber-400 font-bold' : 'text-gray-300 font-medium'}>
+                                    {useRelayer ? 'Gasless Relayer (0 TON Needed)' : 'Self-Broadcast'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            disabled={isSubmitting}
+                            onClick={handleWithdraw}
+                            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-extrabold text-sm flex items-center justify-center gap-2"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Broadcasting...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Execute Payout Now</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </BottomSheet>
+            )}
+        </motion.div>
     );
 }

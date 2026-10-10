@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTonAddress, useTonConnectUI } from '@tonconnect/ui-react';
 import { toNano } from '@ton/core';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     ShieldAlert,
     ShieldCheck,
@@ -20,6 +21,7 @@ import {
     AlertCircle,
     Sliders,
     Zap,
+    Sparkles,
 } from 'lucide-react';
 import {
     isAuthorizedAdmin,
@@ -30,6 +32,7 @@ import {
     buildSetFeeRoutingPayload,
 } from '../lib/admin';
 import { EXPLORER_URL, TX_EXPLORER_URL, ACTIVE_RELAYER_ADDRESS } from '../lib/contracts';
+import { TonIcon, TonDiamond, ZkCircuitIcon } from './TonIcons';
 
 export function AdminDashboard() {
     const connectedAddress = useTonAddress();
@@ -104,12 +107,12 @@ export function AdminDashboard() {
                 messages: [
                     {
                         address: metrics.contractAddress,
-                        amount: toNano('0.03').toString(),
+                        amount: toNano('0.05').toString(),
                         payload: payload.toBoc().toString('base64'),
                     },
                 ],
             });
-            setToggleStatus('✅ Routing mode toggle transaction broadcasted!');
+            setToggleStatus(`✅ Toggled fee routing to: ${newRouting ? 'Auto-Push' : 'Pull/Accumulate'}`);
             setTimeout(loadData, 5000);
         } catch (err: any) {
             console.error('Toggle error:', err);
@@ -119,34 +122,34 @@ export function AdminDashboard() {
         }
     };
 
-    useEffect(() => {
-        if (isAdmin) {
-            loadData();
-            const interval = setInterval(loadData, 15000);
-            return () => clearInterval(interval);
-        }
-    }, [isAdmin]);
-
     const handleCopy = async (text: string, key: string) => {
-        await navigator.clipboard.writeText(text);
-        setCopiedKey(key);
-        setTimeout(() => setCopiedKey(null), 2000);
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedKey(key);
+            setTimeout(() => setCopiedKey(null), 2000);
+        } catch (_) {}
     };
 
-    // ------------------------------------------------------------------------
-    // Unauthorized Guard: Screen if wallet does not match
-    // ------------------------------------------------------------------------
+    useEffect(() => {
+        loadData();
+        const interval = setInterval(loadData, 20000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Access control verification view
     if (!isAdmin) {
         return (
-            <div className="bg-glass-card rounded-3xl p-8 sm:p-12 border border-rose-500/20 shadow-2xl relative overflow-hidden text-center space-y-6">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-
-                <div className="inline-flex p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 shadow-lg shadow-rose-500/10 mb-2">
-                    <ShieldAlert className="w-12 h-12" />
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-glass-card rounded-3xl p-8 sm:p-12 border border-red-500/20 text-center max-w-2xl mx-auto space-y-6 shadow-2xl backdrop-blur-2xl"
+            >
+                <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
+                    <ShieldAlert className="w-8 h-8" />
                 </div>
 
-                <div className="space-y-2 max-w-lg mx-auto">
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <div className="space-y-2">
+                    <h2 className="text-2xl font-bold text-white tracking-tight">
                         Admin Access Restricted
                     </h2>
                     <p className="text-sm text-gray-400 leading-relaxed">
@@ -177,7 +180,7 @@ export function AdminDashboard() {
                 <p className="text-xs text-gray-500">
                     Connect using the authorized admin address via the TonConnect button in the header.
                 </p>
-            </div>
+            </motion.div>
         );
     }
 
@@ -193,10 +196,15 @@ export function AdminDashboard() {
     ) || [];
 
     return (
-        <div className="space-y-8 animate-fadeIn">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-8"
+        >
             {/* Header & Status Bar */}
-            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
@@ -204,8 +212,9 @@ export function AdminDashboard() {
                             <ShieldCheck className="w-3.5 h-3.5" />
                             <span>Admin Key Authenticated</span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                            Protocol Monetization & Treasury Dashboard
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+                            <TonIcon className="w-7 h-7" />
+                            <span>Protocol Monetization & Treasury Dashboard</span>
                         </h2>
                         <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
                             <span>Admin:</span>
@@ -243,12 +252,12 @@ export function AdminDashboard() {
                 {/* Upgrade Model Badge */}
                 <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2 text-emerald-400">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="font-semibold">Fee Mechanism:</span>
-                        <span className="text-gray-300">1% Split to Admin Wallet via SETCODE upgrade</span>
+                        <span className="text-gray-300">Upfront Tiered Coverage (1 TON - 1000 TON) + Gasless Relayer Auto-Restock</span>
                     </div>
                     {lastUpdated && (
-                        <div className="text-gray-500 text-[11px]">
+                        <div className="text-gray-500 text-[11px] font-mono">
                             Last synced: {lastUpdated.toLocaleTimeString()}
                         </div>
                     )}
@@ -258,7 +267,10 @@ export function AdminDashboard() {
             {/* 5 High-Impact KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* TVL */}
-                <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group">
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group shadow-lg"
+                >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Protocol TVL
@@ -267,17 +279,21 @@ export function AdminDashboard() {
                             <TrendingUp className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white">
-                        {metrics ? metrics.tvlTon : '—'}{' '}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1.5">
+                        <TonDiamond className="w-5 h-5 text-cyan-400" />
+                        <span>{metrics ? metrics.tvlTon : '—'}</span>
                         <span className="text-sm font-normal text-cyan-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
                         Locked user pool liquidity
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Accumulated Treasury Fees (NEW) */}
-                <div className="bg-glass-card rounded-2xl p-5 border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400 transition-all relative overflow-hidden group shadow-lg shadow-cyan-500/10">
+                {/* Accumulated Treasury Fees */}
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    className="bg-glass-card rounded-2xl p-5 border border-cyan-500/40 bg-cyan-950/20 hover:border-cyan-400 transition-all relative overflow-hidden group shadow-lg shadow-cyan-500/15"
+                >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">
                             Accumulated Fees
@@ -286,17 +302,21 @@ export function AdminDashboard() {
                             <Coins className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-cyan-300">
-                        {metrics ? metrics.accumulatedFeesTon : '0.00'}{' '}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-cyan-300 flex items-center gap-1.5">
+                        <TonDiamond className="w-5 h-5 text-cyan-300" />
+                        <span>{metrics ? metrics.accumulatedFeesTon : '0.00'}</span>
                         <span className="text-sm font-normal text-cyan-400">TON</span>
                     </div>
                     <div className="text-[11px] text-cyan-400/90 font-medium mt-1">
                         Unclaimed in contract treasury
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Total Admin Fees Earned */}
-                <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-amber-500/30 transition-all relative overflow-hidden group">
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-amber-500/30 transition-all relative overflow-hidden group shadow-lg"
+                >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Total Fees Earned
@@ -305,17 +325,21 @@ export function AdminDashboard() {
                             <Zap className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-amber-300">
-                        {metrics ? metrics.totalAdminFeesTon : '—'}{' '}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-amber-300 flex items-center gap-1.5">
+                        <TonDiamond className="w-5 h-5 text-amber-400" />
+                        <span>{metrics ? metrics.totalAdminFeesTon : '—'}</span>
                         <span className="text-sm font-normal text-amber-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
-                        1.00% protocol rate
+                        Tiered upfront fee income
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Total Privacy Transactions */}
-                <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-emerald-500/30 transition-all relative overflow-hidden group">
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-emerald-500/30 transition-all relative overflow-hidden group shadow-lg"
+                >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Privacy Volume
@@ -324,17 +348,20 @@ export function AdminDashboard() {
                             <Lock className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white">
-                        {metrics ? metrics.totalDepositsCount : '—'}{' '}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1">
+                        <span>{metrics ? metrics.totalDepositsCount : '—'}</span>
                         <span className="text-sm font-normal text-gray-400">Tx</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
                         {metrics ? metrics.totalWithdrawalsCount : '—'} ZK Withdrawals
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Admin Wallet Balance */}
-                <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-teal-500/30 transition-all relative overflow-hidden group">
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-teal-500/30 transition-all relative overflow-hidden group shadow-lg"
+                >
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Admin Wallet
@@ -343,18 +370,19 @@ export function AdminDashboard() {
                             <Wallet className="w-4 h-4" />
                         </div>
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white">
-                        {metrics ? metrics.adminWalletBalance : '—'}{' '}
+                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1.5">
+                        <TonDiamond className="w-5 h-5 text-teal-400" />
+                        <span>{metrics ? metrics.adminWalletBalance : '—'}</span>
                         <span className="text-sm font-normal text-teal-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
                         Connected admin balance
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Treasury Management & Dynamic Fee Routing Section */}
-            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden space-y-6">
+            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden space-y-6 backdrop-blur-2xl">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
                     <div className="space-y-1">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
@@ -370,7 +398,7 @@ export function AdminDashboard() {
                     </div>
 
                     {/* Routing Mode Toggle */}
-                    <div className="bg-[#0b101d] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+                    <div className="bg-[#0b101d] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 shadow-inner">
                         <div>
                             <div className="text-xs font-bold text-white flex items-center gap-2">
                                 <span>Fee Routing:</span>
@@ -379,13 +407,13 @@ export function AdminDashboard() {
                                         ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
                                         : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                                 }`}>
-                                    {metrics?.autoFeeRouting ? 'Auto-Push Mode' : 'Accumulate Mode (Pull)'}
+                                    {metrics?.autoFeeRouting ? 'Auto-Push (On-Withdraw)' : 'Pull/Accumulate (Internal Treasury)'}
                                 </span>
                             </div>
-                            <p className="text-[11px] text-gray-400 max-w-xs mt-1">
+                            <p className="text-[11px] text-gray-400 mt-1">
                                 {metrics?.autoFeeRouting
-                                    ? 'Fees are pushed directly to Admin wallet on each withdrawal.'
-                                    : 'Fees are safely accumulated in the contract to protect OpSec.'}
+                                    ? 'Fees are pushed directly to Admin on every withdrawal.'
+                                    : 'Fees accumulate quietly in the contract for stealth batch claims.'}
                             </p>
                         </div>
 
@@ -393,335 +421,260 @@ export function AdminDashboard() {
                             type="button"
                             onClick={handleToggleRouting}
                             disabled={isToggling}
-                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer ${
-                                metrics?.autoFeeRouting
-                                    ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30'
-                            }`}
+                            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white border border-white/10 transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
                         >
-                            {isToggling ? (
-                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                                <Sliders className="w-3.5 h-3.5" />
-                            )}
-                            <span>
-                                {metrics?.autoFeeRouting ? 'Switch to Accumulate' : 'Switch to Auto-Push'}
-                            </span>
+                            {isToggling ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sliders className="w-3.5 h-3.5" />}
+                            <span>Switch Mode</span>
                         </button>
                     </div>
                 </div>
 
                 {toggleStatus && (
-                    <div className={`p-3 rounded-xl text-xs ${toggleStatus.startsWith('❌') ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'}`}>
+                    <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs">
                         {toggleStatus}
                     </div>
                 )}
 
-                {/* Claim Fees Form */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
-                    <div className="lg:col-span-1 bg-[#0b101d] p-5 rounded-2xl border border-white/10 space-y-3">
-                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            Ready to Claim
-                        </div>
-                        <div className="text-3xl font-extrabold text-cyan-400 font-mono">
-                            {metrics ? metrics.accumulatedFeesTon : '0.00'}{' '}
-                            <span className="text-sm font-normal text-gray-400">TON</span>
-                        </div>
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                            Cryptographically protected by strict assertion. The Admin cannot withdraw user pool deposits, guaranteeing 100% solvency for depositors.
-                        </p>
-                    </div>
-
+                {/* Claim Fees Interactive Panel */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-4">
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                            Claim Treasury Balance
+                        </div>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Amount to Claim */}
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-xs">
-                                    <label className="font-semibold text-gray-300">Amount (TON)</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setClaimAmount(metrics?.accumulatedFeesTon || '0')}
-                                        className="text-cyan-400 hover:text-cyan-300 text-[11px] font-bold cursor-pointer"
-                                    >
-                                        MAX ({metrics?.accumulatedFeesTon || '0'} TON)
-                                    </button>
-                                </div>
+                            <div>
+                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
+                                    Amount to Claim (TON)
+                                </label>
                                 <input
                                     type="number"
                                     step="0.01"
-                                    placeholder="0.00"
                                     value={claimAmount}
                                     onChange={(e) => setClaimAmount(e.target.value)}
-                                    className="w-full bg-[#0b101d] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                                    placeholder="e.g. 0.5"
+                                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3 text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
                                 />
+                                <div className="flex items-center gap-2 mt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const available = Number(metrics?.accumulatedFeesTon || 0);
+                                            setClaimAmount((available * 0.5).toFixed(2));
+                                        }}
+                                        className="text-[10px] bg-white/5 hover:bg-white/10 px-2 py-1 rounded border border-white/5 text-gray-300"
+                                    >
+                                        50%
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setClaimAmount(metrics?.accumulatedFeesTon || '0')}
+                                        className="text-[10px] bg-white/5 hover:bg-white/10 px-2 py-1 rounded border border-white/5 text-cyan-300"
+                                    >
+                                        Max ({metrics?.accumulatedFeesTon || '0'} TON)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setClaimAmount('0.5');
+                                            setClaimDestination(ACTIVE_RELAYER_ADDRESS);
+                                        }}
+                                        className="text-[10px] bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30 text-amber-300 font-bold"
+                                    >
+                                        ⚡ Restock Relayer (0.5 TON)
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Destination Address */}
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-xs">
-                                    <label className="font-semibold text-gray-300">Destination Address</label>
+                            <div>
+                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
+                                    Destination Address
+                                </label>
+                                <input
+                                    type="text"
+                                    value={claimDestination}
+                                    onChange={(e) => setClaimDestination(e.target.value)}
+                                    placeholder="Destination TON wallet (Relayer or Admin)"
+                                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3 text-xs text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                                />
+                                <div className="flex items-center gap-2 mt-2">
                                     <button
                                         type="button"
                                         onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
-                                        className="text-amber-400 hover:text-amber-300 text-[11px] font-bold cursor-pointer"
+                                        className="text-[10px] text-amber-400 hover:text-amber-300 underline font-mono truncate"
                                     >
-                                        ⚡ Restock Relayer
+                                        Use Relayer: {ACTIVE_RELAYER_ADDRESS.slice(0, 14)}...
                                     </button>
                                 </div>
-                                <input
-                                    type="text"
-                                    placeholder="Paste destination TON address..."
-                                    value={claimDestination}
-                                    onChange={(e) => setClaimDestination(e.target.value)}
-                                    className="w-full bg-[#0b101d] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-gray-500 font-mono focus:outline-none focus:border-cyan-500"
-                                />
                             </div>
                         </div>
 
-                        {/* Presets and Submit */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                            <div className="flex items-center gap-2 text-xs">
-                                <span className="text-gray-400">Quick Dest:</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
-                                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[11px] cursor-pointer"
-                                >
-                                    Relayer Wallet
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setClaimDestination(ADMIN_WALLET_ADDRESS)}
-                                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[11px] cursor-pointer"
-                                >
-                                    Admin Wallet
-                                </button>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={handleClaimFees}
-                                disabled={isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination}
-                                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-xs text-white shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                                {isClaiming ? (
-                                    <>
-                                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                        <span>Confirming in Wallet...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Wallet className="w-3.5 h-3.5" />
-                                        <span>Claim Fees via TonConnect</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={handleClaimFees}
+                            disabled={isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination}
+                            className={`w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                                isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination
+                                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
+                                    : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black shadow-lg shadow-cyan-500/20'
+                            }`}
+                        >
+                            {isClaiming ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
+                            <span>Claim {claimAmount || '0'} TON to Destination</span>
+                        </button>
 
                         {claimStatus && (
-                            <div className={`p-3 rounded-xl text-xs ${claimStatus.startsWith('❌') ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'}`}>
+                            <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs">
                                 {claimStatus}
                             </div>
                         )}
                     </div>
+
+                    {/* Operational Security Safeguard Note */}
+                    <div className="bg-[#080d1a] rounded-2xl p-5 border border-white/5 space-y-3 text-xs">
+                        <div className="font-bold text-white flex items-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                            <span>Anti-Drain Mathematical Separation</span>
+                        </div>
+                        <p className="text-gray-400 leading-relaxed">
+                            User TVL is strictly locked and cannot be drained by ClaimFees calls. The contract strictly asserts that claims cannot exceed earned fees.
+                        </p>
+                        <div className="pt-2 border-t border-white/5 space-y-1 font-mono text-[11px] text-gray-400">
+                            <div><span className="text-gray-500">Contract:</span> {metrics?.contractAddress.slice(0, 16)}...</div>
+                            <div><span className="text-gray-500">Relayer:</span> {ACTIVE_RELAYER_ADDRESS.slice(0, 16)}...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* ZK Anonymity Set Assurance Callout */}
-            <div className="bg-cyan-950/30 border border-cyan-500/20 rounded-2xl p-4 flex items-start gap-3 text-xs text-cyan-200/90 leading-relaxed">
-                <AlertCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                <div>
-                    <span className="font-bold text-cyan-300">Cryptographic Anonymity Guarantee: </span>
-                    Deposit and withdrawal registries below are strictly unlinked to preserve the Zero-Knowledge anonymity set.
-                    Nullifiers are tracked on-chain for double-spend protection without revealing which deposit commitment was spent.
-                </div>
-            </div>
-
-            {/* Table 1: Recent Deposits */}
-            <div className="bg-glass-card rounded-2xl border border-white/10 overflow-hidden shadow-xl space-y-4 p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
-                            <ArrowDownLeft className="w-4 h-4" />
+            {/* Audit Logs: Recent Deposits & Withdrawals */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Recent Deposits */}
+                <div className="bg-glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4 backdrop-blur-2xl">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+                                <ArrowDownLeft className="w-4 h-4" />
+                            </div>
+                            <h3 className="font-bold text-white text-base">Recent Deposits</h3>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-base text-white">Recent Deposits</h3>
-                            <p className="text-xs text-gray-400">
-                                Fresh commitments entered into the on-chain Merkle tree
-                            </p>
-                        </div>
+                        <span className="text-xs font-mono text-gray-400">
+                            {filteredDeposits.length} entries
+                        </span>
                     </div>
 
                     <div className="relative">
-                        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-3" />
                         <input
                             type="text"
-                            placeholder="Search commitment..."
                             value={depositSearch}
                             onChange={(e) => setDepositSearch(e.target.value)}
-                            className="bg-black/30 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500 w-full sm:w-60"
+                            placeholder="Filter by hash or commitment..."
+                            className="w-full bg-[#070b14] border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
                         />
+                    </div>
+
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                        {filteredDeposits.length === 0 ? (
+                            <div className="p-6 text-center text-xs text-gray-500">
+                                No matching deposits found
+                            </div>
+                        ) : (
+                            filteredDeposits.map((d, i) => (
+                                <div
+                                    key={i}
+                                    className="p-3 rounded-xl bg-[#080d1a] border border-white/5 hover:border-white/15 transition-all text-xs font-mono flex items-center justify-between"
+                                >
+                                    <div>
+                                        <div className="text-white font-semibold flex items-center gap-1.5">
+                                            <TonDiamond className="w-3.5 h-3.5 text-cyan-400" />
+                                            <span>{d.amount}</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 truncate max-w-[200px]">
+                                            Commitment: {d.commitment}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-gray-400">{d.time}</div>
+                                        <a
+                                            href={TX_EXPLORER_URL(d.hash)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1 justify-end"
+                                        >
+                                            <span>Tx</span>
+                                            <ExternalLink className="w-2.5 h-2.5" />
+                                        </a>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                        <thead>
-                            <tr className="border-b border-white/5 text-gray-400 uppercase text-[10px] tracking-wider">
-                                <th className="pb-3 font-semibold">Time</th>
-                                <th className="pb-3 font-semibold">Amount</th>
-                                <th className="pb-3 font-semibold">Commitment Hash</th>
-                                <th className="pb-3 font-semibold text-right">Transaction</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5 font-mono">
-                            {filteredDeposits.length > 0 ? (
-                                filteredDeposits.map((dep, idx) => (
-                                    <tr key={dep.hash + idx} className="hover:bg-white/[0.02] transition-colors">
-                                        <td className="py-3 text-gray-300 font-sans whitespace-nowrap">
-                                            {dep.time}
-                                        </td>
-                                        <td className="py-3 font-bold text-cyan-400 whitespace-nowrap">
-                                            {dep.amount} TON
-                                        </td>
-                                        <td className="py-3 text-gray-300">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="truncate max-w-[140px] sm:max-w-[280px]">
-                                                    {dep.commitment}
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleCopy(dep.commitment, `comm-${idx}`)}
-                                                    className="p-1 hover:text-white text-gray-500 transition-colors cursor-pointer"
-                                                    title="Copy commitment"
-                                                >
-                                                    {copiedKey === `comm-${idx}` ? (
-                                                        <Check className="w-3 h-3 text-emerald-400" />
-                                                    ) : (
-                                                        <Copy className="w-3 h-3" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 text-right whitespace-nowrap">
-                                            <a
-                                                href={TX_EXPLORER_URL(dep.hash)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-[11px]"
-                                            >
-                                                <span>TonScan</span>
-                                                <ExternalLink className="w-3 h-3" />
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={4} className="py-6 text-center text-gray-500 font-sans">
-                                        No deposit transactions matched filter
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Table 2: Recent Withdrawals & Fees */}
-            <div className="bg-glass-card rounded-2xl border border-white/10 overflow-hidden shadow-xl space-y-4 p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-                            <ArrowUpRight className="w-4 h-4" />
+                {/* Recent Withdrawals */}
+                <div className="bg-glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4 backdrop-blur-2xl">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+                                <ArrowUpRight className="w-4 h-4" />
+                            </div>
+                            <h3 className="font-bold text-white text-base">Recent ZK Withdrawals</h3>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-base text-white">Recent Withdrawals & Admin Fees</h3>
-                            <p className="text-xs text-gray-400">
-                                Verified Groth16 payouts with 1% admin fee monetization split
-                            </p>
-                        </div>
+                        <span className="text-xs font-mono text-gray-400">
+                            {filteredWithdrawals.length} entries
+                        </span>
                     </div>
 
                     <div className="relative">
-                        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-3" />
                         <input
                             type="text"
-                            placeholder="Search recipient..."
                             value={withdrawSearch}
                             onChange={(e) => setWithdrawSearch(e.target.value)}
-                            className="bg-black/30 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-emerald-500 w-full sm:w-60"
+                            placeholder="Filter by hash or recipient..."
+                            className="w-full bg-[#070b14] border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-400"
                         />
                     </div>
-                </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                        <thead>
-                            <tr className="border-b border-white/5 text-gray-400 uppercase text-[10px] tracking-wider">
-                                <th className="pb-3 font-semibold">Time</th>
-                                <th className="pb-3 font-semibold">Clean Recipient</th>
-                                <th className="pb-3 font-semibold">Amount Received</th>
-                                <th className="pb-3 font-semibold">Admin Fee Cut (1%)</th>
-                                <th className="pb-3 font-semibold text-right">Transaction</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5 font-mono">
-                            {filteredWithdrawals.length > 0 ? (
-                                filteredWithdrawals.map((w, idx) => (
-                                    <tr key={w.hash + idx} className="hover:bg-white/[0.02] transition-colors">
-                                        <td className="py-3 text-gray-300 font-sans whitespace-nowrap">
-                                            {w.time}
-                                        </td>
-                                        <td className="py-3 text-gray-300">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="truncate max-w-[120px] sm:max-w-[200px]">
-                                                    {w.recipient}
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleCopy(w.recipient, `recip-${idx}`)}
-                                                    className="p-1 hover:text-white text-gray-500 transition-colors cursor-pointer"
-                                                    title="Copy recipient"
-                                                >
-                                                    {copiedKey === `recip-${idx}` ? (
-                                                        <Check className="w-3 h-3 text-emerald-400" />
-                                                    ) : (
-                                                        <Copy className="w-3 h-3" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 font-bold text-emerald-400 whitespace-nowrap">
-                                            {w.amountReceived} TON
-                                        </td>
-                                        <td className="py-3 font-bold text-amber-300 whitespace-nowrap">
-                                            +{w.adminFee} TON
-                                        </td>
-                                        <td className="py-3 text-right whitespace-nowrap">
-                                            <a
-                                                href={TX_EXPLORER_URL(w.hash)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 text-[11px]"
-                                            >
-                                                <span>TonScan</span>
-                                                <ExternalLink className="w-3 h-3" />
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="py-6 text-center text-gray-500 font-sans">
-                                        No withdrawal transactions matched filter
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                        {filteredWithdrawals.length === 0 ? (
+                            <div className="p-6 text-center text-xs text-gray-500">
+                                No matching withdrawals found
+                            </div>
+                        ) : (
+                            filteredWithdrawals.map((w, i) => (
+                                <div
+                                    key={i}
+                                    className="p-3 rounded-xl bg-[#080d1a] border border-white/5 hover:border-white/15 transition-all text-xs font-mono flex items-center justify-between"
+                                >
+                                    <div>
+                                        <div className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                                            <TonDiamond className="w-3.5 h-3.5 text-emerald-400" />
+                                            <span>{w.amountReceived}</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 truncate max-w-[200px]">
+                                            To: {w.recipient}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-gray-400">{w.time}</div>
+                                        <a
+                                            href={TX_EXPLORER_URL(w.hash)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1 justify-end"
+                                        >
+                                            <span>Tx</span>
+                                            <ExternalLink className="w-2.5 h-2.5" />
+                                        </a>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
