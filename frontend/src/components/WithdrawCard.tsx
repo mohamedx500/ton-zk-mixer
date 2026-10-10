@@ -11,6 +11,7 @@ import {
     ExternalLink,
     Loader2,
     Lock,
+    RefreshCw,
     ShieldAlert,
     Sparkles,
     Wallet,
@@ -296,8 +297,21 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     </div>
                 )}
                 {!isCheckingTree && treeStatus && (
-                    <div className={`mt-2 text-xs font-medium ${treeStatus.startsWith('✅') ? 'text-emerald-400' : 'text-amber-400'}`}>
-                        {treeStatus}
+                    <div className="mt-2.5 flex items-center justify-between gap-2.5 p-3 rounded-xl border border-white/5 bg-[#080d1a]">
+                        <span className={`text-xs font-medium leading-relaxed ${treeStatus.startsWith('✅') ? 'text-emerald-400' : 'text-cyan-300'}`}>
+                            {treeStatus}
+                        </span>
+                        {noteString.trim() && (
+                            <button
+                                type="button"
+                                onClick={() => handleVerifyNote(noteString)}
+                                className="px-3 py-1.5 text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                                title="Re-scan on-chain Merkle tree"
+                            >
+                                <RefreshCw className="w-3 h-3" />
+                                <span>Re-check Tree</span>
+                            </button>
+                        )}
                     </div>
                 )}
                 {isSpent && (
