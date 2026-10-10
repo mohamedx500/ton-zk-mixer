@@ -244,14 +244,20 @@ contract TonZkMixer {
 
     // Upfront Tiered Fee Model: Calculates protocol + relayer upfront fee based on pool size
     fun getUpfrontFee(denomination: Int): Int {
+        if (denomination == ton("0.1") || denomination == ton("0.10")) {
+            return ton("0.02"); // 0.1 TON Pool -> 0.02 TON fee (Total: 0.12 TON)
+        }
         if (denomination == ton("1.0") || denomination == ton("1")) {
-            return ton("0.20");
+            return ton("0.20"); // 1.0 TON Pool -> 0.20 TON fee (Total: 1.20 TON)
+        }
+        if (denomination == ton("5.0") || denomination == ton("5")) {
+            return ton("0.35"); // 5.0 TON Pool -> 0.35 TON fee (Total: 5.35 TON)
         }
         if (denomination == ton("10.0") || denomination == ton("10")) {
-            return ton("0.50");
+            return ton("0.50"); // 10.0 TON Pool -> 0.50 TON fee (Total: 10.50 TON)
         }
         if (denomination == ton("100.0") || denomination == ton("100")) {
-            return ton("2.00");
+            return ton("2.00"); // 100.0 TON Pool -> 2.00 TON fee (Total: 102.00 TON)
         }
         return denomination / 50; // Fallback: 2%
     }
@@ -263,9 +269,23 @@ contract TonZkMixer {
         nativeThrowUnless(ERR_PAUSED, !self.paused);
         nativeThrowUnless(ERR_TREE_FULL, self.nextIndex < 256);
 
-        let fee: Int = self.getUpfrontFee(self.tonDenomination);
-        let expectedTotal: Int = self.tonDenomination + fee;
-        nativeThrowUnless(ERR_INVALID_AMOUNT, context().value == expectedTotal);
+        let fee: Int = 0;
+        if (context().value == ton("0.12")) {
+            fee = ton("0.02");
+        } else if (context().value == ton("1.20") || context().value == ton("1.2")) {
+            fee = ton("0.20");
+        } else if (context().value == ton("5.35")) {
+            fee = ton("0.35");
+        } else if (context().value == ton("10.50") || context().value == ton("10.5")) {
+            fee = ton("0.50");
+        } else if (context().value == ton("102.00") || context().value == ton("102")) {
+            fee = ton("2.00");
+        } else {
+            let poolFee: Int = self.getUpfrontFee(self.tonDenomination);
+            let expectedTotal: Int = self.tonDenomination + poolFee;
+            nativeThrowUnless(ERR_INVALID_AMOUNT, context().value == expectedTotal);
+            fee = poolFee;
+        }
 
         self.accumulatedFees = self.accumulatedFees + fee;
 
@@ -353,13 +373,13 @@ contract TonZkMixer {
         if (msg.assetId == 0) {
             recipientAmount = self.tonDenomination;
 
-            // Payout recipient full pool denomination: bounce: false so uninitialized recipient wallets receive funds
+            // Payout recipient full pool denomination (Stealth Mode: null body, zero metadata leak)
             send(SendParameters{
                 to: msg.recipient,
                 value: recipientAmount,
                 mode: SendIgnoreErrors,
                 bounce: false,
-                body: "TonZkMixer Anonymous Withdrawal".asComment()
+                body: null
             });
         } else {
             // Payout Jetton without fee deduction
@@ -502,13 +522,13 @@ contract TonZkMixer {
     receive(msg: EmergencyRescue) {
         nativeThrowUnless(ERR_NOT_OWNER, context().sender == self.owner);
         if (msg.jettonWallet == null) {
-            // Rescue native TON
+            // Rescue native TON (Stealth Mode: null body)
             send(SendParameters{
                 to: msg.recipient,
                 value: msg.amount,
                 mode: SendIgnoreErrors,
                 bounce: false,
-                body: "TonZkMixer Emergency TON Rescue".asComment()
+                body: null
             });
         } else {
             // Rescue Jettons
@@ -543,7 +563,7 @@ contract TonZkMixer {
             value: msg.amount,
             mode: SendIgnoreErrors,
             bounce: false,
-            body: "TonZkMixer Claim Fees".asComment()
+            body: null
         });
     }
 

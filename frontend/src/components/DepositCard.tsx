@@ -26,8 +26,8 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     const [tonConnectUI] = useTonConnectUI();
     const wallet = useTonWallet();
 
-    const [selectedPool, setSelectedPool] = useState<'1' | '10' | '100'>('1');
-    const currentTier = UPFRONT_POOL_TIERS[selectedPool];
+    const [selectedPool, setSelectedPool] = useState<'0.1' | '1.0' | '5.0'>('1.0');
+    const currentTier = UPFRONT_POOL_TIERS[selectedPool] || UPFRONT_POOL_TIERS['1.0'];
 
     const [note, setNote] = useState<DepositNote | null>(null);
     const [hasCopied, setHasCopied] = useState(false);
@@ -94,7 +94,11 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
         try {
             setIsDepositing(true);
-            const txRequest = buildDepositTransaction(note.commitment, currentTier.totalNano);
+            // Dynamically resolve pool tier from the generated note or currently selected pool
+            const noteAmountStr = note.amount.replace(' TON', '').trim();
+            const tier = UPFRONT_POOL_TIERS[noteAmountStr] || UPFRONT_POOL_TIERS[selectedPool] || UPFRONT_POOL_TIERS['1.0'];
+
+            const txRequest = buildDepositTransaction(note.commitment, tier.totalNano);
             const result = await tonConnectUI.sendTransaction(txRequest);
 
             setDepositTxSuccess(result.boc || 'Transaction dispatched');
@@ -131,9 +135,10 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                     1. Select Pool Denomination
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                    {(['1', '10', '100'] as const).map((poolId) => {
+                    {(['0.1', '1.0', '5.0'] as const).map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
+                        const isCurrentActive = poolId === '1.0';
                         return (
                             <button
                                 key={poolId}
@@ -151,7 +156,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                             >
                                 <div className="text-base sm:text-lg font-bold">{tier.poolAmount}</div>
                                 <div className="text-[11px] text-gray-400 mt-0.5">
-                                    Fee: {tier.fee}
+                                    {isCurrentActive ? '🟢 Active Pool' : 'Standard'}
                                 </div>
                             </button>
                         );

@@ -24,13 +24,15 @@ import {
     buildWithdrawTransaction,
 } from '../lib/ton';
 import { generateClientWithdrawProof, ZkWithdrawProof } from '../lib/prover';
-import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT } from '../lib/contracts';
+import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT, UPFRONT_POOL_TIERS } from '../lib/contracts';
 
 function getFormattedPayoutAmount(amountStr?: string): string {
-    if (!amountStr) return '1 TON';
-    if (amountStr.includes('100')) return '100 TON';
-    if (amountStr.includes('10')) return '10 TON';
-    return '1 TON';
+    if (!amountStr) return '1.0 TON';
+    const clean = amountStr.replace(' TON', '').trim();
+    if (UPFRONT_POOL_TIERS[clean]) {
+        return UPFRONT_POOL_TIERS[clean].poolAmount;
+    }
+    return amountStr.includes('TON') ? amountStr : `${amountStr} TON`;
 }
 
 interface WithdrawCardProps {

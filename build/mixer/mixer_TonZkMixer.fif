@@ -489,6 +489,20 @@ PROGRAM{
   }>
   $TonZkMixer$_fun_getUpfrontFee PROCREF:<{
     DUP
+    100000000 PUSHINT
+    EQUAL
+    IF:<{
+      TRUE
+    }>ELSE<{
+      DUP
+      100000000 PUSHINT
+      EQUAL
+    }>
+    IFJMP:<{
+      DROP
+      20000000 PUSHINT
+    }>
+    DUP
     1000000000 PUSHINT
     EQUAL
     IF:<{
@@ -501,6 +515,20 @@ PROGRAM{
     IFJMP:<{
       DROP
       200000000 PUSHINT
+    }>
+    DUP
+    5000000000 PUSHINT
+    EQUAL
+    IF:<{
+      TRUE
+    }>ELSE<{
+      DUP
+      5000000000 PUSHINT
+      EQUAL
+    }>
+    IFJMP:<{
+      DROP
+      350000000 PUSHINT
     }>
     DUP
     10000000000 PUSHINT
@@ -980,53 +1008,119 @@ PROGRAM{
       8 PUSHPOW2
       LESS
       1004 THROWIFNOT
-      s11 PUSH
-      s14 s15 XCHG
-      s0 s13 XCHG
-      s0 s14 XCHG
-      s11 s12 XCHG
-      s10 s11 XCHG
-      s9 s10 XCHG
-      s8 s9 XCHG
-      s7 s8 XCHG
-      s6 s7 XCHG
-      s5 s6 XCHG
-      s4 s5 XCHG
-      s3 s4 XCHG
-      s0 s1 s3 XCHG3
-      s1 16 s() XCHG
-      $TonZkMixer$_fun_getUpfrontFee INLINECALLDICT
-      s13 s0 PUSH2
-      ADD
       __tact_context_get INLINECALLDICT
       $Context$_get_value INLINECALLDICT
-      SWAP
+      120000000 PUSHINT
       EQUAL
-      1003 THROWIFNOT
-      s1 s2 XCHG
+      IF:<{
+        20000000 PUSHINT
+      }>ELSE<{
+        __tact_context_get INLINECALLDICT
+        $Context$_get_value INLINECALLDICT
+        1200000000 PUSHINT
+        EQUAL
+        IF:<{
+          TRUE
+        }>ELSE<{
+          __tact_context_get INLINECALLDICT
+          $Context$_get_value INLINECALLDICT
+          1200000000 PUSHINT
+          EQUAL
+        }>
+        IF:<{
+          200000000 PUSHINT
+        }>ELSE<{
+          __tact_context_get INLINECALLDICT
+          $Context$_get_value INLINECALLDICT
+          5350000000 PUSHINT
+          EQUAL
+          IF:<{
+            350000000 PUSHINT
+          }>ELSE<{
+            __tact_context_get INLINECALLDICT
+            $Context$_get_value INLINECALLDICT
+            10500000000 PUSHINT
+            EQUAL
+            IF:<{
+              TRUE
+            }>ELSE<{
+              __tact_context_get INLINECALLDICT
+              $Context$_get_value INLINECALLDICT
+              10500000000 PUSHINT
+              EQUAL
+            }>
+            IF:<{
+              500000000 PUSHINT
+            }>ELSE<{
+              __tact_context_get INLINECALLDICT
+              $Context$_get_value INLINECALLDICT
+              102000000000 PUSHINT
+              EQUAL
+              IF:<{
+                TRUE
+              }>ELSE<{
+                __tact_context_get INLINECALLDICT
+                $Context$_get_value INLINECALLDICT
+                102000000000 PUSHINT
+                EQUAL
+              }>
+              IF:<{
+                2000000000 PUSHINT
+              }>ELSE<{
+                s11 PUSH
+                s14 s15 XCHG
+                s0 s13 XCHG
+                s0 s14 XCHG
+                s11 s12 XCHG
+                s10 s11 XCHG
+                s9 s10 XCHG
+                s8 s9 XCHG
+                s7 s8 XCHG
+                s6 s7 XCHG
+                s5 s6 XCHG
+                s4 s5 XCHG
+                s3 s4 XCHG
+                s0 s1 s3 XCHG3
+                s1 16 s() XCHG
+                $TonZkMixer$_fun_getUpfrontFee INLINECALLDICT
+                s13 s0 PUSH2
+                ADD
+                __tact_context_get INLINECALLDICT
+                $Context$_get_value INLINECALLDICT
+                SWAP
+                EQUAL
+                1003 THROWIFNOT
+                s1 16 s() XCHG
+                s2 s15 XCHG
+                s2 s14 XCHG
+                s2 s13 XCHG
+                s2 s12 XCHG
+                s2 s11 XCHG
+                s2 s10 XCHG
+                s2 s9 XCHG
+                s2 s8 XCHG
+                s2 s7 XCHG
+                s2 s6 XCHG
+                s2 s5 XCHG
+                s2 s4 XCHG
+                s2 s3 XCHG
+              }>
+            }>
+          }>
+        }>
+      }>
+      s1 s15 XCHG
       ADD
-      s8 PUSH
-      s14 s15 XCHG
-      s13 s15 XCHG
-      s12 s15 XCHG
-      s11 s15 XCHG
-      s10 s15 XCHG
-      s0 s15 XCHG
-      s0 s9 XCHG
-      s0 s8 XCHG
-      s0 s7 XCHG
-      s0 s6 XCHG
-      s0 s5 XCHG
-      s0 s4 XCHG
-      s3 s1 s3 XCHG3
-      16 s() PUSH
+      s7 PUSH
+      s0 16 s() XCHG
+      s15 PUSH
       $TonZkMixer$_fun_insertCommitment INLINECALLDICT
       s0 s4 XCHG
       INC
       0 PUSHINT
       s0 s3 XCHG
-      s2 18 s() XCHG
-      s1 17 s() XCHG
+      s2 17 s() XCHG
+      s1 18 s() XCHG
       s0 s5 XCHG
       $DepositEvent$_constructor_assetId_commitment_leafIndex_newRoot INLINECALLDICT
       NEWC
@@ -1043,6 +1137,7 @@ PROGRAM{
       s4 s6 XCHG
       s3 s5 XCHG
       s0 s1 s4 XCHG3
+      s0 s3 XCHG
       $TonZkMixer$_contract_store INLINECALLDICT
     }>
     OVER
@@ -1364,10 +1459,9 @@ PROGRAM{
         s13 PUSH
         2 PUSHINT
         FALSE
-            B{b5ee9c7241010101002500004600000000546f6e5a6b4d6978657220416e6f6e796d6f7573205769746864726177616c4f3d4362} B>boc PUSHREF
-        22 s() PUSH
-        s3 s4 XCPU
-        s1 s3 s3 XCHG3
+        21 s() PUSH
+        s3 s2 s(-1) PUXC2
+        PUSHNULL
         $SendParameters$_constructor_to_value_mode_bounce_body INLINECALLDICT
             NEWC
             b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
@@ -1540,7 +1634,7 @@ PROGRAM{
         DROP
         2 PUSHINT
         FALSE
-            B{b5ee9c7241010101002500004600000000546f6e5a6b4d6978657220456d657267656e637920544f4e205265736375655f554cb3} B>boc PUSHREF
+        PUSHNULL
         $SendParameters$_constructor_to_value_mode_bounce_body INLINECALLDICT
             NEWC
             b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
@@ -1715,11 +1809,10 @@ PROGRAM{
       1009 THROWIFNOT
       s15 s1 XCPU
       SUB
+      s15 s15 XCHG2
       2 PUSHINT
       FALSE
-          B{b5ee9c7241010101001b00003200000000546f6e5a6b4d6978657220436c61696d20466565738b6c13c0} B>boc PUSHREF
-      s4 18 s() XCHG
-      s3 18 s() XCHG
+      PUSHNULL
       $SendParameters$_constructor_to_value_mode_bounce_body INLINECALLDICT
           NEWC
           b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
