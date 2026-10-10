@@ -20,7 +20,9 @@ export async function GET() {
                 const extRes = await fetch(targetUrl, { signal: AbortSignal.timeout(4000) });
                 if (extRes.ok) {
                     const data = await extRes.json();
-                    return NextResponse.json(data);
+                    if (data.network === TON_NETWORK && data.mixerAddress === MIXER_ADDRESS_STRING) {
+                        return NextResponse.json(data);
+                    }
                 }
             } catch (_) {}
         }
