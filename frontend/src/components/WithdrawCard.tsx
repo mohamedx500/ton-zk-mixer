@@ -11,16 +11,10 @@ import {
     ShieldAlert,
     Cpu,
     ArrowRight,
-    ExternalLink,
     Wallet,
-    Sparkles,
     Zap,
     RefreshCw,
-    Shield,
-    Check,
     Lock,
-    Sliders,
-    Info,
 } from 'lucide-react';
 import { parseDepositNote, DepositNote, MerkleProof } from '../lib/crypto';
 import {
@@ -30,7 +24,7 @@ import {
 } from '../lib/ton';
 import { generateClientWithdrawProof, ZkWithdrawProof } from '../lib/prover';
 import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT, UPFRONT_POOL_TIERS, WITHDRAW_GAS_FEE } from '../lib/contracts';
-import { TonIcon, TonDiamond, ZkCircuitIcon } from './TonIcons';
+import { TonIcon, ZkCircuitIcon } from './TonIcons';
 import { BottomSheet } from './BottomSheet';
 
 function getFormattedPayoutAmount(amountStr?: string): string {
@@ -95,25 +89,25 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             setParsedNote(note);
 
             setIsCheckingTree(true);
-            setTreeStatus('Verifying note against on-chain Merkle tree...');
+            setTreeStatus('VERIFYING NOTE AGAINST MERKLE TREE...');
 
             // 1. Check if nullifier is already spent
             const spent = await checkNullifierSpent(note.nullifierHash);
             setIsSpent(spent);
             if (spent) {
-                setErrorMessage('⚠️ This note has ALREADY been spent! Nullifier is used.');
+                setErrorMessage('ERR: NULLIFIER SPENT. THIS NOTE CANNOT BE REDEEMED AGAIN.');
                 setIsCheckingTree(false);
                 return;
             }
 
             // 2. Synchronize Merkle tree from on-chain history
-            const tree = await syncTreeFromBlockchain((msg) => setTreeStatus(msg));
+            const tree = await syncTreeFromBlockchain((msg) => setTreeStatus(msg.toUpperCase()));
 
             // Find leaf index
             const foundIdx = tree.leaves.findIndex((c) => c === note.commitment);
             if (foundIdx === -1) {
                 setTreeStatus(
-                    '⚠️ Note commitment not yet found in current Merkle tree. If you just deposited, wait 5-10 seconds for block confirmation and retry.'
+                    'ERR: COMMITMENT NOT FOUND. WAIT FOR BLOCK CONFIRMATION AND RETRY.'
                 );
                 setIsCheckingTree(false);
                 return;
@@ -122,9 +116,9 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             const proof = tree.getProof(foundIdx);
             setLeafIndex(foundIdx);
             setMerkleProof(proof);
-            setTreeStatus(`✅ Note verified! Located at Tree Leaf #${foundIdx}.`);
+            setTreeStatus(`VERIFIED: LEAF INDEX #${foundIdx}`);
         } catch (err: any) {
-            setErrorMessage(err.message || 'Failed to parse secret note');
+            setErrorMessage(err.message ? `ERR: ${err.message.toUpperCase()}` : 'ERR: FAILED TO PARSE SECRET NOTE');
             setParsedNote(null);
         } finally {
             setIsCheckingTree(false);
@@ -152,20 +146,20 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
         try {
             parsedRecipient = Address.parse(recipientAddress.trim());
         } catch (_) {
-            setErrorMessage('Invalid TON recipient address format');
+            setErrorMessage('ERR: INVALID TON ADDRESS FORMAT');
             return;
         }
 
         try {
             setIsProving(true);
-            setProvingProgress('Starting in-browser zero-knowledge proof generation...');
+            setProvingProgress('STARTING LOCAL ZERO-KNOWLEDGE PROOF GENERATION...');
 
             const proof = await generateClientWithdrawProof(
                 parsedNote,
                 merkleProof,
                 parsedRecipient,
                 BigInt(0), // Native TON assetId
-                (step) => setProvingProgress(step)
+                (step) => setProvingProgress(step.toUpperCase())
             );
 
             setZkProof(proof);
@@ -173,7 +167,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             setIsSummaryDrawerOpen(true);
         } catch (err: any) {
             console.error('Prover error:', err);
-            setErrorMessage(err.message || 'Proof generation failed');
+            setErrorMessage(err.message ? `ERR: ${err.message.toUpperCase()}` : 'ERR: PROOF GENERATION FAILED');
         } finally {
             setIsProving(false);
         }
@@ -206,10 +200,10 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
 
                 const data = await relayerRes.json();
                 if (!relayerRes.ok || !data.success) {
-                    throw new Error(data.error || 'Relayer failed to broadcast transaction');
+                    throw new Error(data.error || 'RELAYER BROADCAST FAILED');
                 }
 
-                setTxSuccess(data.txHash || 'Broadcasted via Gasless Relayer Network');
+                setTxSuccess(data.txHash || 'BROADCASTED VIA GASLESS RELAYER NETWORK');
             } else {
                 // Submit directly from connected wallet
                 if (!wallet) {
@@ -223,70 +217,62 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                 );
 
                 const result = await tonConnectUI.sendTransaction(txRequest);
-                setTxSuccess(result.boc || 'Broadcasted directly from connected wallet');
+                setTxSuccess(result.boc || 'BROADCASTED DIRECTLY FROM CONNECTED WALLET');
             }
 
             setIsSummaryDrawerOpen(false);
             onWithdrawSuccess?.();
         } catch (err: any) {
             console.error('Withdraw error:', err);
-            setErrorMessage(err.message || 'Withdrawal failed');
+            setErrorMessage(err.message ? `ERR: ${err.message.toUpperCase()}` : 'ERR: WITHDRAWAL FAILED');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="bg-glass-card rounded-2xl p-5 sm:p-8 border border-white/10 relative overflow-hidden transition-all shadow-2xl backdrop-blur-2xl"
-        >
-            {/* Top decorative gradient bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500" />
-
+        <div className="bg-minimal-card p-6 border border-brand-border text-brand-white relative">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8 border-b border-brand-border pb-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
-                        <Lock className="w-6 h-6 text-emerald-400" />
-                        <span>Anonymous Withdrawal</span>
+                    <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-wide">
+                        <Lock className="w-5 h-5 text-brand-silver" />
+                        <span>System Withdrawal</span>
                     </h2>
-                    <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Redeem your Secret Note to any fresh TON address. Zero cryptographic link to your deposit address.
+                    <p className="text-xs text-brand-silver mt-1 font-mono">
+                        Redeem cryptographic note to any unlinked destination.
                     </p>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold">
-                    <ZkCircuitIcon className="w-4 h-4" />
-                    <span>Groth16 Zero-Knowledge</span>
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 border border-brand-border bg-brand-offblack text-brand-silver text-[10px] font-mono uppercase">
+                    <ZkCircuitIcon className="w-3.5 h-3.5 grayscale" />
+                    <span>ZK-SNARK</span>
                 </div>
             </div>
 
             {/* Gasless Relayer Mode Banner */}
-            <div className="bg-[#080d1a]/90 backdrop-blur-md border border-white/10 rounded-xl p-4 mb-6 shadow-inner">
+            <div className="bg-brand-gray border border-brand-border p-4 mb-6 font-mono text-[11px] sm:text-xs">
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                         <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                                useRelayer ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-800 text-gray-400 border border-white/5'
+                            className={`w-8 h-8 flex items-center justify-center border transition-colors ${
+                                useRelayer ? 'bg-brand-white text-black border-brand-white' : 'bg-brand-offblack text-brand-silver border-brand-border'
                             }`}
                         >
-                            <Zap className="w-5 h-5" />
+                            <Zap className="w-4 h-4" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs sm:text-sm font-bold text-white">Gasless Relayer Mode</span>
+                                <span className="font-bold text-brand-white uppercase">Relayer Network Mode</span>
                                 {useRelayer && (
-                                    <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wide">
-                                        Recommended
+                                    <span className="text-[9px] bg-brand-white text-black px-1.5 py-0.5 font-bold uppercase tracking-widest">
+                                        ACTIVE
                                     </span>
                                 )}
                             </div>
-                            <p className="text-[11px] text-gray-400 mt-0.5">
+                            <p className="text-[10px] text-brand-silver mt-1 uppercase">
                                 {useRelayer
-                                    ? 'The Relayer broadcasts for you. Recipient needs 0 TON to receive funds.'
-                                    : 'You pay message gas (~0.04 TON) directly from your connected wallet.'}
+                                    ? '> GASLESS: RECIPIENT WALLET REQUIRES 0 TON.'
+                                    : '> SELF-BROADCAST: PAY MESSAGE GAS (~0.04 TON) FROM CONNECTED WALLET.'}
                             </p>
                         </div>
                     </div>
@@ -295,14 +281,14 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     <button
                         type="button"
                         onClick={() => setUseRelayer(!useRelayer)}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            useRelayer ? 'bg-amber-500' : 'bg-gray-700'
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-none border border-brand-border transition-colors duration-200 ease-in-out focus:outline-none ${
+                            useRelayer ? 'bg-brand-silver' : 'bg-brand-offblack'
                         }`}
-                        title="Toggle Gasless Relayer"
+                        title="Toggle Relayer"
                     >
                         <span
-                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                                useRelayer ? 'translate-x-5' : 'translate-x-0'
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-none bg-brand-white shadow-none transition duration-200 ease-in-out ${
+                                useRelayer ? 'translate-x-4' : 'translate-x-0'
                             }`}
                         />
                     </button>
@@ -310,16 +296,15 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             </div>
 
             {/* Step 1: Input Secret Note */}
-            <div className="mb-5">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>1. Secret Deposit Note</span>
+            <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                    <label className="text-[10px] font-mono uppercase tracking-widest text-brand-silver flex items-center gap-2">
+                        <KeyRound className="w-3.5 h-3.5 grayscale opacity-70" />
+                        <span>[1] DEPOSIT CREDENTIALS</span>
                     </label>
                     {parsedNote && (
-                        <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
-                            <TonDiamond className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>Denomination: {getFormattedPayoutAmount(parsedNote.amount)}</span>
+                        <span className="text-[10px] text-brand-white font-mono uppercase tracking-widest border border-brand-border px-2 py-1">
+                            DENOMINATION: {getFormattedPayoutAmount(parsedNote.amount)}
                         </span>
                     )}
                 </div>
@@ -332,59 +317,59 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             setNoteString(e.target.value);
                             handleVerifyNote(e.target.value);
                         }}
-                        placeholder="tonzk-1.0-TON-0000...-0000..."
-                        className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs text-cyan-200 font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                        placeholder="INPUT SECRET STRING..."
+                        className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-4 text-[11px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors placeholder:text-brand-silver/50"
                     />
                 </div>
 
                 {/* Tree Verification Status */}
                 {isCheckingTree && (
-                    <div className="flex items-center gap-2 mt-2 text-xs text-cyan-400">
+                    <div className="flex items-center gap-2 mt-3 text-[10px] font-mono uppercase text-brand-silver">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         <span>{treeStatus}</span>
                     </div>
                 )}
                 {!isCheckingTree && treeStatus && (
-                    <div className="mt-2.5 flex items-center justify-between gap-2.5 p-3 rounded-xl border border-white/5 bg-[#080d1a]">
-                        <span className={`text-xs font-medium leading-relaxed ${treeStatus.startsWith('✅') ? 'text-emerald-400' : 'text-cyan-300'}`}>
+                    <div className="mt-3 flex items-center justify-between gap-2 p-3 bg-brand-gray border border-brand-border font-mono text-[10px] uppercase">
+                        <span className={`font-bold ${treeStatus.startsWith('VERIFIED') ? 'text-brand-white' : 'text-brand-silver'}`}>
                             {treeStatus}
                         </span>
                         {noteString.trim() && (
                             <button
                                 type="button"
                                 onClick={() => handleVerifyNote(noteString)}
-                                className="px-3 py-1.5 text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                                className="px-3 py-1.5 border border-brand-border hover:border-brand-silver text-brand-silver hover:text-brand-white transition-colors flex items-center gap-2"
                                 title="Re-scan on-chain Merkle tree"
                             >
                                 <RefreshCw className="w-3 h-3" />
-                                <span>Re-check Tree</span>
+                                <span>RE-SCAN</span>
                             </button>
                         )}
                     </div>
                 )}
                 {isSpent && (
-                    <div className="flex items-center gap-2 mt-2 text-xs text-red-400 font-bold">
+                    <div className="flex items-center gap-2 mt-3 text-[10px] font-mono uppercase text-brand-silver font-bold border border-brand-border p-3 bg-brand-gray">
                         <ShieldAlert className="w-4 h-4" />
-                        <span>Nullifier already spent on-chain! This note cannot be redeemed again.</span>
+                        <span>ERR: NULLIFIER SPENT</span>
                     </div>
                 )}
             </div>
 
             {/* Step 2: Input Clean Recipient Address */}
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                        <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>2. Recipient Wallet Address (Clean / Unlinked)</span>
+            <div className="mb-8">
+                <div className="flex items-center justify-between mb-3">
+                    <label className="text-[10px] font-mono uppercase tracking-widest text-brand-silver flex items-center gap-2">
+                        <Wallet className="w-3.5 h-3.5 grayscale opacity-70" />
+                        <span>[2] DESTINATION ADDRESS</span>
                     </label>
                     {wallet && !useRelayer && (
                         <button
                             type="button"
                             onClick={handleUseConnectedWallet}
-                            className="text-[11px] text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 cursor-pointer"
+                            className="text-[10px] text-brand-silver hover:text-brand-white font-mono uppercase flex items-center gap-1 border border-brand-border px-2 py-1"
                         >
                             <Wallet className="w-3 h-3" />
-                            <span>Use Connected Wallet</span>
+                            <span>USE CONNECTED</span>
                         </button>
                     )}
                 </div>
@@ -395,134 +380,120 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         setRecipientAddress(e.target.value);
                         setZkProof(null);
                     }}
-                    placeholder="0Q... or UQ... (Fresh empty recipient address)"
-                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs sm:text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                    placeholder="0Q... OR UQ... (UNLINKED DESTINATION)"
+                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-4 text-[11px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors placeholder:text-brand-silver/50"
                 />
-                <p className="text-[11px] text-gray-500 mt-1">
+                <p className="text-[10px] text-brand-silver mt-2 font-mono uppercase">
                     {useRelayer
-                        ? '✨ Relayer enables withdrawing directly to a brand-new wallet with 0 TON balance.'
-                        : 'Tip: For maximum privacy, withdraw to a fresh address that has never interacted with your deposit wallet.'}
+                        ? '> RELAYER ALLOWS PAYOUT TO 0-BALANCE ADDRESS.'
+                        : '> USE A FRESH ADDRESS FOR MAXIMUM OPSEC.'}
                 </p>
             </div>
 
             {/* Step 3: Generate ZK-SNARK Proof */}
             <div className="space-y-4">
                 {!zkProof ? (
-                    <motion.button
+                    <button
                         type="button"
-                        whileHover={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving ? {} : { scale: 1.01 }}
-                        whileTap={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving ? {} : { scale: 0.99 }}
                         disabled={!merkleProof || isSpent === true || !recipientAddress.trim() || isProving}
                         onClick={handleGenerateProof}
-                        className={`w-full py-4 rounded-xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all ${
+                        className={`w-full py-4 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${
                             !merkleProof || isSpent === true || !recipientAddress.trim() || isProving
-                                ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
-                                : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black shadow-xl shadow-cyan-500/25 cursor-pointer'
+                                ? 'bg-brand-offblack text-brand-silver border border-brand-border cursor-not-allowed'
+                                : 'bg-brand-white text-brand-black hover:bg-brand-silver border border-brand-white'
                         }`}
                     >
                         {isProving ? (
                             <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Generating Proof in Browser...</span>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>SYNTHESIZING PROOF...</span>
                             </>
                         ) : (
                             <>
-                                <Cpu className="w-5 h-5" />
-                                <span>Generate Groth16 ZK-Proof Locally</span>
+                                <Cpu className="w-4 h-4" />
+                                <span>GENERATE ZK-PROOF</span>
                             </>
                         )}
-                    </motion.button>
+                    </button>
                 ) : (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-glass-inner rounded-xl p-5 border border-emerald-500/30 space-y-3.5"
-                    >
-                        <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                                <Sparkles className="w-4 h-4" />
-                                <span>Groth16 Proof Ready</span>
+                    <div className="bg-brand-gray border border-brand-border p-5 space-y-4">
+                        <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase border-b border-brand-border pb-3">
+                            <span className="font-bold text-brand-white flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>PROOF SYNTHESIZED</span>
                             </span>
-                            <span className="text-gray-400 font-mono">Generated in {zkProof.proofTimeMs}ms</span>
+                            <span className="text-brand-silver">LATENCY: {zkProof.proofTimeMs}MS</span>
                         </div>
 
-                        <div className="p-3 bg-[#060912] rounded-lg border border-white/5 text-[11px] font-mono text-gray-400 space-y-1">
-                            <div><span className="text-gray-500">Root:</span> {zkProof.root.toString().slice(0, 20)}...</div>
-                            <div><span className="text-gray-500">Nullifier:</span> {zkProof.nullifierHash.toString().slice(0, 20)}...</div>
-                            <div><span className="text-gray-500">Recipient:</span> {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 16)}...</div>
+                        <div className="p-3 bg-brand-black border border-brand-border text-[9px] font-mono uppercase text-brand-silver space-y-1.5 break-all">
+                            <div><span className="text-brand-white">ROOT:</span> {zkProof.root.toString().slice(0, 32)}...</div>
+                            <div><span className="text-brand-white">NULLIFIER:</span> {zkProof.nullifierHash.toString().slice(0, 32)}...</div>
+                            <div><span className="text-brand-white">DEST:</span> {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 24)}...</div>
                         </div>
 
                         <button
                             type="button"
                             disabled={isSubmitting}
                             onClick={handleWithdraw}
-                            className={`w-full py-4 rounded-xl text-black font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer ${
+                            className={`w-full py-4 border font-mono font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${
                                 useRelayer
-                                    ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 shadow-amber-500/25'
-                                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-emerald-500/25'
+                                    ? 'bg-brand-white text-black border-brand-white hover:bg-brand-silver'
+                                    : 'bg-brand-offblack text-brand-white border-brand-border hover:border-brand-silver'
                             }`}
                         >
                             {isSubmitting ? (
                                 <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>{useRelayer ? 'Relayer broadcasting...' : 'Broadcasting to TON...'}</span>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>{useRelayer ? 'RELAYING...' : 'BROADCASTING...'}</span>
                                 </>
                             ) : useRelayer ? (
                                 <>
-                                    <Zap className="w-5 h-5 text-black" />
-                                    <span>Submit Gasless Withdrawal (Receive {parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
+                                    <Zap className="w-4 h-4" />
+                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
-                                    <span>Submit Withdrawal ({parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
+                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
                         </button>
-                    </motion.div>
+                    </div>
                 )}
 
                 {/* Live Prover Progress Message */}
                 {isProving && provingProgress && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-xs text-cyan-300 flex items-center gap-2"
-                    >
-                        <Loader2 className="w-4 h-4 animate-spin shrink-0 text-cyan-400" />
-                        <span className="font-mono">{provingProgress}</span>
-                    </motion.div>
+                    <div className="p-4 bg-brand-gray border border-brand-border text-[10px] text-brand-white font-mono uppercase flex items-center gap-3">
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0 text-brand-silver" />
+                        <span>{provingProgress}</span>
+                    </div>
                 )}
             </div>
 
             {/* Error Message Display */}
             {errorMessage && (
-                <div className="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs">
+                <div className="mt-4 p-4 bg-brand-gray border border-brand-border text-[10px] sm:text-xs font-mono uppercase text-brand-white">
                     {errorMessage}
                 </div>
             )}
 
             {/* Success Banner */}
             {txSuccess && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs space-y-2"
-                >
-                    <div className="flex items-center gap-2 font-bold text-emerald-300">
+                <div className="mt-4 p-5 bg-brand-gray border border-brand-border space-y-3 font-mono text-[10px] sm:text-xs uppercase">
+                    <div className="flex items-center gap-2 font-bold text-brand-white border-b border-brand-border pb-2">
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Withdrawal broadcasted successfully!</span>
+                        <span>PAYOUT DISPATCHED</span>
                     </div>
-                    <p className="text-gray-300">
+                    <p className="text-brand-silver leading-relaxed">
                         {useRelayer
-                            ? 'The transaction has been relayed. The recipient wallet will receive the full pool payout with 0 deductions.'
-                            : 'The transaction has been dispatched from your wallet to the mixer contract.'}
+                            ? '> RELAYER NETWORK HAS BROADCASTED THE TRANSACTION. TARGET WILL RECEIVE FULL PAYOUT.'
+                            : '> TRANSACTION DISPATCHED LOCALLY.'}
                     </p>
-                    <div className="font-mono text-[11px] text-cyan-300 break-all select-all pt-1">
+                    <div className="text-brand-white break-all bg-brand-black p-3 border border-brand-border">
                         TX: {txSuccess}
                     </div>
-                </motion.div>
+                </div>
             )}
 
             {/* Vaul BottomSheet for Mobile Summary */}
@@ -531,29 +502,29 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     open={isSummaryDrawerOpen}
                     onOpenChange={setIsSummaryDrawerOpen}
                     title={
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-emerald-400" />
-                            <span>Ready to Withdraw</span>
+                        <div className="flex items-center gap-2 font-mono uppercase text-brand-white text-sm tracking-wider">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>VERIFIED</span>
                         </div>
                     }
-                    description="Zero-Knowledge Groth16 proof successfully synthesized locally."
+                    description="ZK PROOF SYNTHESIZED. READY TO EXECUTE."
                 >
-                    <div className="space-y-4 pt-1">
-                        <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-2 text-xs">
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Payout Denomination:</span>
-                                <span className="text-white font-bold">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 TON'}</span>
+                    <div className="space-y-4 pt-2 font-mono text-[10px] sm:text-xs uppercase">
+                        <div className="p-4 bg-brand-gray border border-brand-border space-y-3">
+                            <div className="flex justify-between border-b border-brand-border pb-2">
+                                <span className="text-brand-silver">DENOMINATION:</span>
+                                <span className="text-brand-white font-bold">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 TON'}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Target Recipient:</span>
-                                <span className="text-cyan-300 font-mono text-[11px]">
+                            <div className="flex justify-between border-b border-brand-border pb-2">
+                                <span className="text-brand-silver">TARGET:</span>
+                                <span className="text-brand-white">
                                     {zkProof.recipient.toString({ testOnly: true, bounceable: false }).slice(0, 14)}...
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Execution Mode:</span>
-                                <span className={useRelayer ? 'text-amber-400 font-bold' : 'text-gray-300 font-medium'}>
-                                    {useRelayer ? 'Gasless Relayer (0 TON Needed)' : 'Self-Broadcast'}
+                                <span className="text-brand-silver">MODE:</span>
+                                <span className={useRelayer ? 'text-brand-white font-bold' : 'text-brand-silver'}>
+                                    {useRelayer ? 'GASLESS RELAYER' : 'LOCAL BROADCAST'}
                                 </span>
                             </div>
                         </div>
@@ -562,16 +533,16 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             type="button"
                             disabled={isSubmitting}
                             onClick={handleWithdraw}
-                            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-extrabold text-sm flex items-center justify-center gap-2"
+                            className="w-full py-4 bg-brand-white hover:bg-brand-silver text-brand-black font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
                         >
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>Broadcasting...</span>
+                                    <span>EXECUTING...</span>
                                 </>
                             ) : (
                                 <>
-                                    <span>Execute Payout Now</span>
+                                    <span>CONFIRM PAYOUT</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
@@ -579,6 +550,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     </div>
                 </BottomSheet>
             )}
-        </motion.div>
+        </div>
     );
 }
+

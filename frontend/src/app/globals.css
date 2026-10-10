@@ -1,72 +1,50 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-black: #000000;
+  --color-brand-offblack: #0a0a0a;
+  --color-brand-gray: #111111;
+  --color-brand-border: #1a1a1a;
+  --color-brand-silver: #a0a0a0;
+  --color-brand-white: #e0e0e0;
+  
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: "Inter", -apple-system, sans-serif;
+}
+
 @layer base {
   body {
-    background-color: #07090e;
-    color: #f3f4f6;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--color-brand-black);
+    color: var(--color-brand-silver);
+    font-family: var(--font-sans);
     min-height: 100vh;
     overflow-x: hidden;
   }
 }
 
-/* Custom background glow effects */
-.bg-glow-radial {
-  background: radial-gradient(circle at 50% -20%, rgba(6, 182, 212, 0.15), rgba(16, 185, 129, 0.05) 45%, transparent 70%);
+/* Hardcore Minimalist UI Classes */
+.bg-minimal-card {
+  background-color: var(--color-brand-offblack);
+  border: 1px solid var(--color-brand-border);
 }
 
-.bg-glass {
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.bg-glass-card {
-  background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.05);
-}
-
-.bg-glass-inner {
-  background: rgba(11, 15, 25, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.border-glow-cyan {
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-}
-
-.border-glow-emerald {
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
-}
-
-/* Animations */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s infinite ease-in-out;
+.bg-minimal-inner {
+  background-color: var(--color-brand-gray);
+  border: 1px solid var(--color-brand-border);
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: var(--color-brand-black);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
-  border-radius: 9999px;
+  background: var(--color-brand-border);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #333333;
 }
+

@@ -13,7 +13,6 @@ import {
     ArrowRight,
     Loader2,
     CheckCircle2,
-    Sparkles,
     Eye,
     EyeOff,
     FileText,
@@ -21,7 +20,7 @@ import {
 import { createDepositNote, DepositNote } from '../lib/crypto';
 import { buildDepositTransaction } from '../lib/ton';
 import { UPFRONT_POOL_TIERS, POOL_TIER_IDS, PoolTierId } from '../lib/contracts';
-import { TonIcon, TonDiamond, ZkCircuitIcon } from './TonIcons';
+import { TonIcon, ZkCircuitIcon } from './TonIcons';
 import { BottomSheet } from './BottomSheet';
 
 interface DepositCardProps {
@@ -121,180 +120,139 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="bg-glass-card rounded-2xl p-5 sm:p-8 border border-white/10 relative overflow-hidden transition-all shadow-2xl backdrop-blur-2xl"
-        >
-            {/* Top decorative gradient bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-emerald-400 to-teal-500" />
-
+        <div className="bg-minimal-card p-6 border border-brand-border text-brand-white relative">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8 border-b border-brand-border pb-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
-                        <Shield className="w-6 h-6 text-cyan-400" />
-                        <span>Anonymous Deposit</span>
+                    <h2 className="text-xl font-bold flex items-center gap-2 uppercase tracking-wide">
+                        <Shield className="w-5 h-5 text-brand-silver" />
+                        <span>System Deposit</span>
                     </h2>
-                    <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Deposit TON into the privacy pool with upfront gas & protocol fees. Full denomination payout upon withdrawal.
+                    <p className="text-xs text-brand-silver mt-1 font-mono">
+                        Initialize anonymous pool contribution
                     </p>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-semibold">
-                    <TonIcon className="w-4 h-4" />
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 border border-brand-border bg-brand-offblack text-brand-silver text-[10px] font-mono uppercase">
+                    <TonIcon className="w-3.5 h-3.5 grayscale" />
                     <span>TON Native</span>
                 </div>
             </div>
 
             {/* Step 1: Select Denomination */}
-            <div className="mb-5">
-                <div className="flex items-center justify-between mb-2.5">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                        <ZkCircuitIcon className="w-4 h-4 text-cyan-400" />
-                        <span>1. Select Pool Denomination (1 TON to 1000 TON)</span>
+            <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                    <label className="text-[10px] font-mono uppercase tracking-widest text-brand-silver flex items-center gap-2">
+                        <ZkCircuitIcon className="w-3.5 h-3.5 grayscale opacity-70" />
+                        <span>[1] SELECT DENOMINATION</span>
                     </label>
-                    <span className="text-[11px] text-cyan-400 font-semibold bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
-                        {currentTier.category.toUpperCase()}
-                    </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 gap-2">
                     {POOL_TIER_IDS.map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
-                        const isCurrentActive = poolId === '1.0';
-
+                        
                         return (
-                            <motion.button
+                            <button
                                 key={poolId}
                                 type="button"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
                                 onClick={() => {
                                     setSelectedPool(poolId);
                                     setNote(null);
                                     setDepositTxSuccess(null);
                                 }}
-                                className={`py-3 px-2 sm:px-3.5 rounded-xl border text-center font-medium transition-all cursor-pointer relative overflow-hidden select-none ${
+                                className={`py-4 px-2 border text-center transition-none uppercase ${
                                     isSelected
-                                        ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/50'
-                                        : 'bg-glass-inner border-white/5 text-gray-300 hover:border-white/20 hover:bg-white/[0.03]'
+                                        ? 'bg-brand-white text-brand-black border-brand-white'
+                                        : 'bg-brand-offblack text-brand-silver border-brand-border hover:border-brand-silver'
                                 }`}
                             >
-                                <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1">
-                                    <span className="font-semibold text-gray-300 truncate">{tier.label}</span>
-                                    {isCurrentActive && (
-                                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 py-0.2 rounded font-bold shrink-0">
-                                            Active
-                                        </span>
-                                    )}
+                                <div className="text-sm sm:text-base font-bold font-mono tracking-tighter">
+                                    {tier.poolAmount}
                                 </div>
-                                <div className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center justify-center gap-1">
-                                    <TonDiamond className="w-3.5 h-3.5 inline text-cyan-400 shrink-0" />
-                                    <span>{tier.poolAmount}</span>
+                                <div className={`text-[9px] font-mono mt-1 ${isSelected ? 'text-brand-gray' : 'text-brand-silver'}`}>
+                                    FEE: {tier.fee}
                                 </div>
-                                <div className="text-[10px] text-gray-400 mt-0.5 font-mono">
-                                    Fee: {tier.fee}
-                                </div>
-                            </motion.button>
+                            </button>
                         );
                     })}
                 </div>
             </div>
 
             {/* Dynamic Upfront Cost Breakdown */}
-            <motion.div
-                layout
-                className="bg-[#080d1a]/90 backdrop-blur-md border border-cyan-500/20 rounded-xl p-4 sm:p-4.5 mb-6 shadow-inner space-y-2.5"
-            >
-                <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-400 font-medium flex items-center gap-1.5">
-                        <TonIcon className="w-3.5 h-3.5" />
-                        <span>Pool Denomination:</span>
-                    </span>
-                    <span className="text-white font-bold">{currentTier.poolAmount}</span>
+            <div className="bg-brand-gray border border-brand-border p-4 mb-8 font-mono text-[11px] sm:text-xs">
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-brand-silver uppercase">Pool Size:</span>
+                    <span className="text-brand-white">{currentTier.poolAmount}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-400 font-medium flex items-center gap-1.5">
-                        <span>Protocol & Relayer Fee:</span>
-                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-semibold">
-                            Paid Upfront
-                        </span>
-                    </span>
-                    <span className="text-cyan-300 font-bold">{currentTier.fee}</span>
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-brand-silver uppercase">Protocol Fee:</span>
+                    <span className="text-brand-white">{currentTier.fee}</span>
                 </div>
-                <div className="h-px bg-white/10 my-1" />
-                <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <span className="text-gray-200 font-bold">Total to Pay (Msg.Value):</span>
-                    <span className="text-cyan-400 font-extrabold text-base sm:text-lg tracking-wide">{currentTier.total}</span>
+                <div className="h-px bg-brand-border my-3" />
+                <div className="flex items-center justify-between">
+                    <span className="text-brand-white font-bold uppercase">Total Msg.Value:</span>
+                    <span className="text-brand-white font-bold">{currentTier.total}</span>
                 </div>
-                <div className="pt-0.5 flex items-center gap-1.5 text-[11px] text-emerald-400">
-                    <Check className="w-3.5 h-3.5 shrink-0" />
-                    <span>Upfront coverage: You will receive exactly {currentTier.poolAmount} upon withdrawal with 0 deductions.</span>
-                </div>
-            </motion.div>
+            </div>
 
             {/* Step 2: Generate Secret Note */}
             {!note ? (
-                <div className="bg-glass-inner rounded-xl p-6 border border-white/5 text-center mb-4">
-                    <p className="text-xs sm:text-sm text-gray-300 mb-4 max-w-md mx-auto">
-                        Generate a cryptographically secure random secret and nullifier directly in your browser. Nothing is sent to any server.
+                <div className="bg-brand-gray border border-brand-border p-6 text-center mb-2">
+                    <p className="text-[11px] sm:text-xs text-brand-silver mb-6 font-mono uppercase">
+                        Generate cryptographic nullifier. Local execution only.
                     </p>
-                    <motion.button
+                    <button
                         type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                         onClick={handleGenerateNote}
-                        className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-black font-extrabold text-sm flex items-center justify-center gap-2.5 mx-auto shadow-xl shadow-cyan-500/25 transition-all cursor-pointer"
+                        className="w-full sm:w-auto px-8 py-3 bg-brand-white hover:bg-brand-silver text-brand-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 mx-auto font-mono transition-colors"
                     >
-                        <KeyRound className="w-4 h-4 text-black" />
-                        <span>Generate Secret Note</span>
-                        <Sparkles className="w-3.5 h-3.5 text-black/70" />
-                    </motion.button>
+                        <KeyRound className="w-4 h-4" />
+                        <span>INITIALIZE SECRETS</span>
+                    </button>
                 </div>
             ) : (
-                <div className="mb-5 space-y-4">
+                <div className="mb-2 space-y-5">
                     <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                        <label className="text-[10px] font-mono uppercase tracking-widest text-brand-silver flex items-center gap-2">
                             <KeyRound className="w-3.5 h-3.5" />
-                            <span>2. Your Secret Deposit Note</span>
+                            <span>[2] SECRETS GENERATED</span>
                         </label>
                         <button
                             type="button"
                             onClick={() => setShowFullNote(!showFullNote)}
-                            className="text-[11px] text-gray-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+                            className="text-[10px] text-brand-silver hover:text-brand-white flex items-center gap-1 font-mono uppercase"
                         >
                             {showFullNote ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                            <span>{showFullNote ? 'Mask' : 'Reveal'}</span>
+                            <span>{showFullNote ? 'HIDE' : 'SHOW'}</span>
                         </button>
                     </div>
 
                     {/* Note Box */}
-                    <div className="relative bg-[#070b14] rounded-xl p-4 border border-cyan-500/40 font-mono text-xs text-cyan-200 break-all select-all shadow-inner">
+                    <div className="bg-brand-black border border-brand-border p-4 font-mono text-[10px] sm:text-xs text-brand-white break-all select-all">
                         {showFullNote ? note.encoded : `${note.encoded.slice(0, 32)}••••••••••••••••${note.encoded.slice(-16)}`}
                     </div>
 
                     {/* Actions: Copy & Download */}
-                    <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             type="button"
                             onClick={handleCopyNote}
-                            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                            className={`flex-1 py-3 px-4 border text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-2 transition-colors ${
                                 hasCopied
-                                    ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/25'
-                                    : 'bg-white/10 hover:bg-white/15 text-white border border-white/10'
+                                    ? 'bg-brand-white text-black border-brand-white'
+                                    : 'bg-brand-offblack text-brand-white border-brand-border hover:border-brand-silver'
                             }`}
                         >
                             {hasCopied ? (
                                 <>
-                                    <Check className="w-4 h-4" />
-                                    <span>Copied to Clipboard!</span>
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>COPIED</span>
                                 </>
                             ) : (
                                 <>
-                                    <Copy className="w-4 h-4" />
-                                    <span>Copy Secret Note</span>
+                                    <Copy className="w-3.5 h-3.5" />
+                                    <span>COPY TXT</span>
                                 </>
                             )}
                         </button>
@@ -302,160 +260,77 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                         <button
                             type="button"
                             onClick={handleDownloadNote}
-                            className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                            title="Download backup text file"
+                            className="py-3 px-4 bg-brand-offblack border border-brand-border hover:border-brand-silver text-brand-white text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-2 transition-colors"
                         >
-                            <Download className="w-4 h-4 text-cyan-400" />
-                            <span>Download .txt</span>
+                            <Download className="w-3.5 h-3.5" />
+                            <span>SAVE .TXT</span>
                         </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setIsConfirmDrawerOpen(true)}
-                            className="py-3 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/20 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                            title="Open backup sheet"
-                        >
-                            <FileText className="w-4 h-4" />
-                            <span className="hidden sm:inline">Details</span>
-                        </button>
-                    </div>
-
-                    {/* Security Warning */}
-                    <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs leading-relaxed">
-                        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                        <div>
-                            <span className="font-bold">CRITICAL: Save this note securely! </span>
-                            You will need this exact string to withdraw your funds anonymously. If lost, your deposit cannot be recovered.
-                        </div>
                     </div>
 
                     {/* Backup Confirmation Checkbox */}
-                    <label className="flex items-center gap-3 p-2 cursor-pointer select-none text-xs text-gray-300 hover:text-white transition-colors">
+                    <label className="flex items-center gap-3 p-3 bg-brand-gray border border-brand-border cursor-pointer select-none text-[10px] sm:text-xs font-mono uppercase text-brand-silver hover:text-brand-white transition-colors">
                         <input
                             type="checkbox"
                             checked={isBackedUp}
                             onChange={(e) => setIsBackedUp(e.target.checked)}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-900 text-cyan-500 focus:ring-cyan-400 cursor-pointer"
+                            className="w-4 h-4 rounded-none border-brand-border bg-brand-black text-brand-white focus:ring-0 cursor-pointer"
                         />
-                        <span className="font-medium">I have securely backed up my Secret Note</span>
+                        <span>CONFIRM BACKUP SAVED</span>
                     </label>
 
                     {/* Step 3: Deposit Button */}
                     <div className="pt-2">
-                        <motion.button
+                        <button
                             type="button"
-                            whileHover={isBackedUp && !isDepositing ? { scale: 1.01 } : {}}
-                            whileTap={isBackedUp && !isDepositing ? { scale: 0.99 } : {}}
                             disabled={!isBackedUp || isDepositing}
                             onClick={handleDeposit}
-                            className={`w-full py-4 rounded-xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all ${
+                            className={`w-full py-4 font-mono font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${
                                 !isBackedUp || isDepositing
-                                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
-                                    : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black shadow-xl shadow-emerald-500/25 cursor-pointer'
+                                    ? 'bg-brand-offblack text-brand-silver border border-brand-border cursor-not-allowed'
+                                    : 'bg-brand-white text-brand-black hover:bg-brand-silver border border-brand-white'
                             }`}
                         >
                             {isDepositing ? (
                                 <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>Confirm in Wallet...</span>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>PROCESSING...</span>
                                 </>
                             ) : !wallet ? (
                                 <>
-                                    <span>Connect Wallet to Pay {currentTier.total}</span>
+                                    <span>CONNECT WALLET [{currentTier.total}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
-                                    <span>Pay {currentTier.total} (Deposit {currentTier.poolAmount})</span>
+                                    <span>EXECUTE [{currentTier.total}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
-                        </motion.button>
+                        </button>
                     </div>
                 </div>
             )}
 
             {/* Error Message Display */}
             {errorMessage && (
-                <div className="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs">
-                    {errorMessage}
+                <div className="mt-4 p-4 bg-brand-gray border border-brand-border text-brand-white text-[10px] sm:text-xs font-mono uppercase">
+                    ERR: {errorMessage}
                 </div>
             )}
 
             {/* Success Banner */}
             {depositTxSuccess && (
-                <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs space-y-2">
-                    <div className="flex items-center gap-2 font-bold text-emerald-300">
+                <div className="mt-4 p-4 bg-brand-gray border border-brand-border text-brand-white text-[10px] sm:text-xs font-mono uppercase space-y-2">
+                    <div className="flex items-center gap-2 font-bold">
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Deposit transaction broadcasted successfully!</span>
+                        <span>TRANSACTION DISPATCHED</span>
                     </div>
-                    <p className="text-gray-300">
-                        Your commitment is being added to the Merkle tree. Once confirmed on TON, your note will be ready for anonymous withdrawal.
+                    <p className="text-brand-silver">
+                        MERKLE TREE INSERTION IN PROGRESS. AWAITING ON-CHAIN CONFIRMATION.
                     </p>
                 </div>
             )}
-
-            {/* Vaul BottomSheet for Mobile & Fluid Confirmation */}
-            {note && (
-                <BottomSheet
-                    open={isConfirmDrawerOpen}
-                    onOpenChange={setIsConfirmDrawerOpen}
-                    title={
-                        <div className="flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-cyan-400" />
-                            <span>Deposit Note Backup</span>
-                        </div>
-                    }
-                    description="Confirm your secret credentials before broadcasting to TON Blockchain."
-                >
-                    <div className="space-y-4 pt-1">
-                        <div className="bg-[#070b14] rounded-xl p-3.5 border border-white/10 font-mono text-xs text-cyan-300 break-all select-all">
-                            {note.encoded}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                                <span className="text-gray-400 block mb-0.5">Pool Denomination:</span>
-                                <span className="text-white font-bold">{currentTier.poolAmount}</span>
-                            </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-                                <span className="text-gray-400 block mb-0.5">Total Msg.Value:</span>
-                                <span className="text-cyan-400 font-bold">{currentTier.total}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 pt-2">
-                            <button
-                                type="button"
-                                onClick={handleCopyNote}
-                                className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center justify-center gap-2"
-                            >
-                                <Copy className="w-4 h-4" />
-                                <span>{hasCopied ? 'Copied!' : 'Copy'}</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDownloadNote}
-                                className="flex-1 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 font-semibold text-xs flex items-center justify-center gap-2"
-                            >
-                                <Download className="w-4 h-4" />
-                                <span>Save .txt</span>
-                            </button>
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsBackedUp(true);
-                                setIsConfirmDrawerOpen(false);
-                            }}
-                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-400 text-black font-bold text-xs sm:text-sm mt-2"
-                        >
-                            I Have Backed Up - Proceed to Deposit
-                        </button>
-                    </div>
-                </BottomSheet>
-            )}
-        </motion.div>
+        </div>
     );
 }
+

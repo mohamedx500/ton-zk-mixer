@@ -18,10 +18,9 @@ import {
     Check,
     Lock,
     Search,
-    AlertCircle,
     Sliders,
     Zap,
-    Sparkles,
+    Terminal,
 } from 'lucide-react';
 import {
     isAuthorizedAdmin,
@@ -85,11 +84,11 @@ export function AdminDashboard() {
                     },
                 ],
             });
-            setClaimStatus('✅ Claim transaction broadcasted to network!');
+            setClaimStatus('[SUCCESS] CLAIM TX BROADCASTED');
             setTimeout(loadData, 5000);
         } catch (err: any) {
             console.error('Claim error:', err);
-            setClaimStatus(`❌ Error: ${err.message || 'Transaction rejected'}`);
+            setClaimStatus(`[ERROR] ${err.message?.toUpperCase() || 'TX REJECTED'}`);
         } finally {
             setIsClaiming(false);
         }
@@ -112,11 +111,11 @@ export function AdminDashboard() {
                     },
                 ],
             });
-            setToggleStatus(`✅ Toggled fee routing to: ${newRouting ? 'Auto-Push' : 'Pull/Accumulate'}`);
+            setToggleStatus(`[SUCCESS] ROUTING SET: ${newRouting ? 'AUTO-PUSH' : 'PULL/ACCUMULATE'}`);
             setTimeout(loadData, 5000);
         } catch (err: any) {
             console.error('Toggle error:', err);
-            setToggleStatus(`❌ Error: ${err.message || 'Transaction rejected'}`);
+            setToggleStatus(`[ERROR] ${err.message?.toUpperCase() || 'TX REJECTED'}`);
         } finally {
             setIsToggling(false);
         }
@@ -139,48 +138,40 @@ export function AdminDashboard() {
     // Access control verification view
     if (!isAdmin) {
         return (
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-glass-card rounded-3xl p-8 sm:p-12 border border-red-500/20 text-center max-w-2xl mx-auto space-y-6 shadow-2xl backdrop-blur-2xl"
-            >
-                <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
+            <div className="bg-minimal-card p-8 border border-brand-border text-brand-white text-center max-w-2xl mx-auto space-y-6">
+                <div className="w-16 h-16 border border-brand-border bg-brand-gray flex items-center justify-center mx-auto text-brand-silver">
                     <ShieldAlert className="w-8 h-8" />
                 </div>
 
                 <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-white tracking-tight">
-                        Admin Access Restricted
+                    <h2 className="text-xl font-bold uppercase tracking-widest text-brand-white">
+                        SYS_ADMIN RESTRICTED
                     </h2>
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                        This protocol telemetry and fee management portal is cryptographically restricted to the designated protocol administrator.
+                    <p className="text-xs text-brand-silver font-mono uppercase">
+                        UNAUTHORIZED ACCESS. CONNECT WITH DEPLOYER WALLET.
                     </p>
                 </div>
 
-                <div className="bg-[#0b101d] p-5 rounded-2xl border border-white/10 max-w-md mx-auto text-left space-y-3 font-mono text-xs">
+                <div className="bg-brand-black p-5 border border-brand-border max-w-md mx-auto text-left space-y-4 font-mono text-[10px] uppercase">
                     <div>
-                        <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-1 font-sans">
-                            Connected Wallet
+                        <div className="text-brand-silver tracking-widest mb-1">
+                            CONNECTED WALLET
                         </div>
-                        <div className="text-rose-400 truncate">
-                            {connectedAddress || 'No wallet connected'}
+                        <div className="text-brand-white truncate">
+                            {connectedAddress || 'NULL'}
                         </div>
                     </div>
 
-                    <div className="pt-2 border-t border-white/5">
-                        <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-1 font-sans">
-                            Required Admin Key
+                    <div className="pt-3 border-t border-brand-border">
+                        <div className="text-brand-silver tracking-widest mb-1">
+                            REQUIRED ADMIN KEY
                         </div>
-                        <div className="text-cyan-400 truncate">
+                        <div className="text-brand-white truncate">
                             {ADMIN_WALLET_ADDRESS}
                         </div>
                     </div>
                 </div>
-
-                <p className="text-xs text-gray-500">
-                    Connect using the authorized admin address via the TonConnect button in the header.
-                </p>
-            </motion.div>
+            </div>
         );
     }
 
@@ -196,39 +187,32 @@ export function AdminDashboard() {
     ) || [];
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-8"
-        >
+        <div className="space-y-8">
             {/* Header & Status Bar */}
-            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
+            <div className="bg-minimal-card p-6 border border-brand-border text-brand-white">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                    <div className="space-y-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-white text-black text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-white">
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            <span>Admin Key Authenticated</span>
+                            <span>ADMIN_AUTH [OK]</span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-                            <TonIcon className="w-7 h-7" />
-                            <span>Protocol Monetization & Treasury Dashboard</span>
+                        <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-wider flex items-center gap-2">
+                            <Terminal className="w-6 h-6 text-brand-silver" />
+                            <span>SYS_ADMIN DASHBOARD</span>
                         </h2>
-                        <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
-                            <span>Admin:</span>
-                            <span className="text-cyan-300 truncate max-w-[200px] sm:max-w-none">
+                        <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-brand-silver bg-brand-black p-2 border border-brand-border">
+                            <span>ADMIN KEY:</span>
+                            <span className="text-brand-white truncate max-w-[200px] sm:max-w-none">
                                 {ADMIN_WALLET_ADDRESS}
                             </span>
                             <button
                                 type="button"
                                 onClick={() => handleCopy(ADMIN_WALLET_ADDRESS, 'admin-wallet')}
-                                className="p-1 hover:text-white transition-colors cursor-pointer"
+                                className="p-1 hover:bg-brand-silver hover:text-black transition-colors cursor-pointer border border-brand-border"
                                 title="Copy Admin Wallet"
                             >
                                 {copiedKey === 'admin-wallet' ? (
-                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    <Check className="w-3 h-3" />
                                 ) : (
                                     <Copy className="w-3 h-3" />
                                 )}
@@ -241,24 +225,23 @@ export function AdminDashboard() {
                             type="button"
                             onClick={loadData}
                             disabled={isLoading}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-200 transition-all cursor-pointer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-gray hover:bg-brand-silver hover:text-black border border-brand-border text-[10px] font-mono font-bold uppercase tracking-widest transition-colors cursor-pointer"
                         >
-                            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-cyan-400' : ''}`} />
-                            <span>{isLoading ? 'Syncing...' : 'Sync Telemetry'}</span>
+                            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                            <span>{isLoading ? 'SYNCING...' : 'SYNC TELEMETRY'}</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Upgrade Model Badge */}
-                <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2 text-emerald-400">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="font-semibold">Fee Mechanism:</span>
-                        <span className="text-gray-300">Upfront Tiered Coverage (1 TON - 1000 TON) + Gasless Relayer Auto-Restock</span>
+                <div className="mt-6 pt-4 border-t border-brand-border flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono uppercase text-brand-silver">
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-brand-white animate-pulse" />
+                        <span className="font-bold text-brand-white">FEE MODEL:</span>
+                        <span>UPFRONT TIERED + GASLESS RELAYER</span>
                     </div>
                     {lastUpdated && (
-                        <div className="text-gray-500 text-[11px] font-mono">
-                            Last synced: {lastUpdated.toLocaleTimeString()}
+                        <div>
+                            LAST SYNC: {lastUpdated.toLocaleTimeString()}
                         </div>
                     )}
                 </div>
@@ -267,211 +250,174 @@ export function AdminDashboard() {
             {/* 5 High-Impact KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* TVL */}
-                <motion.div
-                    whileHover={{ y: -2 }}
-                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group shadow-lg"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Protocol TVL
+                <div className="bg-brand-gray p-5 border border-brand-border">
+                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                        <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
+                            POOL TVL
                         </span>
-                        <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
-                            <TrendingUp className="w-4 h-4" />
-                        </div>
+                        <TrendingUp className="w-4 h-4 text-brand-silver grayscale" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1.5">
-                        <TonDiamond className="w-5 h-5 text-cyan-400" />
+                    <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
+                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
                         <span>{metrics ? metrics.tvlTon : '—'}</span>
-                        <span className="text-sm font-normal text-cyan-400">TON</span>
+                        <span className="text-xs text-brand-silver">TON</span>
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-1">
-                        Locked user pool liquidity
+                    <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
+                        LOCKED LIQUIDITY
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Accumulated Treasury Fees */}
-                <motion.div
-                    whileHover={{ y: -2 }}
-                    className="bg-glass-card rounded-2xl p-5 border border-cyan-500/40 bg-cyan-950/20 hover:border-cyan-400 transition-all relative overflow-hidden group shadow-lg shadow-cyan-500/15"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">
-                            Accumulated Fees
+                <div className="bg-brand-black p-5 border border-brand-white">
+                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                        <span className="text-[10px] font-mono font-bold text-brand-white uppercase tracking-widest">
+                            TREASURY FEES
                         </span>
-                        <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-300">
-                            <Coins className="w-4 h-4" />
-                        </div>
+                        <Coins className="w-4 h-4 text-brand-white" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-cyan-300 flex items-center gap-1.5">
-                        <TonDiamond className="w-5 h-5 text-cyan-300" />
+                    <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
+                        <TonDiamond className="w-4 h-4" />
                         <span>{metrics ? metrics.accumulatedFeesTon : '0.00'}</span>
-                        <span className="text-sm font-normal text-cyan-400">TON</span>
+                        <span className="text-xs">TON</span>
                     </div>
-                    <div className="text-[11px] text-cyan-400/90 font-medium mt-1">
-                        Unclaimed in contract treasury
+                    <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
+                        UNCLAIMED BALANCE
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Total Admin Fees Earned */}
-                <motion.div
-                    whileHover={{ y: -2 }}
-                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-amber-500/30 transition-all relative overflow-hidden group shadow-lg"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Total Fees Earned
+                <div className="bg-brand-gray p-5 border border-brand-border">
+                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                        <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
+                            TOTAL EARNED
                         </span>
-                        <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-                            <Zap className="w-4 h-4" />
-                        </div>
+                        <Zap className="w-4 h-4 text-brand-silver grayscale" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-amber-300 flex items-center gap-1.5">
-                        <TonDiamond className="w-5 h-5 text-amber-400" />
+                    <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
+                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
                         <span>{metrics ? metrics.totalAdminFeesTon : '—'}</span>
-                        <span className="text-sm font-normal text-amber-400">TON</span>
+                        <span className="text-xs text-brand-silver">TON</span>
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-1">
-                        Tiered upfront fee income
+                    <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
+                        LIFETIME INCOME
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Total Privacy Transactions */}
-                <motion.div
-                    whileHover={{ y: -2 }}
-                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-emerald-500/30 transition-all relative overflow-hidden group shadow-lg"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Privacy Volume
+                <div className="bg-brand-gray p-5 border border-brand-border">
+                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                        <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
+                            TX VOLUME
                         </span>
-                        <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                            <Lock className="w-4 h-4" />
-                        </div>
+                        <Lock className="w-4 h-4 text-brand-silver grayscale" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1">
+                    <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-1.5">
                         <span>{metrics ? metrics.totalDepositsCount : '—'}</span>
-                        <span className="text-sm font-normal text-gray-400">Tx</span>
+                        <span className="text-xs text-brand-silver">DEP</span>
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-1">
-                        {metrics ? metrics.totalWithdrawalsCount : '—'} ZK Withdrawals
+                    <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
+                        {metrics ? metrics.totalWithdrawalsCount : '—'} ZK W/D
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Admin Wallet Balance */}
-                <motion.div
-                    whileHover={{ y: -2 }}
-                    className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-teal-500/30 transition-all relative overflow-hidden group shadow-lg"
-                >
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Admin Wallet
+                <div className="bg-brand-gray p-5 border border-brand-border">
+                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                        <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
+                            ADMIN WALLET
                         </span>
-                        <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
-                            <Wallet className="w-4 h-4" />
-                        </div>
+                        <Wallet className="w-4 h-4 text-brand-silver grayscale" />
                     </div>
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-1.5">
-                        <TonDiamond className="w-5 h-5 text-teal-400" />
+                    <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
+                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
                         <span>{metrics ? metrics.adminWalletBalance : '—'}</span>
-                        <span className="text-sm font-normal text-teal-400">TON</span>
+                        <span className="text-xs text-brand-silver">TON</span>
                     </div>
-                    <div className="text-[11px] text-gray-400 mt-1">
-                        Connected admin balance
+                    <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
+                        CONNECTED BALANCE
                     </div>
-                </motion.div>
+                </div>
             </div>
 
             {/* Treasury Management & Dynamic Fee Routing Section */}
-            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden space-y-6 backdrop-blur-2xl">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
-                    <div className="space-y-1">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+            <div className="bg-minimal-card p-6 sm:p-8 border border-brand-border space-y-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-border">
+                    <div className="space-y-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-gray text-brand-white text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-border">
                             <Sliders className="w-3.5 h-3.5" />
-                            <span>Treasury & Dynamic Fee Routing Engine</span>
+                            <span>ROUTING ENGINE</span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-                            Treasury Claims & Relayer Auto-Restock
+                        <h3 className="text-lg font-bold text-brand-white uppercase tracking-wider">
+                            TREASURY CLAIM & RELAYER RESTOCK
                         </h3>
-                        <p className="text-xs text-gray-400 max-w-xl leading-relaxed">
-                            Claim accumulated protocol fees to any destination (e.g., restock the Gasless Relayer or fund a fresh wallet), or toggle automatic fee pushing.
-                        </p>
                     </div>
 
                     {/* Routing Mode Toggle */}
-                    <div className="bg-[#0b101d] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 shadow-inner">
+                    <div className="bg-brand-black p-4 border border-brand-border flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
                         <div>
-                            <div className="text-xs font-bold text-white flex items-center gap-2">
-                                <span>Fee Routing:</span>
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                            <div className="text-[10px] font-mono font-bold text-brand-white flex items-center gap-2 uppercase">
+                                <span>ROUTING:</span>
+                                <span className={`px-2 py-1 border ${
                                     metrics?.autoFeeRouting
-                                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                                        : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                        ? 'bg-brand-white text-black border-brand-white'
+                                        : 'bg-brand-gray text-brand-white border-brand-border'
                                 }`}>
-                                    {metrics?.autoFeeRouting ? 'Auto-Push (On-Withdraw)' : 'Pull/Accumulate (Internal Treasury)'}
+                                    {metrics?.autoFeeRouting ? 'AUTO-PUSH' : 'PULL/ACCUMULATE'}
                                 </span>
                             </div>
-                            <p className="text-[11px] text-gray-400 mt-1">
-                                {metrics?.autoFeeRouting
-                                    ? 'Fees are pushed directly to Admin on every withdrawal.'
-                                    : 'Fees accumulate quietly in the contract for stealth batch claims.'}
-                            </p>
                         </div>
 
                         <button
                             type="button"
                             onClick={handleToggleRouting}
                             disabled={isToggling}
-                            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white border border-white/10 transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                            className="px-4 py-2 bg-brand-gray hover:bg-brand-silver hover:text-black text-[10px] font-mono font-bold text-brand-white border border-brand-border transition-colors shrink-0 cursor-pointer flex items-center gap-2 uppercase tracking-widest"
                         >
                             {isToggling ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sliders className="w-3.5 h-3.5" />}
-                            <span>Switch Mode</span>
+                            <span>SWITCH MODE</span>
                         </button>
                     </div>
                 </div>
 
                 {toggleStatus && (
-                    <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs">
+                    <div className="p-4 bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
                         {toggleStatus}
                     </div>
                 )}
 
                 {/* Claim Fees Interactive Panel */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-4">
-                        <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                            Claim Treasury Balance
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="lg:col-span-2 space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-                                    Amount to Claim (TON)
+                                <label className="block text-[10px] font-mono font-bold text-brand-silver mb-2 uppercase tracking-widest">
+                                    [1] CLAIM AMOUNT (TON)
                                 </label>
                                 <input
                                     type="number"
                                     step="0.01"
                                     value={claimAmount}
                                     onChange={(e) => setClaimAmount(e.target.value)}
-                                    placeholder="e.g. 0.5"
-                                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3 text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                                    placeholder="0.00"
+                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors"
                                 />
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-2 mt-3 text-[9px] font-mono uppercase tracking-widest">
                                     <button
                                         type="button"
                                         onClick={() => {
                                             const available = Number(metrics?.accumulatedFeesTon || 0);
                                             setClaimAmount((available * 0.5).toFixed(2));
                                         }}
-                                        className="text-[10px] bg-white/5 hover:bg-white/10 px-2 py-1 rounded border border-white/5 text-gray-300"
+                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2 py-1.5 border border-brand-border text-brand-silver transition-colors"
                                     >
                                         50%
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setClaimAmount(metrics?.accumulatedFeesTon || '0')}
-                                        className="text-[10px] bg-white/5 hover:bg-white/10 px-2 py-1 rounded border border-white/5 text-cyan-300"
+                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2 py-1.5 border border-brand-border text-brand-silver transition-colors"
                                     >
-                                        Max ({metrics?.accumulatedFeesTon || '0'} TON)
+                                        MAX ({metrics?.accumulatedFeesTon || '0'})
                                     </button>
                                     <button
                                         type="button"
@@ -479,31 +425,31 @@ export function AdminDashboard() {
                                             setClaimAmount('0.5');
                                             setClaimDestination(ACTIVE_RELAYER_ADDRESS);
                                         }}
-                                        className="text-[10px] bg-amber-500/10 hover:bg-amber-500/20 px-2 py-1 rounded border border-amber-500/30 text-amber-300 font-bold"
+                                        className="bg-brand-white text-black hover:bg-brand-silver px-2 py-1.5 border border-brand-white font-bold transition-colors"
                                     >
-                                        ⚡ Restock Relayer (0.5 TON)
+                                        [RESTOCK] RELAYER (0.5)
                                     </button>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-                                    Destination Address
+                                <label className="block text-[10px] font-mono font-bold text-brand-silver mb-2 uppercase tracking-widest">
+                                    [2] DESTINATION ADDRESS
                                 </label>
                                 <input
                                     type="text"
                                     value={claimDestination}
                                     onChange={(e) => setClaimDestination(e.target.value)}
-                                    placeholder="Destination TON wallet (Relayer or Admin)"
-                                    className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3 text-xs text-white font-mono focus:outline-none transition-all placeholder:text-gray-600 shadow-inner"
+                                    placeholder="TARGET TON WALLET"
+                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors"
                                 />
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-2 mt-3 text-[9px] font-mono uppercase tracking-widest">
                                     <button
                                         type="button"
                                         onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
-                                        className="text-[10px] text-amber-400 hover:text-amber-300 underline font-mono truncate"
+                                        className="text-brand-silver hover:text-brand-white underline underline-offset-2 truncate"
                                     >
-                                        Use Relayer: {ACTIVE_RELAYER_ADDRESS.slice(0, 14)}...
+                                        USE RELAYER: {ACTIVE_RELAYER_ADDRESS.slice(0, 14)}...
                                     </button>
                                 </div>
                             </div>
@@ -513,96 +459,94 @@ export function AdminDashboard() {
                             type="button"
                             onClick={handleClaimFees}
                             disabled={isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination}
-                            className={`w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                            className={`w-full py-4 font-mono font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
                                 isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination
-                                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
-                                    : 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black shadow-lg shadow-cyan-500/20'
+                                    ? 'bg-brand-offblack text-brand-silver border border-brand-border cursor-not-allowed'
+                                    : 'bg-brand-white text-brand-black hover:bg-brand-silver border border-brand-white'
                             }`}
                         >
                             {isClaiming ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
-                            <span>Claim {claimAmount || '0'} TON to Destination</span>
+                            <span>EXECUTE CLAIM: {claimAmount || '0'} TON</span>
                         </button>
 
                         {claimStatus && (
-                            <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs">
+                            <div className="p-4 bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
                                 {claimStatus}
                             </div>
                         )}
                     </div>
 
                     {/* Operational Security Safeguard Note */}
-                    <div className="bg-[#080d1a] rounded-2xl p-5 border border-white/5 space-y-3 text-xs">
-                        <div className="font-bold text-white flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                            <span>Anti-Drain Mathematical Separation</span>
+                    <div className="bg-brand-black p-5 border border-brand-border space-y-3 font-mono text-[10px] uppercase">
+                        <div className="font-bold text-brand-white flex items-center gap-2 border-b border-brand-border pb-2">
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>MATH SEPARATION</span>
                         </div>
-                        <p className="text-gray-400 leading-relaxed">
-                            User TVL is strictly locked and cannot be drained by ClaimFees calls. The contract strictly asserts that claims cannot exceed earned fees.
+                        <p className="text-brand-silver leading-relaxed pt-1">
+                            USER POOL LIQUIDITY IS STRICTLY LOCKED. CLAIM TRANSACTIONS ASSERT REQUEST &lt;= ACCUMULATED FEES.
                         </p>
-                        <div className="pt-2 border-t border-white/5 space-y-1 font-mono text-[11px] text-gray-400">
-                            <div><span className="text-gray-500">Contract:</span> {metrics?.contractAddress.slice(0, 16)}...</div>
-                            <div><span className="text-gray-500">Relayer:</span> {ACTIVE_RELAYER_ADDRESS.slice(0, 16)}...</div>
+                        <div className="pt-2 mt-2 border-t border-brand-border space-y-2 text-brand-silver">
+                            <div><span className="text-brand-white">CONTRACT:</span> {metrics?.contractAddress.slice(0, 16)}...</div>
+                            <div><span className="text-brand-white">RELAYER:</span> {ACTIVE_RELAYER_ADDRESS.slice(0, 16)}...</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Audit Logs: Recent Deposits & Withdrawals */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Deposits */}
-                <div className="bg-glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4 backdrop-blur-2xl">
-                    <div className="flex items-center justify-between">
+                <div className="bg-minimal-card p-6 border border-brand-border space-y-4">
+                    <div className="flex items-center justify-between border-b border-brand-border pb-3">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
-                                <ArrowDownLeft className="w-4 h-4" />
-                            </div>
-                            <h3 className="font-bold text-white text-base">Recent Deposits</h3>
+                            <ArrowDownLeft className="w-4 h-4 text-brand-silver" />
+                            <h3 className="font-bold text-brand-white text-sm uppercase tracking-widest font-mono">DEPOSITS LOG</h3>
                         </div>
-                        <span className="text-xs font-mono text-gray-400">
-                            {filteredDeposits.length} entries
+                        <span className="text-[10px] font-mono text-brand-silver">
+                            [{filteredDeposits.length}]
                         </span>
                     </div>
 
                     <div className="relative">
-                        <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-3" />
+                        <Search className="w-3.5 h-3.5 text-brand-silver absolute left-3 top-3.5" />
                         <input
                             type="text"
                             value={depositSearch}
                             onChange={(e) => setDepositSearch(e.target.value)}
-                            placeholder="Filter by hash or commitment..."
-                            className="w-full bg-[#070b14] border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                            placeholder="SEARCH HASH OR COMMITMENT..."
+                            className="w-full bg-brand-black border border-brand-border rounded-none pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver"
                         />
                     </div>
 
                     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                         {filteredDeposits.length === 0 ? (
-                            <div className="p-6 text-center text-xs text-gray-500">
-                                No matching deposits found
+                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed">
+                                NO MATCHES FOUND
                             </div>
                         ) : (
                             filteredDeposits.map((d, i) => (
                                 <div
                                     key={i}
-                                    className="p-3 rounded-xl bg-[#080d1a] border border-white/5 hover:border-white/15 transition-all text-xs font-mono flex items-center justify-between"
+                                    className="p-3 bg-brand-gray border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
                                 >
                                     <div>
-                                        <div className="text-white font-semibold flex items-center gap-1.5">
-                                            <TonDiamond className="w-3.5 h-3.5 text-cyan-400" />
+                                        <div className="text-brand-white font-bold flex items-center gap-1.5 mb-1">
+                                            <TonDiamond className="w-3 h-3 grayscale" />
                                             <span>{d.amount}</span>
                                         </div>
-                                        <div className="text-[10px] text-gray-500 truncate max-w-[200px]">
-                                            Commitment: {d.commitment}
+                                        <div className="text-brand-silver truncate max-w-[160px] sm:max-w-[200px]">
+                                            C: {d.commitment}
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-[10px] text-gray-400">{d.time}</div>
+                                        <div className="text-brand-silver mb-1">{d.time}</div>
                                         <a
                                             href={TX_EXPLORER_URL(d.hash)}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1 justify-end"
+                                            className="text-brand-white hover:underline underline-offset-2 flex items-center gap-1 justify-end font-bold"
                                         >
-                                            <span>Tx</span>
+                                            <span>EXPLORER</span>
                                             <ExternalLink className="w-2.5 h-2.5" />
                                         </a>
                                     </div>
@@ -613,59 +557,57 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Recent Withdrawals */}
-                <div className="bg-glass-card rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4 backdrop-blur-2xl">
-                    <div className="flex items-center justify-between">
+                <div className="bg-minimal-card p-6 border border-brand-border space-y-4">
+                    <div className="flex items-center justify-between border-b border-brand-border pb-3">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                                <ArrowUpRight className="w-4 h-4" />
-                            </div>
-                            <h3 className="font-bold text-white text-base">Recent ZK Withdrawals</h3>
+                            <ArrowUpRight className="w-4 h-4 text-brand-silver" />
+                            <h3 className="font-bold text-brand-white text-sm uppercase tracking-widest font-mono">ZK WITHDRAWALS LOG</h3>
                         </div>
-                        <span className="text-xs font-mono text-gray-400">
-                            {filteredWithdrawals.length} entries
+                        <span className="text-[10px] font-mono text-brand-silver">
+                            [{filteredWithdrawals.length}]
                         </span>
                     </div>
 
                     <div className="relative">
-                        <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-3" />
+                        <Search className="w-3.5 h-3.5 text-brand-silver absolute left-3 top-3.5" />
                         <input
                             type="text"
                             value={withdrawSearch}
                             onChange={(e) => setWithdrawSearch(e.target.value)}
-                            placeholder="Filter by hash or recipient..."
-                            className="w-full bg-[#070b14] border border-white/10 rounded-xl pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-400"
+                            placeholder="SEARCH HASH OR DESTINATION..."
+                            className="w-full bg-brand-black border border-brand-border rounded-none pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver"
                         />
                     </div>
 
                     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                         {filteredWithdrawals.length === 0 ? (
-                            <div className="p-6 text-center text-xs text-gray-500">
-                                No matching withdrawals found
+                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed">
+                                NO MATCHES FOUND
                             </div>
                         ) : (
                             filteredWithdrawals.map((w, i) => (
                                 <div
                                     key={i}
-                                    className="p-3 rounded-xl bg-[#080d1a] border border-white/5 hover:border-white/15 transition-all text-xs font-mono flex items-center justify-between"
+                                    className="p-3 bg-brand-gray border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
                                 >
                                     <div>
-                                        <div className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                                            <TonDiamond className="w-3.5 h-3.5 text-emerald-400" />
+                                        <div className="text-brand-white font-bold flex items-center gap-1.5 mb-1">
+                                            <TonDiamond className="w-3 h-3 grayscale" />
                                             <span>{w.amountReceived}</span>
                                         </div>
-                                        <div className="text-[10px] text-gray-500 truncate max-w-[200px]">
-                                            To: {w.recipient}
+                                        <div className="text-brand-silver truncate max-w-[160px] sm:max-w-[200px]">
+                                            DST: {w.recipient}
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-[10px] text-gray-400">{w.time}</div>
+                                        <div className="text-brand-silver mb-1">{w.time}</div>
                                         <a
                                             href={TX_EXPLORER_URL(w.hash)}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1 justify-end"
+                                            className="text-brand-white hover:underline underline-offset-2 flex items-center gap-1 justify-end font-bold"
                                         >
-                                            <span>Tx</span>
+                                            <span>EXPLORER</span>
                                             <ExternalLink className="w-2.5 h-2.5" />
                                         </a>
                                     </div>
@@ -675,6 +617,6 @@ export function AdminDashboard() {
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
