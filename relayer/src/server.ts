@@ -78,12 +78,13 @@ app.post('/relay', async (req: Request, res: Response): Promise<void> => {
 
         const { walletData, keyPair, contract, client } = await getOrCreateRelayerWallet();
 
-        // 1. Check relayer gas balance
+        // 1. Check relayer gas balance with dynamic safe fee
         const relayerBalance = await client.getBalance(contract.address);
-        if (relayerBalance < RELAY_GAS_FEE) {
+        const dynamicFee = relayerBalance < 80_000_000n ? MIN_RELAY_GAS_FEE : RELAY_GAS_FEE;
+        if (relayerBalance < dynamicFee) {
             res.status(503).json({
                 success: false,
-                error: `Relayer has insufficient gas balance (${fromNano(relayerBalance)} TON). Needs at least ${fromNano(RELAY_GAS_FEE)} TON.`,
+                error: `Relayer low balance (${fromNano(relayerBalance)} TON). Minimum required: ${fromNano(dynamicFee)} TON.`,
             });
             return;
         }
@@ -125,16 +126,6 @@ app.post('/relay', async (req: Request, res: Response): Promise<void> => {
         const bodyCell = b0.endCell();
 
         // 5. Broadcast transaction to TON with relayer's dynamic gas
-        const relayerBalance = await client.getBalance(contract.address);
-        const dynamicFee = relayerBalance < 80_000_000n ? MIN_RELAY_GAS_FEE : RELAY_GAS_FEE;
-
-        if (relayerBalance < dynamicFee) {
-            return res.status(503).json({
-                success: false,
-                error: `Relayer low balance (${fromNano(relayerBalance)} TON). Minimum required: ${fromNano(dynamicFee)} TON.`,
-            });
-        }
-
         console.log(`📤 [Relayer] Dispatching transaction to Mixer (${MIXER_ADDRESS}) with dynamic fee ${fromNano(dynamicFee)} TON...`);
         const walletContract = client.open(contract);
         const seqno = await walletContract.getSeqno();
