@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { Address, Cell, beginCell, fromNano, toNano, internal } from '@ton/core';
-import { PORT, MIXER_ADDRESS, RELAY_GAS_FEE } from './config';
+import { PORT, MIXER_ADDRESS, RELAY_GAS_FEE, TON_NETWORK } from './config';
 import { getOrCreateRelayerWallet, getRelayerTonClient } from './wallet';
 import { verifyRelayRequest } from './verifier';
 
@@ -18,6 +18,7 @@ let totalRelayedCount = 0;
 app.get('/health', (req: Request, res: Response) => {
     res.json({
         status: 'ok',
+        network: TON_NETWORK,
         mixerAddress: MIXER_ADDRESS,
         totalRelayed: totalRelayedCount,
         timestamp: new Date().toISOString(),
@@ -34,7 +35,8 @@ app.get('/status', async (req: Request, res: Response) => {
 
         res.json({
             online: true,
-            network: 'testnet',
+            network: TON_NETWORK,
+            mixerAddress: MIXER_ADDRESS,
             relayer: walletData.address,
             gasBalance: fromNano(balance) + ' TON',
             hasSufficientGas: balance >= RELAY_GAS_FEE,
