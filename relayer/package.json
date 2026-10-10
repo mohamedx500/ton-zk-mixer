@@ -4,7 +4,7 @@
   "description": "Decentralized Gasless Relayer Network for TON ZK-Mixer Protocol",
   "main": "dist/server.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "build": "tsc",
     "init-wallet": "ts-node src/init_wallet.ts"

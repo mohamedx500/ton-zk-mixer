@@ -16,7 +16,7 @@ export const TONCENTER_RPC =
 
 export const TONCENTER_API_KEY = process.env.NEXT_PUBLIC_TONCENTER_API_KEY || '';
 
-export const RELAYER_ENDPOINT = process.env.NEXT_PUBLIC_RELAYER_URL || 'http://localhost:4000/relay';
+export const RELAYER_ENDPOINT = process.env.NEXT_PUBLIC_RELAYER_URL || '/api/relay';
 
 export const OP_DEPOSIT_TON = 0x1001;
 export const OP_WITHDRAW = 0x1002;

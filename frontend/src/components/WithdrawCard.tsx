@@ -23,7 +23,7 @@ import {
     buildWithdrawTransaction,
 } from '../lib/ton';
 import { generateClientWithdrawProof, ZkWithdrawProof } from '../lib/prover';
-import { TESTNET_EXPLORER_URL } from '../lib/contracts';
+import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT } from '../lib/contracts';
 
 interface WithdrawCardProps {
     onWithdrawSuccess?: () => void;
@@ -179,7 +179,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     assetId: zkProof.assetId.toString(),
                 };
 
-                const res = await fetch('http://localhost:4000/relay', {
+                const res = await fetch(RELAYER_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(relayPayload),
