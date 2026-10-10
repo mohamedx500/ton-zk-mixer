@@ -957,6 +957,106 @@ export function dictValueParserSetPool(): DictionaryValue<SetPool> {
     }
 }
 
+export type ClaimFees = {
+    $$type: 'ClaimFees';
+    amount: bigint;
+    destination: Address;
+}
+
+export function storeClaimFees(src: ClaimFees) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(4103, 32);
+        b_0.storeCoins(src.amount);
+        b_0.storeAddress(src.destination);
+    };
+}
+
+export function loadClaimFees(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 4103) { throw Error('Invalid prefix'); }
+    const _amount = sc_0.loadCoins();
+    const _destination = sc_0.loadAddress();
+    return { $$type: 'ClaimFees' as const, amount: _amount, destination: _destination };
+}
+
+export function loadTupleClaimFees(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _destination = source.readAddress();
+    return { $$type: 'ClaimFees' as const, amount: _amount, destination: _destination };
+}
+
+export function loadGetterTupleClaimFees(source: TupleReader) {
+    const _amount = source.readBigNumber();
+    const _destination = source.readAddress();
+    return { $$type: 'ClaimFees' as const, amount: _amount, destination: _destination };
+}
+
+export function storeTupleClaimFees(source: ClaimFees) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.amount);
+    builder.writeAddress(source.destination);
+    return builder.build();
+}
+
+export function dictValueParserClaimFees(): DictionaryValue<ClaimFees> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeClaimFees(src)).endCell());
+        },
+        parse: (src) => {
+            return loadClaimFees(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type SetFeeRouting = {
+    $$type: 'SetFeeRouting';
+    autoRoute: boolean;
+}
+
+export function storeSetFeeRouting(src: SetFeeRouting) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(4104, 32);
+        b_0.storeBit(src.autoRoute);
+    };
+}
+
+export function loadSetFeeRouting(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 4104) { throw Error('Invalid prefix'); }
+    const _autoRoute = sc_0.loadBit();
+    return { $$type: 'SetFeeRouting' as const, autoRoute: _autoRoute };
+}
+
+export function loadTupleSetFeeRouting(source: TupleReader) {
+    const _autoRoute = source.readBoolean();
+    return { $$type: 'SetFeeRouting' as const, autoRoute: _autoRoute };
+}
+
+export function loadGetterTupleSetFeeRouting(source: TupleReader) {
+    const _autoRoute = source.readBoolean();
+    return { $$type: 'SetFeeRouting' as const, autoRoute: _autoRoute };
+}
+
+export function storeTupleSetFeeRouting(source: SetFeeRouting) {
+    const builder = new TupleBuilder();
+    builder.writeBoolean(source.autoRoute);
+    return builder.build();
+}
+
+export function dictValueParserSetFeeRouting(): DictionaryValue<SetFeeRouting> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeSetFeeRouting(src)).endCell());
+        },
+        parse: (src) => {
+            return loadSetFeeRouting(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type JettonNotification = {
     $$type: 'JettonNotification';
     query_id: bigint;
@@ -1259,6 +1359,8 @@ export type TonZkMixer$Data = {
     nullifiers: Dictionary<bigint, boolean>;
     totalDeposits: bigint;
     totalWithdrawals: bigint;
+    accumulatedFees: bigint;
+    autoFeeRouting: boolean;
 }
 
 export function storeTonZkMixer$Data(src: TonZkMixer$Data) {
@@ -1278,6 +1380,8 @@ export function storeTonZkMixer$Data(src: TonZkMixer$Data) {
         b_1.storeDict(src.nullifiers, Dictionary.Keys.BigUint(256), Dictionary.Values.Bool());
         b_1.storeUint(src.totalDeposits, 32);
         b_1.storeUint(src.totalWithdrawals, 32);
+        b_1.storeCoins(src.accumulatedFees);
+        b_1.storeBit(src.autoFeeRouting);
         b_0.storeRef(b_1.endCell());
     };
 }
@@ -1298,7 +1402,9 @@ export function loadTonZkMixer$Data(slice: Slice) {
     const _nullifiers = Dictionary.load(Dictionary.Keys.BigUint(256), Dictionary.Values.Bool(), sc_1);
     const _totalDeposits = sc_1.loadUintBig(32);
     const _totalWithdrawals = sc_1.loadUintBig(32);
-    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals };
+    const _accumulatedFees = sc_1.loadCoins();
+    const _autoFeeRouting = sc_1.loadBit();
+    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals, accumulatedFees: _accumulatedFees, autoFeeRouting: _autoFeeRouting };
 }
 
 export function loadTupleTonZkMixer$Data(source: TupleReader) {
@@ -1315,7 +1421,9 @@ export function loadTupleTonZkMixer$Data(source: TupleReader) {
     const _nullifiers = Dictionary.loadDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Bool(), source.readCellOpt());
     const _totalDeposits = source.readBigNumber();
     const _totalWithdrawals = source.readBigNumber();
-    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals };
+    const _accumulatedFees = source.readBigNumber();
+    const _autoFeeRouting = source.readBoolean();
+    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals, accumulatedFees: _accumulatedFees, autoFeeRouting: _autoFeeRouting };
 }
 
 export function loadGetterTupleTonZkMixer$Data(source: TupleReader) {
@@ -1332,7 +1440,9 @@ export function loadGetterTupleTonZkMixer$Data(source: TupleReader) {
     const _nullifiers = Dictionary.loadDirect(Dictionary.Keys.BigUint(256), Dictionary.Values.Bool(), source.readCellOpt());
     const _totalDeposits = source.readBigNumber();
     const _totalWithdrawals = source.readBigNumber();
-    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals };
+    const _accumulatedFees = source.readBigNumber();
+    const _autoFeeRouting = source.readBoolean();
+    return { $$type: 'TonZkMixer$Data' as const, owner: _owner, paused: _paused, tonDenomination: _tonDenomination, poolDenominations: _poolDenominations, poolActive: _poolActive, assetToWallet: _assetToWallet, nextIndex: _nextIndex, currentRoot: _currentRoot, filledSubtrees: _filledSubtrees, roots: _roots, nullifiers: _nullifiers, totalDeposits: _totalDeposits, totalWithdrawals: _totalWithdrawals, accumulatedFees: _accumulatedFees, autoFeeRouting: _autoFeeRouting };
 }
 
 export function storeTupleTonZkMixer$Data(source: TonZkMixer$Data) {
@@ -1350,6 +1460,8 @@ export function storeTupleTonZkMixer$Data(source: TonZkMixer$Data) {
     builder.writeCell(source.nullifiers.size > 0 ? beginCell().storeDictDirect(source.nullifiers, Dictionary.Keys.BigUint(256), Dictionary.Values.Bool()).endCell() : null);
     builder.writeNumber(source.totalDeposits);
     builder.writeNumber(source.totalWithdrawals);
+    builder.writeNumber(source.accumulatedFees);
+    builder.writeBoolean(source.autoFeeRouting);
     return builder.build();
 }
 
@@ -1379,7 +1491,7 @@ function initTonZkMixer_init_args(src: TonZkMixer_init_args) {
 }
 
 async function TonZkMixer_init(owner: Address, tonDenomination: bigint) {
-    const __code = Cell.fromHex('b5ee9c7241025201001352000114ff00f4a413f4bcf2c80b01020162022d04f8d001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e2bfa40d200fa00f404d401d0f404f404d31fd3fff404d430d0f404f404d31fd31f30109d109c109b109a6c1d8e8afa40fa005902d101db3ce20e925f0ee0702dd74920c21f95310dd31f0ede21811001bae3022182107362d09cbae3024c03041002c65b0cd3ff302ab3f2e3ea258307b9f2e3ecf8416f24135f032a820afaf080a0bef2e3eb25541deddb3c02a4704f1301111001c85530821053c982445005cb1f13cbffcbffcb1fcbffc9c88258c000000000000000000000000101cb67ccc970fb00551a062a04fe5b0cd33f31fa00fa40312bb3f2e3ea268307b9f2e3ecf84220db3c2a830722714133f40e6fa19401d70030925b6de2206e92307f91b3e28e22312a83072259f40e6fa193fa003092306de2206eb39213ba93303270e2f2e3eb5087e30d07d3ff302610cd10bd10ad109d1028102710261025102443ef2edb3c02a4103e102f1205060f00880a83072b7f71216e955b59f45b3098c801cf004133f443e21b83075420b5206e953059f45b3098c801fa024133f443e21883075420ac206e953059f45b30944133f416e204f62770788ff221a938008e9827782283074133f40e6fa19401d70130925b6de25003db3c8f4b077853838307216e955b59f45b3098c801cf014133f443e210cf10be10ad109f108e107d106f105e04103f4e0f2ddb3c1fdb3c10cf10be10ad109c108b107a106910581047103645404130e201ab0002a412e45b36060c070c0e04d020923070e120c0018e233082f03b29ded4e21ee5319d4b13e0f95d442291d511ae4ab3f1c1795b895af9d72352e020c0028e233082f06e1cb2a03731a299466227ee240879935c1b6ff81374b21a2b293edef93045efe020c003e30220c004e30220c005e302c00608090a0b00463082f04b874ed57b5d556715d986b730cb5c1248c3acca96e30f1d82b43990e9370cca00463082f01aacbdbb0a53d2f434e1e637ebceb71c5747fbda734faa4edea850ff68db64bd00463082f02c6d7d2ce39e5804001ec9dc01dbd0f58c6530b6d783573d5aebda842787b90a008e8e2282f03b011a8c6358df04086c7eea4f30b3be04f1b9f869e35884a63b6fc3c1d278bae082f021b968e6d26180f1d4fe126ff3407917683138808c04cdae72eda1db350528b60104db3c0d00907082305851f42d4c957f2d823014057b7ef767814ff9303180408e245154a025a90823a025a908547005a9885306a9885116a988543325a98821a025a9080305e46c3159a001a908003aa425048307277f71216e955b59f45b3098c801cf004133f443e204507600da011110010fc85530821053c982445005cb1f13cbffcbffcb1fcbffc9c88258c000000000000000000000000101cb67ccc970fb00109c552812c87f01ca0055c050cdce1aca005008fa0216f40004c8f40013f400cb1fcbff12f40002c8f40013f40013cb1f13cb1fcdcdc9ed5404d621811002bae30221811003ba8e495b3a0bd20030f8422bc705f2e3e910ac0b108a5517c87f01ca0055c050cdce1aca005008fa0216f40004c8f40013f400cb1fcbff12f40002c8f40013f40013cb1f13cb1fcdcdc9ed54e021811006bae30221811004bae30221811005ba1126272b02fc5b0cd4d4d430d0d4d3ffd3fffa40d430d0d3ff305610b3f2e3ea27830724714133f40e6fa19401d70030925b6de2206e92307f91b3e2f2e3ee28830725714133f40e6fa19401d70030925b6de2206eb3923070dff2e3ed2d830722714133f40e6fa19401d70030925b6de2206eb3923070dff2e3f021db3c11111112111112130024c801cf16c9d0800bd721d3ff30f93031a90803d41110111211100f11120f0e11120e0d11120d0c11120c0b11120b0a11120a0911120908111208071112070611130605111405041112040311130302111402011112015613015613db3cf2e3ef0283072f7f71216e955b59f45b3098c801cf004133f443e202a48970530f141e1f04de06d7393005d7393004d7393025d749810180bd917f9724d749810300bde2917f9720d749810180bde2935f0770e025f93017c000917f9624f93027c000e2917f9620f93017c000e2935f0770e025f93018c300917f9624f93028c300e2917f9620f93018c300e2935f0770e0898989151617180060b6bb6d1eb1e9780c65c0f2b4af7bfcb71cee6af3bf7c8e2cdface6e06afd3a0c8daff816e6c2ff65380b1ca42c3a16f60060b2fe2cb319bf7361635d963d2f38ab668782a3aba2f08d2493091a4f5ac7d5187e4d29b691cfc88d2ec13b30150a37010060a0a82f08502e1c902014e90734970cd0d94c368ffc96de2c7a45ba886f6a22026cc6504b80bccd70c5623f94bb49a13304f889103710364503040a74f930148d0c23a8ade4bf9652ba55e528ea7e664e436d56240475c879e397f9983481b7a990b45c0505e9dbec138e2c3dbd605b92c760f9301002f9301289898d0c24df7f49be9874ba587300066b72407c3b2dbd027c734ecabf1c82beeb290bc4d9c703113f5be349f06be2185473559220191a1b1c0060a87c499577747f8c65568ef6c211b45ba3ef7a5cb7d29aa35c672a50247769696e7fc906648a45e2f780388a3a2dddd700c093e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb800c087e3f16ce1380378128d6f5bae70bb65eb28dfd5bc38a8e4225fd52c40d64be21c7fe5e1705601d484dfe3114bf0ebe60a1d166e81cde814ec3b3c870a4f33a88478e09a0799d648a5d205522b74eb5c77ad6857a2c5ac42ae643901c02b317901168910675e2374f93030c3001d00c080b61272470f2c76aaf8fee9838e01d367807d80037af69c196c450498336824ecc4ba6073bfd2e2a015816826f7f3de1300f0483130e69764278d6185eb448436fa4d325bfa83ac2ca3d4f7d5690fcee8853f689c7c97706feb4680038e73390043801de148c2d9be1771bfaea2605197e5ff0b512a0f4b6d87d22e381340d6c463a15003bc8e962a8307561259f40e6fa192306ddf206eb3923032e30de30e104f0311100302111102c85540821037ee08e55006cb1f14cbff12cbffce01fa02c858fa02cdc9c88258c000000000000000000000000101cb67ccc970fb00109c55281220222a01fe6c212b8307561159f40e6fa193fa003092306de2208064a90466a1820a625a0072706d718b082603561a03561b03c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec92555205a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e22100faf400c901fb0021c2008e6d820a625a0072706d718b082704515a04103b50b2c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec9103441505a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0001926c22e20103f65b2b8064a90453c0a172708856155134413310246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00727088241046552010246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf818ae2f400c901fb00232425004600000000546f6e5a6b4d6978657220416e6f6e796d6f7573205769746864726177616c003600000000546f6e5a6b4d697865722050726f746f636f6c20466565001a58cf8680cf8480f400f400cf8101a65b0cd3fffa00d20030f8422ec705f2e3e9198307523271216e955b59f45b3098c801cf004133f443e2102983074009206e953059f45b3098c801fa024133f443e210ac109b108a0910681057104610354403022a03bc5b0cfa40fa00d72c01916d93fa4001e231f8422ec705f2e3e9206e8ebb3072708810246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30e10ac551928292a004600000000546f6e5a6b4d6978657220456d657267656e637920544f4e2052657363756500d4820afaf08072706d718b08281046105804095520c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec943305a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb000068c87f01ca0055c050cdce1aca005008fa0216f40004c8f40013f400cb1fcbff12f40002c8f40013f40013cb1f13cb1fcdcdc9ed5401b08e465b0cd430f8422cc705f2e3e9fb0410ac5519c87f01ca0055c050cdce1aca005008fa0216f40004c8f40013f400cb1fcbff12f40002c8f40013f40013cb1f13cb1fcdcdc9ed54e03ec0000dc1211db0e3025f0df2c0822c007010ac5519c87f01ca0055c050cdce1aca005008fa0216f40004c8f40013f400cb1fcbff12f40002c8f40013f40013cb1f13cb1fcdcdc9ed540201202e3c0201202f3702012030350201583133028dae6976a268690000c715fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98f98084e884e084d884d360ec7457d207d002c816880ed9e716d9e3668c04c32000226028dadc9f6a268690000c715fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98f98084e884e084d884d360ec7457d207d002c816880ed9e716d9e3668c04c34000221028db7cf1da89a1a400031c57f481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63e60213a213821362134d83b1d15f481f400b205a203b679c5b678d9a304c36000271020148383a028db1477b5134348000638afe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7cc042744270426c4269b0763a2be903e801640b44076cf38b6cf1b34604c3900022c028db08ebb5134348000638afe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7cc042744270426c4269b0763a2be903e801640b44076cf38b6cf1b34604c3b0002250201583d480201203e430201203f410291ae1976a268690000c715fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98f98084e884e084d884d360ec7457d207d002c816880ed9e712a866d9e3668c04c40002e83072b0259f40e6fa193fa003092306de2206eb3dc3070028dae7976a268690000c715fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98f98084e884e084d884d360ec7457d207d002c816880ed9e716d9e3668c04c4200488d086007785230b66f85dc6feba8981465f97fc2d44a83d2db61f48b8e04d035b118e85402016a4446028ba6d3da89a1a400031c57f481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63e60213a213821362134d83b1d15f481f400b205a203b679c5b678d9a34c45000220028fa573da89a1a400031c57f481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63e60213a213821362134d83b1d15f481f400b205a203b679c4aa19b678d9a34c47003683072502714133f40e6fa19401d70030925b6de2206eb3923070df020120494b028db337bb5134348000638afe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7cc042744270426c4269b0763a2be903e801640b44076cf38b6cf1b34604c4a00022b0291b23e3b5134348000638afe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7cc042744270426c4269b0763a2be903e801640b44076cf38954336cf1b34604c5101c06d6d6d6d6d6d702770530082f03f194414241d31d80fb05371ffb726043b92e9c8ee821b5cbd22d8c499a0b014078307287f71216e955b59f45b3098c801cf004133f443e2785322103b8307216e955b59f45b3098c801cf014133f443e278714d01e082f03b29ded4e21ee5319d4b13e0f95d442291d511ae4ab3f1c1795b895af9d723528307216e955b59f45b3098c801cf014133f443e2787282f06e1cb2a03731a299466227ee240879935c1b6ff81374b21a2b293edef93045ef8307216e955b59f45b3098c801cf014133f443e278734e01e082f04b874ed57b5d556715d986b730cb5c1248c3acca96e30f1d82b43990e9370cca8307216e955b59f45b3098c801cf014133f443e2787482f01aacbdbb0a53d2f434e1e637ebceb71c5747fbda734faa4edea850ff68db64bd8307216e955b59f45b3098c801cf014133f443e278754f01e082f02c6d7d2ce39e5804001ec9dc01dbd0f58c6530b6d783573d5aebda842787b90a8307216e955b59f45b3098c801cf014133f443e2787682f03b011a8c6358df04086c7eea4f30b3be04f1b9f869e35884a63b6fc3c1d278ba8307216e955b59f45b3098c801cf014133f443e278775000ec82f021b968e6d26180f1d4fe126ff3407917683138808c04cdae72eda1db350528b68307216e955b59f45b3098c801cf014133f443e28307541b027f71216e955b59f45b3098c801cf004133f443e2541b0b8307401e206e953059f45b3098c801fa024133f443e2104b103a09104810471026451403003683072402714133f40e6fa19401d70030925b6de2206eb3923070dfc1eb9ccb');
+    const __code = Cell.fromHex('b5ee9c7241025c010015a7000114ff00f4a413f4bcf2c80b01020162023103f4d001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e2ffa40d200fa00f404d401d0f404f404d31fd3fff404d430d0f404f404d31fd31ffa00d2003010bf10be10bd10bc6c1f8e8afa40fa005902d101db3ce21110935f0f30e0702fd74920c21f96310fd31f1110de21811001bae3022156030402fc5b0ed3ff302cb3f2e3ea278307b9f2e3ecf8416f24135f032c820afaf080a0bef2e3eb271110541f0fdb3c04a47003021111020111120105c85530821053c982445005cb1f13cbffcbffcb1fcbffc9c88258c000000000000000000000000101cb67ccc970fb0010ce10bd10ac109b108a10791068105710461035401403082d04ea82107362d09cbae30221811002bae30221811003ba8e515b3c0dd20030f8422dc705f2e3e910ce0d10ac5519c87f01ca0055e050efce1cca00500afa0218f40006c8f40015f40013cb1fcbfff40001c8f40013f40013cb1f13cb1f5003fa0213ca0012cdcdc9ed54e021811006bae30221811004ba0512272803fc5b0ed33f31fa00fa40312db3f2e3ea288307b9f2e3ecf84220db3c2c830722714133f40e6fa19401d70030925b6de2206e92307f91b3e28e22312c83072259f40e6fa193fa003092306de2206eb39213ba93303270e2f2e3eb50a9e30d09d3ff302810ef10df10cf10bf102a10291028102710261025102410230111100113060700880c83072d7f71216e955b59f45b3098c801cf004133f443e21d83075420d5206e953059f45b3098c801fa024133f443e21a83075420ce206e953059f45b30944133f416e202b411115610db3c04a403111003021111020111120104c85530821053c982445005cb1f13cbffcbffcb1fcbffc9c88258c000000000000000000000000101cb67ccc970fb0010be10ad109c108b107a106910581047103645135042082d014a2970788ae45b3808a427068307297f71216e955b59f45b3098c801cf004133f443e20650980903fa21a938008f6f097853a38307216e955b59f45b3098c801cf014133f443e20e11110e0d11100d10cf0b11110b0a11100a109f08111108071110070605111105041110040302111102011110012fdb3c01111201db3c0e11110e0d11100d10cf10be10ad109c108b107a106910581047103645401023e30d01ab0002a4120a100f04d020923070e120c0018e233082f03b29ded4e21ee5319d4b13e0f95d442291d511ae4ab3f1c1795b895af9d72352e020c0028e233082f06e1cb2a03731a299466227ee240879935c1b6ff81374b21a2b293edef93045efe020c003e30220c004e30220c005e302c0060b0c0d0e00463082f04b874ed57b5d556715d986b730cb5c1248c3acca96e30f1d82b43990e9370cca00463082f01aacbdbb0a53d2f434e1e637ebceb71c5747fbda734faa4edea850ff68db64bd00463082f02c6d7d2ce39e5804001ec9dc01dbd0f58c6530b6d783573d5aebda842787b90a008e8e2282f03b011a8c6358df04086c7eea4f30b3be04f1b9f869e35884a63b6fc3c1d278bae082f021b968e6d26180f1d4fe126ff3407917683138808c04cdae72eda1db350528b6013029782283074133f40e6fa19401d70130925b6de25003db3c100104db3c1100907082305851f42d4c957f2d823014057b7ef767814ff9303180408e245154a025a90823a025a908547005a9885306a9885116a988543325a98821a025a9080305e46c3159a001a90802fc5b0ed4d4d430d0d4d3ffd3fffa40d430d0d3ff305612b3f2e3ea29830724714133f40e6fa19401d70030925b6de2206e92307f91b3e2f2e3ee2a830725714133f40e6fa19401d70030925b6de2206eb3923070dff2e3ed2f830722714133f40e6fa19401d70030925b6de2206eb3923070dff2e3f021db3c11131114111313140024c801cf16c9d0800bd721d3ff30f93031a90803f01112111411121111111411111110111411100f11140f0e11140e0d11140d0c11140c0b11140b0a11140a0911140908111408071114070611150605111605041114040311150302111602011114015615015615db3cf2e3ef04830756117f71216e955b59f45b3098c801cf004133f443e202a48970205612151f2004de06d7393005d7393004d7393025d749810180bd917f9724d749810300bde2917f9720d749810180bde2935f0770e025f93017c000917f9624f93027c000e2917f9620f93017c000e2935f0770e025f93018c300917f9624f93028c300e2917f9620f93018c300e2935f0770e0898989161718190060b6bb6d1eb1e9780c65c0f2b4af7bfcb71cee6af3bf7c8e2cdface6e06afd3a0c8daff816e6c2ff65380b1ca42c3a16f60060b2fe2cb319bf7361635d963d2f38ab668782a3aba2f08d2493091a4f5ac7d5187e4d29b691cfc88d2ec13b30150a37010060a0a82f08502e1c902014e90734970cd0d94c368ffc96de2c7a45ba886f6a22026cc6504b80bccd70c5623f94bb49a13304f889103710364503040a74f930148d0c23a8ade4bf9652ba55e528ea7e664e436d56240475c879e397f9983481b7a990b45c0505e9dbec138e2c3dbd605b92c760f9301002f9301289898d0c24df7f49be9874ba587300066b72407c3b2dbd027c734ecabf1c82beeb290bc4d9c703113f5be349f06be21854735592201a1b1c1d0060a87c499577747f8c65568ef6c211b45ba3ef7a5cb7d29aa35c672a50247769696e7fc906648a45e2f780388a3a2dddd700c093e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb800c087e3f16ce1380378128d6f5bae70bb65eb28dfd5bc38a8e4225fd52c40d64be21c7fe5e1705601d484dfe3114bf0ebe60a1d166e81cde814ec3b3c870a4f33a88478e09a0799d648a5d205522b74eb5c77ad6857a2c5ac42ae643901c02b317901168910675e2374f93030c3001e00c080b61272470f2c76aaf8fee9838e01d367807d80037af69c196c450498336824ecc4ba6073bfd2e2a015816826f7f3de1300f0483130e69764278d6185eb448436fa4d325bfa83ac2ca3d4f7d5690fcee8853f689c7c97706feb4680038e73390043801de148c2d9be1771bfaea2605197e5ff0b512a0f4b6d87d22e381340d6c463a15004f48e962c8307561459f40e6fa192306ddf206eb3923032e30d8f525b2d8064a90453e0a172708856175134413310246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb002795325133a003e30de2041111040311120302111302c82123242601fe6c212d8307561359f40e6fa193fa003092306de2208064a90466a1820a625a0072706d718b082603561c03561d03c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec92555205a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e22200faf400c901fb0021c2008e6d820a625a0072706d718b082704515a04103b50b2c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec9103441505a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0001926c22e201004600000000546f6e5a6b4d6978657220416e6f6e796d6f7573205769746864726177616c017e727088241046552010246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0025003600000000546f6e5a6b4d697865722050726f746f636f6c2046656501945540821037ee08e55006cb1f14cbff12cbffce01fa02c858fa02cdc9c88258c000000000000000000000000101cb67ccc970fb0010be10ad109c108b107a1069105810471036451350442d01b05b0ed3fffa00d20030f8425610c705f2e3e91b8307523271216e955b59f45b3098c801cf004133f443e2102b8307400b206e953059f45b3098c801fa024133f443e210ce10bd10ac0b108a107910681057104610354403022d04ce8fdf5b0efa40fa00d72c01916d93fa4001e231f8425610c705f2e3e9206e8ebb3072708810246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30e10ce551be021811007ba292a2d2b004600000000546f6e5a6b4d6978657220456d657267656e637920544f4e2052657363756500d4820afaf08072706d718b08281046105804095520c8556082100f8a7ea55008cb1f16cb3f5004fa0212cecef40001fa02cec943305a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0004da8f5e5b0efa00fa4030f8422fc705f2e3e9531fbbf2e3f151f1a1727088041112040311120310246d50436d03c8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010ce551be021811008bae30221811005ba2c2d2e2f003200000000546f6e5a6b4d6978657220436c61696d20466565730078c87f01ca0055e050efce1cca00500afa0218f40006c8f40015f40013cb1fcbfff40001c8f40013f40013cb1f13cb1f5003fa0213ca0012cdcdc9ed5400c25b3f0dd20030f8422dc705f2e3e910ce10bd10ac109b108a10791068105710461035443012c87f01ca0055e050efce1cca00500afa0218f40006c8f40015f40013cb1fcbfff40001c8f40013f40013cb1f13cb1f5003fa0213ca0012cdcdc9ed5401c28e4e5b0ed430f8422ec705f2e3e9fb0410ce551bc87f01ca0055e050efce1cca00500afa0218f40006c8f40015f40013cb1fcbfff40001c8f40013f40013cb1f13cb1f5003fa0213ca0012cdcdc9ed54e05710c0000fc1211fb0e3025f0ff2c08230008010ce551bc87f01ca0055e050efce1cca00500afa0218f40006c8f40015f40013cb1fcbfff40001c8f40013f40013cb1f13cb1f5003fa0213ca0012cdcdc9ed540201203243020120333e020120343c02012035370295b15bfb5134348000638bfe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7fe8034800c042fc42f842f442f1b07e3a2be903e801640b44076cf38b6cf1b3c605636000221020120383a0295ae6976a268690000c717fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98ffd00690018085f885f085e885e360fc7457d207d002c816880ed9e716d9e3678c056390002280295adc9f6a268690000c717fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98ffd00690018085f885f085e885e360fc7457d207d002c816880ed9e716d9e3678c0563b0002230295b7cf1da89a1a400031c5ff481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63ff401a40060217e217c217a2178d83f1d15f481f400b205a203b679c5b678d9e30563d0002710201483f410295b1477b5134348000638bfe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7fe8034800c042fc42f842f442f1b07e3a2be903e801640b44076cf38b6cf1b3c60564000022e0295b08ebb5134348000638bfe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7fe8034800c042fc42f842f442f1b07e3a2be903e801640b44076cf38b6cf1b3c6056420002270201584452020120454a02012046480299ae1976a268690000c717fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98ffd00690018085f885f085e885e360fc7457d207d002c816880ed9e712a876d9e3678c05647002e83072d0259f40e6fa193fa003092306de2206eb3dc30700295ae7976a268690000c717fd2069007d007a026a00e87a027a02698fe9fffa026a18687a027a02698fe98ffd00690018085f885f085e885e360fc7457d207d002c816880ed9e716d9e3678c0564900488d086007785230b66f85dc6feba8981465f97fc2d44a83d2db61f48b8e04d035b118e8540201584b500201204c4e0293a6d3da89a1a400031c5ff481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63ff401a40060217e217c217a2178d83f1d15f481f400b205a203b679c5b678d9e3564d0002220297a573da89a1a400031c5ff481a401f401e809a803a1e809e809a63fa7ffe809a861a1e809e809a63fa63ff401a40060217e217c217a2178d83f1d15f481f400b205a203b679c4aa1db678d9e3564f003683072702714133f40e6fa19401d70030925b6de2206eb3923070df0294a8c5ed44d0d200018e2ffa40d200fa00f404d401d0f404f404d31fd3fff404d430d0f404f404d31fd31ffa00d2003010bf10be10bd10bc6c1f8e8afa40fa005902d101db3ce2db3c6cf1565100022002012053550295b337bb5134348000638bfe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7fe8034800c042fc42f842f442f1b07e3a2be903e801640b44076cf38b6cf1b3c60565400022d0299b23e3b5134348000638bfe9034803e803d013500743d013d0134c7f4fffd01350c343d013d0134c7f4c7fe8034800c042fc42f842f442f1b07e3a2be903e801640b44076cf389543b6cf1b3c60565b01c46d6d6d6d6d6d7027705470007082f03f194414241d31d80fb05371ffb726043b92e9c8ee821b5cbd22d8c499a0b0140983072a7f71216e955b59f45b3098c801cf004133f443e2785333103d8307216e955b59f45b3098c801cf014133f443e278715701e082f03b29ded4e21ee5319d4b13e0f95d442291d511ae4ab3f1c1795b895af9d723528307216e955b59f45b3098c801cf014133f443e2787282f06e1cb2a03731a299466227ee240879935c1b6ff81374b21a2b293edef93045ef8307216e955b59f45b3098c801cf014133f443e278735801e082f04b874ed57b5d556715d986b730cb5c1248c3acca96e30f1d82b43990e9370cca8307216e955b59f45b3098c801cf014133f443e2787482f01aacbdbb0a53d2f434e1e637ebceb71c5747fbda734faa4edea850ff68db64bd8307216e955b59f45b3098c801cf014133f443e278755901e082f02c6d7d2ce39e5804001ec9dc01dbd0f58c6530b6d783573d5aebda842787b90a8307216e955b59f45b3098c801cf014133f443e2787682f03b011a8c6358df04086c7eea4f30b3be04f1b9f869e35884a63b6fc3c1d278ba8307216e955b59f45b3098c801cf014133f443e278775a00f082f021b968e6d26180f1d4fe126ff3407917683138808c04cdae72eda1db350528b68307216e955b59f45b3098c801cf014133f443e28307541d037f71216e955b59f45b3098c801cf004133f443e2541d028307021110206e953059f45b3098c801fa024133f443e2106d105c0b106a1069104810470605003683072602714133f40e6fa19401d70030925b6de2206eb3923070df86d6f4cc');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initTonZkMixer_init_args({ $$type: 'TonZkMixer_init_args', owner, tonDenomination })(builder);
@@ -1482,11 +1594,13 @@ const TonZkMixer_types: ABIType[] = [
     {"name":"EmergencyRescue","header":4100,"fields":[{"name":"recipient","type":{"kind":"simple","type":"address","optional":false}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"jettonWallet","type":{"kind":"simple","type":"address","optional":true}}]},
     {"name":"UpgradeCode","header":4101,"fields":[{"name":"new_code","type":{"kind":"simple","type":"cell","optional":false}}]},
     {"name":"SetPool","header":4102,"fields":[{"name":"assetId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"denomination","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"active","type":{"kind":"simple","type":"bool","optional":false}}]},
+    {"name":"ClaimFees","header":4103,"fields":[{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"destination","type":{"kind":"simple","type":"address","optional":false}}]},
+    {"name":"SetFeeRouting","header":4104,"fields":[{"name":"autoRoute","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"JettonNotification","header":1935855772,"fields":[{"name":"query_id","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"sender","type":{"kind":"simple","type":"address","optional":false}},{"name":"forward_payload","type":{"kind":"simple","type":"slice","optional":false,"format":"remainder"}}]},
     {"name":"JettonTransfer","header":260734629,"fields":[{"name":"query_id","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"destination","type":{"kind":"simple","type":"address","optional":false}},{"name":"response_destination","type":{"kind":"simple","type":"address","optional":false}},{"name":"custom_payload","type":{"kind":"simple","type":"cell","optional":true}},{"name":"forward_ton_amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"forward_payload","type":{"kind":"simple","type":"slice","optional":false,"format":"remainder"}}]},
     {"name":"DepositEvent","header":1405715012,"fields":[{"name":"assetId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"commitment","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"leafIndex","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"newRoot","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"WithdrawalEvent","header":938346725,"fields":[{"name":"assetId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"nullifierHash","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"recipient","type":{"kind":"simple","type":"address","optional":false}},{"name":"amount","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"fee","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
-    {"name":"TonZkMixer$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"paused","type":{"kind":"simple","type":"bool","optional":false}},{"name":"tonDenomination","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"poolDenominations","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"uint","valueFormat":"coins"}},{"name":"poolActive","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"assetToWallet","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"address"}},{"name":"nextIndex","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"currentRoot","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"filledSubtrees","type":{"kind":"dict","key":"uint","keyFormat":8,"value":"uint","valueFormat":256}},{"name":"roots","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"nullifiers","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"totalDeposits","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"totalWithdrawals","type":{"kind":"simple","type":"uint","optional":false,"format":32}}]},
+    {"name":"TonZkMixer$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"paused","type":{"kind":"simple","type":"bool","optional":false}},{"name":"tonDenomination","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"poolDenominations","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"uint","valueFormat":"coins"}},{"name":"poolActive","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"assetToWallet","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"address"}},{"name":"nextIndex","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"currentRoot","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"filledSubtrees","type":{"kind":"dict","key":"uint","keyFormat":8,"value":"uint","valueFormat":256}},{"name":"roots","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"nullifiers","type":{"kind":"dict","key":"uint","keyFormat":256,"value":"bool"}},{"name":"totalDeposits","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"totalWithdrawals","type":{"kind":"simple","type":"uint","optional":false,"format":32}},{"name":"accumulatedFees","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"autoFeeRouting","type":{"kind":"simple","type":"bool","optional":false}}]},
 ]
 
 const TonZkMixer_opcodes = {
@@ -1496,6 +1610,8 @@ const TonZkMixer_opcodes = {
     "EmergencyRescue": 4100,
     "UpgradeCode": 4101,
     "SetPool": 4102,
+    "ClaimFees": 4103,
+    "SetFeeRouting": 4104,
     "JettonNotification": 1935855772,
     "JettonTransfer": 260734629,
     "DepositEvent": 1405715012,
@@ -1514,6 +1630,8 @@ const TonZkMixer_getters: ABIGetter[] = [
     {"name":"poolDenomination","methodId":115762,"arguments":[{"name":"assetId","type":{"kind":"simple","type":"int","optional":false,"format":257}}],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
     {"name":"protocolFeePercent","methodId":81528,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
     {"name":"adminFeeWallet","methodId":118002,"arguments":[],"returnType":{"kind":"simple","type":"address","optional":false}},
+    {"name":"accumulatedFees","methodId":66927,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
+    {"name":"autoFeeRouting","methodId":122053,"arguments":[],"returnType":{"kind":"simple","type":"bool","optional":false}},
 ]
 
 export const TonZkMixer_getterMapping: { [key: string]: string } = {
@@ -1528,6 +1646,8 @@ export const TonZkMixer_getterMapping: { [key: string]: string } = {
     'poolDenomination': 'getPoolDenomination',
     'protocolFeePercent': 'getProtocolFeePercent',
     'adminFeeWallet': 'getAdminFeeWallet',
+    'accumulatedFees': 'getAccumulatedFees',
+    'autoFeeRouting': 'getAutoFeeRouting',
 }
 
 const TonZkMixer_receivers: ABIReceiver[] = [
@@ -1538,6 +1658,8 @@ const TonZkMixer_receivers: ABIReceiver[] = [
     {"receiver":"internal","message":{"kind":"typed","type":"SetPaused"}},
     {"receiver":"internal","message":{"kind":"typed","type":"SetPool"}},
     {"receiver":"internal","message":{"kind":"typed","type":"EmergencyRescue"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"ClaimFees"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"SetFeeRouting"}},
     {"receiver":"internal","message":{"kind":"typed","type":"UpgradeCode"}},
 ]
 
@@ -1558,6 +1680,7 @@ export const ERR_UNKNOWN_ROOT = 1005n;
 export const ERR_NULLIFIER_SPENT = 1006n;
 export const ERR_INVALID_PROOF = 1007n;
 export const ERR_POOL_INACTIVE = 1008n;
+export const ERR_INSUFFICIENT_FEES = 1009n;
 
 export class TonZkMixer implements Contract {
     
@@ -1593,7 +1716,7 @@ export class TonZkMixer implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | DepositTon | JettonNotification | Withdraw | SetPaused | SetPool | EmergencyRescue | UpgradeCode) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: null | DepositTon | JettonNotification | Withdraw | SetPaused | SetPool | EmergencyRescue | ClaimFees | SetFeeRouting | UpgradeCode) {
         
         let body: Cell | null = null;
         if (message === null) {
@@ -1616,6 +1739,12 @@ export class TonZkMixer implements Contract {
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'EmergencyRescue') {
             body = beginCell().store(storeEmergencyRescue(message)).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'ClaimFees') {
+            body = beginCell().store(storeClaimFees(message)).endCell();
+        }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'SetFeeRouting') {
+            body = beginCell().store(storeSetFeeRouting(message)).endCell();
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'UpgradeCode') {
             body = beginCell().store(storeUpgradeCode(message)).endCell();
@@ -1703,6 +1832,20 @@ export class TonZkMixer implements Contract {
         const builder = new TupleBuilder();
         const source = (await provider.get('adminFeeWallet', builder.build())).stack;
         const result = source.readAddress();
+        return result;
+    }
+    
+    async getAccumulatedFees(provider: ContractProvider) {
+        const builder = new TupleBuilder();
+        const source = (await provider.get('accumulatedFees', builder.build())).stack;
+        const result = source.readBigNumber();
+        return result;
+    }
+    
+    async getAutoFeeRouting(provider: ContractProvider) {
+        const builder = new TupleBuilder();
+        const source = (await provider.get('autoFeeRouting', builder.build())).stack;
+        const result = source.readBoolean();
         return result;
     }
     

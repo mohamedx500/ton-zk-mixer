@@ -89,6 +89,7 @@ console.log(`  ${GREEN}✓${RESET} All system checks passed.\n`);
 
 let relayerProcess = null;
 let frontendProcess = null;
+let monitorProcess = null;
 let isShuttingDown = false;
 
 // Kill any stale process lingering on the port
@@ -194,10 +195,33 @@ function startFrontend() {
         if (!isShuttingDown) {
             console.log(`${RED}⚠️ Frontend process exited (code: ${code}, signal: ${signal})${RESET}`);
         }
+// 4. Start Auto-Top-Up Monitor Process
+function startMonitor() {
+    if (!process.env.DEPLOYER_MNEMONIC || !process.env.RELAYER_MNEMONIC) {
+        console.log(`  ${YELLOW}ℹ️ Auto-TopUp Sentinel skipped (DEPLOYER_MNEMONIC or RELAYER_MNEMONIC not set in .env)${RESET}`);
+        return;
+    }
+    console.log(`${BLUE}🤖 Starting Automated Relayer Gas Top-Up Sentinel...${RESET}`);
+    const isWin = process.platform === 'win32';
+    const npxCmd = isWin ? 'npx.cmd' : 'npx';
+
+    monitorProcess = spawn(npxCmd, ['ts-node', path.join(RELAYER_DIR, 'src', 'monitor.ts')], {
+        cwd: __dirname,
+        shell: isWin,
+        env: process.env,
+    });
+
+    prefixStream(monitorProcess.stdout, '[SENTINEL]', BLUE);
+    prefixStream(monitorProcess.stderr, '[SENTINEL ERR]', RED);
+
+    monitorProcess.on('exit', (code, signal) => {
+        if (!isShuttingDown) {
+            console.log(`${RED}⚠️ Auto-TopUp Monitor process exited (code: ${code}, signal: ${signal})${RESET}`);
+        }
     });
 }
 
-// 4. Orchestration Loop
+// 5. Orchestration Loop
 async function run() {
     console.log(`${YELLOW}🧹 Ensuring ports 4000 and 3000 are ready...${RESET}`);
     freePort(4000);
@@ -236,6 +260,8 @@ async function run() {
     }
     console.log('');
 
+    startMonitor();
+
     console.log(`\n${GREEN}${BOLD}========================================================================${RESET}`);
     console.log(`${GREEN}${BOLD}🎉 TON ZK-MIXER FULL PROTOCOL SUITE IS LIVE!${RESET}`);
     console.log(`${GREEN}${BOLD}========================================================================${RESET}`);
@@ -271,6 +297,16 @@ function shutdown() {
                 spawn('taskkill', ['/pid', frontendProcess.pid.toString(), '/f', '/t']);
             } else {
                 frontendProcess.kill('SIGINT');
+            }
+        } catch (_) {}
+    }
+
+    if (monitorProcess) {
+        try {
+            if (process.platform === 'win32') {
+                spawn('taskkill', ['/pid', monitorProcess.pid.toString(), '/f', '/t']);
+            } else {
+                monitorProcess.kill('SIGINT');
             }
         } catch (_) {}
     }

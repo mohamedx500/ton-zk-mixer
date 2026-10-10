@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: TonZkMixer
-BoC Size: 4958 bytes
+BoC Size: 5555 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 21
+Total structures: 23
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -69,6 +69,14 @@ Signature: `UpgradeCode{new_code:^cell}`
 TL-B: `set_pool#00001006 assetId:uint256 denomination:coins active:bool = SetPool`
 Signature: `SetPool{assetId:uint256,denomination:coins,active:bool}`
 
+### ClaimFees
+TL-B: `claim_fees#00001007 amount:coins destination:address = ClaimFees`
+Signature: `ClaimFees{amount:coins,destination:address}`
+
+### SetFeeRouting
+TL-B: `set_fee_routing#00001008 autoRoute:bool = SetFeeRouting`
+Signature: `SetFeeRouting{autoRoute:bool}`
+
 ### JettonNotification
 TL-B: `jetton_notification#7362d09c query_id:uint64 amount:coins sender:address forward_payload:remainder<slice> = JettonNotification`
 Signature: `JettonNotification{query_id:uint64,amount:coins,sender:address,forward_payload:remainder<slice>}`
@@ -86,11 +94,11 @@ TL-B: `withdrawal_event#37ee08e5 assetId:uint256 nullifierHash:uint256 recipient
 Signature: `WithdrawalEvent{assetId:uint256,nullifierHash:uint256,recipient:address,amount:coins,fee:coins}`
 
 ### TonZkMixer$Data
-TL-B: `_ owner:address paused:bool tonDenomination:coins poolDenominations:dict<uint256, coins> poolActive:dict<uint256, bool> assetToWallet:dict<uint256, address> nextIndex:uint32 currentRoot:uint256 filledSubtrees:dict<uint8, uint256> roots:dict<uint256, bool> nullifiers:dict<uint256, bool> totalDeposits:uint32 totalWithdrawals:uint32 = TonZkMixer`
-Signature: `TonZkMixer{owner:address,paused:bool,tonDenomination:coins,poolDenominations:dict<uint256, coins>,poolActive:dict<uint256, bool>,assetToWallet:dict<uint256, address>,nextIndex:uint32,currentRoot:uint256,filledSubtrees:dict<uint8, uint256>,roots:dict<uint256, bool>,nullifiers:dict<uint256, bool>,totalDeposits:uint32,totalWithdrawals:uint32}`
+TL-B: `_ owner:address paused:bool tonDenomination:coins poolDenominations:dict<uint256, coins> poolActive:dict<uint256, bool> assetToWallet:dict<uint256, address> nextIndex:uint32 currentRoot:uint256 filledSubtrees:dict<uint8, uint256> roots:dict<uint256, bool> nullifiers:dict<uint256, bool> totalDeposits:uint32 totalWithdrawals:uint32 accumulatedFees:coins autoFeeRouting:bool = TonZkMixer`
+Signature: `TonZkMixer{owner:address,paused:bool,tonDenomination:coins,poolDenominations:dict<uint256, coins>,poolActive:dict<uint256, bool>,assetToWallet:dict<uint256, address>,nextIndex:uint32,currentRoot:uint256,filledSubtrees:dict<uint8, uint256>,roots:dict<uint256, bool>,nullifiers:dict<uint256, bool>,totalDeposits:uint32,totalWithdrawals:uint32,accumulatedFees:coins,autoFeeRouting:bool}`
 
 ## Get methods
-Total get methods: 11
+Total get methods: 13
 
 ## isKnownRoot
 Argument: root
@@ -123,6 +131,12 @@ Argument: assetId
 No arguments
 
 ## adminFeeWallet
+No arguments
+
+## accumulatedFees
+No arguments
+
+## autoFeeRouting
 No arguments
 
 ## Exit codes

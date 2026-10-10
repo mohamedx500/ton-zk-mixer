@@ -7,7 +7,8 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "build": "tsc",
-    "init-wallet": "ts-node src/init_wallet.ts"
+    "init-wallet": "ts-node src/init_wallet.ts",
+    "monitor": "ts-node src/monitor.ts"
   },
   "dependencies": {
     "@ton/core": "^0.62.0",

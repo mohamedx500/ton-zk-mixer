@@ -54,6 +54,7 @@ const ERR_UNKNOWN_ROOT: Int = 1005;
 const ERR_NULLIFIER_SPENT: Int = 1006;
 const ERR_INVALID_PROOF: Int = 1007;
 const ERR_POOL_INACTIVE: Int = 1008;
+const ERR_INSUFFICIENT_FEES: Int = 1009;
 
 // ============================================================================
 // Message Definitions
@@ -97,6 +98,17 @@ message(0x1006) SetPool {
     assetId: Int as uint256;
     denomination: Int as coins;
     active: Bool;
+}
+
+// Treasury: Claim accumulated protocol fees to any destination
+message(0x1007) ClaimFees {
+    amount: Int as coins;
+    destination: Address;
+}
+
+// Treasury: Toggle dynamic fee routing (Push vs Pull/Accumulate)
+message(0x1008) SetFeeRouting {
+    autoRoute: Bool;
 }
 
 // Standard TEP-74 Jetton Notification (received when user deposits any Jetton)
@@ -194,6 +206,10 @@ contract TonZkMixer {
     totalDeposits: Int as uint32;
     totalWithdrawals: Int as uint32;
 
+    // Protocol Treasury & Dynamic Fee Routing
+    accumulatedFees: Int as coins;
+    autoFeeRouting: Bool;
+
     init(owner: Address, tonDenomination: Int as coins) {
         self.owner = owner;
         self.paused = false;
@@ -201,6 +217,8 @@ contract TonZkMixer {
         self.nextIndex = 0;
         self.totalDeposits = 0;
         self.totalWithdrawals = 0;
+        self.accumulatedFees = 0;
+        self.autoFeeRouting = false;
 
         // Depth 8 empty Merkle tree root (MiMC zero root)
         self.currentRoot = 28540350499119009681420814586570208555647217197677146208526354650332466819092;
@@ -309,7 +327,7 @@ contract TonZkMixer {
         self.nullifiers.set(msg.nullifierHash, true);
         self.totalWithdrawals = self.totalWithdrawals + 1;
 
-        // 6. Execute Payout with 1% Protocol Fee Split to Admin Wallet (UQDvCkYWzfC7jf11EwKMvy_4WolQeltsPpFxwJoGtiMdCr0M)
+        // 6. Execute Payout with 1% Protocol Fee
         let adminWallet: Address = address("0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a");
         let fee: Int = 0;
         let recipientAmount: Int = 0;
@@ -327,14 +345,20 @@ contract TonZkMixer {
                 body: "TonZkMixer Anonymous Withdrawal".asComment()
             });
 
-            // Send Protocol Fee directly to Admin Wallet
-            send(SendParameters{
-                to: adminWallet,
-                value: fee,
-                mode: SendIgnoreErrors,
-                bounce: false,
-                body: "TonZkMixer Protocol Fee".asComment()
-            });
+            // Dynamic Fee Routing:
+            if (self.autoFeeRouting) {
+                // Auto-Push Mode: Direct transfer to Admin Wallet
+                send(SendParameters{
+                    to: adminWallet,
+                    value: fee,
+                    mode: SendIgnoreErrors,
+                    bounce: false,
+                    body: "TonZkMixer Protocol Fee".asComment()
+                });
+            } else {
+                // Pull/Accumulation Mode: Retain inside contract for manual claiming
+                self.accumulatedFees = self.accumulatedFees + fee;
+            }
         } else {
             // Payout Jetton with fee split
             let jettonWallet: Address? = self.assetToWallet.get(msg.assetId);
@@ -520,6 +544,29 @@ contract TonZkMixer {
     }
 
     // ------------------------------------------------------------------------
+    // Treasury Management & Dynamic Fee Routing Controls
+    // ------------------------------------------------------------------------
+    receive(msg: ClaimFees) {
+        nativeThrowUnless(ERR_NOT_OWNER, context().sender == self.owner);
+        nativeThrowUnless(ERR_INSUFFICIENT_FEES, msg.amount <= self.accumulatedFees);
+
+        self.accumulatedFees = self.accumulatedFees - msg.amount;
+
+        send(SendParameters{
+            to: msg.destination,
+            value: msg.amount,
+            mode: SendIgnoreErrors,
+            bounce: false,
+            body: "TonZkMixer Claim Fees".asComment()
+        });
+    }
+
+    receive(msg: SetFeeRouting) {
+        nativeThrowUnless(ERR_NOT_OWNER, context().sender == self.owner);
+        self.autoFeeRouting = msg.autoRoute;
+    }
+
+    // ------------------------------------------------------------------------
     // Upgrade Pattern: Code upgrade via set_code preserving storage state
     // ------------------------------------------------------------------------
     receive(msg: UpgradeCode) {
@@ -578,5 +625,13 @@ contract TonZkMixer {
 
     get fun adminFeeWallet(): Address {
         return address("0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a");
+    }
+
+    get fun accumulatedFees(): Int {
+        return self.accumulatedFees;
+    }
+
+    get fun autoFeeRouting(): Bool {
+        return self.autoFeeRouting;
     }
 }

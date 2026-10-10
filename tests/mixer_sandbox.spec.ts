@@ -148,8 +148,8 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             0n // Native TON assetId
         );
 
-        const adminFeeWallet = Address.parse('0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a');
-        const adminBalanceBefore = (await blockchain.getContract(adminFeeWallet)).balance;
+        const initialAccumulatedFees = await mixer.getAccumulatedFees();
+        expect(await mixer.getAutoFeeRouting()).toBe(false);
         const bobBalanceBefore = await bobRecipient.getBalance();
 
         // Submit withdrawal transaction with ZK proof
@@ -177,21 +177,15 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             success: true,
         });
 
-        // Expect 1% protocol fee sent directly to predefined Admin Wallet
-        expect(withdrawResult.transactions).toHaveTransaction({
-            from: mixer.address,
-            to: adminFeeWallet,
-        });
-
         const bobBalanceAfter = await bobRecipient.getBalance();
         expect(bobBalanceAfter).toBeGreaterThan(bobBalanceBefore);
 
-        const adminBalanceAfter = (await blockchain.getContract(adminFeeWallet)).balance;
-        expect(adminBalanceAfter).toBeGreaterThan(adminBalanceBefore);
+        // In default Pull/Accumulation mode, 1% fee is held inside contract
+        const postAccumulatedFees = await mixer.getAccumulatedFees();
+        expect(postAccumulatedFees).toBe(initialAccumulatedFees + toNano('0.01'));
 
         // Verify getters
         expect(await mixer.getProtocolFeePercent()).toBe(1n);
-        expect((await mixer.getAdminFeeWallet()).toRawString()).toBe(adminFeeWallet.toRawString());
 
         // Verify nullifier is marked as spent
         expect(await mixer.getIsNullifierSpent(aliceNote2.nullifierHash)).toBe(true);
@@ -445,5 +439,97 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         expect(await mixer.getCurrentRoot()).toBe(rootBefore);
         expect(await mixer.getNextIndex()).toBe(nextIndexBefore);
         expect(await mixer.getTotalDeposits()).toBe(totalDepositsBefore);
+    });
+
+    it('8. Treasury Management: Fee Claiming, Anti-Drain TVL Mathematical Separation, & Dynamic Routing Toggle', async () => {
+        const feesAvailable = await mixer.getAccumulatedFees();
+        expect(feesAvailable).toBe(toNano('0.01'));
+
+        const mockRelayer = await blockchain.treasury('mockRelayer');
+        const relayerBalanceBefore = await mockRelayer.getBalance();
+
+        // 8a. Non-owner cannot claim fees
+        const unauthorizedClaim = await mixer.send(
+            mallory.getSender(),
+            { value: toNano('0.05') },
+            {
+                $$type: 'ClaimFees',
+                amount: toNano('0.01'),
+                destination: mallory.address,
+            }
+        );
+        expect(unauthorizedClaim.transactions).toHaveTransaction({
+            from: mallory.address,
+            to: mixer.address,
+            success: false,
+            exitCode: 1001, // ERR_NOT_OWNER
+        });
+
+        // 8b. Mathematical Flawlessness: Admin CANNOT drain User TVL (claiming more than accumulatedFees)
+        const excessiveClaim = await mixer.send(
+            deployer.getSender(),
+            { value: toNano('0.05') },
+            {
+                $$type: 'ClaimFees',
+                amount: toNano('1.0'), // Attempt to steal user deposit TVL
+                destination: deployer.address,
+            }
+        );
+        expect(excessiveClaim.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: mixer.address,
+            success: false,
+            exitCode: 1009, // ERR_INSUFFICIENT_FEES
+        });
+        // User TVL and fees remain 100% intact
+        expect(await mixer.getAccumulatedFees()).toBe(feesAvailable);
+
+        // 8c. Admin successfully claims fees to restock Relayer wallet
+        const validClaim = await mixer.send(
+            deployer.getSender(),
+            { value: toNano('0.05') },
+            {
+                $$type: 'ClaimFees',
+                amount: toNano('0.01'),
+                destination: mockRelayer.address,
+            }
+        );
+        expect(validClaim.transactions).toHaveTransaction({
+            from: mixer.address,
+            to: mockRelayer.address,
+            success: true,
+        });
+        expect(await mockRelayer.getBalance()).toBeGreaterThan(relayerBalanceBefore);
+        expect(await mixer.getAccumulatedFees()).toBe(0n);
+
+        // 8d. Dynamic Fee Routing Toggle
+        // Non-owner cannot toggle
+        const unauthorizedToggle = await mixer.send(
+            mallory.getSender(),
+            { value: toNano('0.05') },
+            { $$type: 'SetFeeRouting', autoRoute: true }
+        );
+        expect(unauthorizedToggle.transactions).toHaveTransaction({
+            from: mallory.address,
+            to: mixer.address,
+            success: false,
+            exitCode: 1001, // ERR_NOT_OWNER
+        });
+
+        // Owner toggles autoRoute to true
+        await mixer.send(
+            deployer.getSender(),
+            { value: toNano('0.05') },
+            { $$type: 'SetFeeRouting', autoRoute: true }
+        );
+        expect(await mixer.getAutoFeeRouting()).toBe(true);
+
+        // Owner toggles autoRoute back to false
+        await mixer.send(
+            deployer.getSender(),
+            { value: toNano('0.05') },
+            { $$type: 'SetFeeRouting', autoRoute: false }
+        );
+        expect(await mixer.getAutoFeeRouting()).toBe(false);
     });
 });

@@ -6,11 +6,13 @@
   "scripts": {
     "start": "node start.js",
     "dev": "node start.js",
-    "build": "tact --config tact.config.json",
+    "build": "ts-node scripts/build_mixer.ts",
     "circuit:build": "node ./circuits/compile.js",
     "test": "jest",
     "generate:wallet": "ts-node ./scripts/wallet_manager.ts",
     "deploy:mainnet": "ts-node ./scripts/deploy_mainnet.ts",
+    "upgrade:treasury": "ts-node ./scripts/upgrade_treasury.ts",
+    "monitor": "ts-node ./relayer/src/monitor.ts",
     "e2e": "jest tests/mixer_sandbox.spec.ts --runInBand --verbose"
   },
   "dependencies": {

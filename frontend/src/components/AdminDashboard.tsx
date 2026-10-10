@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useTonAddress } from '@tonconnect/ui-react';
+import { useTonAddress, useTonConnectUI } from '@tonconnect/ui-react';
+import { toNano } from '@ton/core';
 import {
     ShieldAlert,
     ShieldCheck,
@@ -18,23 +19,35 @@ import {
     Search,
     AlertCircle,
     Sliders,
+    Zap,
 } from 'lucide-react';
 import {
     isAuthorizedAdmin,
     fetchAdminMetrics,
     AdminMetrics,
     ADMIN_WALLET_ADDRESS,
+    buildClaimFeesPayload,
+    buildSetFeeRoutingPayload,
 } from '../lib/admin';
 import { EXPLORER_URL, TX_EXPLORER_URL } from '../lib/contracts';
 
 export function AdminDashboard() {
     const connectedAddress = useTonAddress();
+    const [tonConnectUI] = useTonConnectUI();
     const isAdmin = isAuthorizedAdmin(connectedAddress);
 
     const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+    // Treasury claim and routing state
+    const [claimAmount, setClaimAmount] = useState('');
+    const [claimDestination, setClaimDestination] = useState('');
+    const [isClaiming, setIsClaiming] = useState(false);
+    const [claimStatus, setClaimStatus] = useState<string | null>(null);
+    const [isToggling, setIsToggling] = useState(false);
+    const [toggleStatus, setToggleStatus] = useState<string | null>(null);
 
     // Search filters for tables
     const [depositSearch, setDepositSearch] = useState('');
@@ -50,6 +63,59 @@ export function AdminDashboard() {
             console.error('Failed to load admin metrics:', err);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleClaimFees = async () => {
+        if (!claimAmount || Number(claimAmount) <= 0 || !claimDestination) return;
+        setIsClaiming(true);
+        setClaimStatus(null);
+        try {
+            const payload = buildClaimFeesPayload(claimAmount, claimDestination);
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 360,
+                messages: [
+                    {
+                        address: metrics?.contractAddress || '',
+                        amount: toNano('0.05').toString(),
+                        payload: payload.toBoc().toString('base64'),
+                    },
+                ],
+            });
+            setClaimStatus('✅ Claim transaction broadcasted to network!');
+            setTimeout(loadData, 5000);
+        } catch (err: any) {
+            console.error('Claim error:', err);
+            setClaimStatus(`❌ Error: ${err.message || 'Transaction rejected'}`);
+        } finally {
+            setIsClaiming(false);
+        }
+    };
+
+    const handleToggleRouting = async () => {
+        if (!metrics) return;
+        setIsToggling(true);
+        setToggleStatus(null);
+        try {
+            const newRouting = !metrics.autoFeeRouting;
+            const payload = buildSetFeeRoutingPayload(newRouting);
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 360,
+                messages: [
+                    {
+                        address: metrics.contractAddress,
+                        amount: toNano('0.03').toString(),
+                        payload: payload.toBoc().toString('base64'),
+                    },
+                ],
+            });
+            setToggleStatus('✅ Routing mode toggle transaction broadcasted!');
+            setTimeout(loadData, 5000);
+        } catch (err: any) {
+            console.error('Toggle error:', err);
+            setToggleStatus(`❌ Error: ${err.message || 'Transaction rejected'}`);
+        } finally {
+            setIsToggling(false);
         }
     };
 
@@ -189,8 +255,8 @@ export function AdminDashboard() {
                 </div>
             </div>
 
-            {/* 4 High-Impact KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 5 High-Impact KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* TVL */}
                 <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-3">
@@ -206,7 +272,26 @@ export function AdminDashboard() {
                         <span className="text-sm font-normal text-cyan-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
-                        Total Value Locked in Smart Contract
+                        Locked user pool liquidity
+                    </div>
+                </div>
+
+                {/* Accumulated Treasury Fees (NEW) */}
+                <div className="bg-glass-card rounded-2xl p-5 border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400 transition-all relative overflow-hidden group shadow-lg shadow-cyan-500/10">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-cyan-300 uppercase tracking-wider">
+                            Accumulated Fees
+                        </span>
+                        <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-300">
+                            <Coins className="w-4 h-4" />
+                        </div>
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-extrabold text-cyan-300">
+                        {metrics ? metrics.accumulatedFeesTon : '0.00'}{' '}
+                        <span className="text-sm font-normal text-cyan-400">TON</span>
+                    </div>
+                    <div className="text-[11px] text-cyan-400/90 font-medium mt-1">
+                        Unclaimed in contract treasury
                     </div>
                 </div>
 
@@ -214,10 +299,10 @@ export function AdminDashboard() {
                 <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-amber-500/30 transition-all relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Admin Fees Earned
+                            Total Fees Earned
                         </span>
                         <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-                            <Coins className="w-4 h-4" />
+                            <Zap className="w-4 h-4" />
                         </div>
                     </div>
                     <div className="text-2xl sm:text-3xl font-extrabold text-amber-300">
@@ -225,7 +310,7 @@ export function AdminDashboard() {
                         <span className="text-sm font-normal text-amber-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
-                        1.00% cut from verified ZK payouts
+                        1.00% protocol rate
                     </div>
                 </div>
 
@@ -233,7 +318,7 @@ export function AdminDashboard() {
                 <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-emerald-500/30 transition-all relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Total Privacy Volume
+                            Privacy Volume
                         </span>
                         <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
                             <Lock className="w-4 h-4" />
@@ -241,10 +326,10 @@ export function AdminDashboard() {
                     </div>
                     <div className="text-2xl sm:text-3xl font-extrabold text-white">
                         {metrics ? metrics.totalDepositsCount : '—'}{' '}
-                        <span className="text-sm font-normal text-gray-400">Deposits</span>
+                        <span className="text-sm font-normal text-gray-400">Tx</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
-                        {metrics ? metrics.totalWithdrawalsCount : '—'} Verified ZK Withdrawals
+                        {metrics ? metrics.totalWithdrawalsCount : '—'} ZK Withdrawals
                     </div>
                 </div>
 
@@ -252,7 +337,7 @@ export function AdminDashboard() {
                 <div className="bg-glass-card rounded-2xl p-5 border border-white/10 hover:border-teal-500/30 transition-all relative overflow-hidden group">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Admin Wallet Reserve
+                            Admin Wallet
                         </span>
                         <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
                             <Wallet className="w-4 h-4" />
@@ -263,7 +348,181 @@ export function AdminDashboard() {
                         <span className="text-sm font-normal text-teal-400">TON</span>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">
-                        On-chain treasury balance
+                        Connected admin balance
+                    </div>
+                </div>
+            </div>
+
+            {/* Treasury Management & Dynamic Fee Routing Section */}
+            <div className="bg-glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden space-y-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+                    <div className="space-y-1">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+                            <Sliders className="w-3.5 h-3.5" />
+                            <span>Treasury & Dynamic Fee Routing Engine</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                            Treasury Claims & Relayer Auto-Restock
+                        </h3>
+                        <p className="text-xs text-gray-400 max-w-xl leading-relaxed">
+                            Claim accumulated protocol fees to any destination (e.g., restock the Gasless Relayer or fund a fresh wallet), or toggle automatic fee pushing.
+                        </p>
+                    </div>
+
+                    {/* Routing Mode Toggle */}
+                    <div className="bg-[#0b101d] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+                        <div>
+                            <div className="text-xs font-bold text-white flex items-center gap-2">
+                                <span>Fee Routing:</span>
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                                    metrics?.autoFeeRouting
+                                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                                        : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                }`}>
+                                    {metrics?.autoFeeRouting ? 'Auto-Push Mode' : 'Accumulate Mode (Pull)'}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 max-w-xs mt-1">
+                                {metrics?.autoFeeRouting
+                                    ? 'Fees are pushed directly to Admin wallet on each withdrawal.'
+                                    : 'Fees are safely accumulated in the contract to protect OpSec.'}
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleToggleRouting}
+                            disabled={isToggling}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer ${
+                                metrics?.autoFeeRouting
+                                    ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30'
+                            }`}
+                        >
+                            {isToggling ? (
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                                <Sliders className="w-3.5 h-3.5" />
+                            )}
+                            <span>
+                                {metrics?.autoFeeRouting ? 'Switch to Accumulate' : 'Switch to Auto-Push'}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                {toggleStatus && (
+                    <div className={`p-3 rounded-xl text-xs ${toggleStatus.startsWith('❌') ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'}`}>
+                        {toggleStatus}
+                    </div>
+                )}
+
+                {/* Claim Fees Form */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+                    <div className="lg:col-span-1 bg-[#0b101d] p-5 rounded-2xl border border-white/10 space-y-3">
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            Ready to Claim
+                        </div>
+                        <div className="text-3xl font-extrabold text-cyan-400 font-mono">
+                            {metrics ? metrics.accumulatedFeesTon : '0.00'}{' '}
+                            <span className="text-sm font-normal text-gray-400">TON</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 leading-relaxed">
+                            Cryptographically protected by strict assertion. The Admin cannot withdraw user pool deposits, guaranteeing 100% solvency for depositors.
+                        </p>
+                    </div>
+
+                    <div className="lg:col-span-2 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Amount to Claim */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-xs">
+                                    <label className="font-semibold text-gray-300">Amount (TON)</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setClaimAmount(metrics?.accumulatedFeesTon || '0')}
+                                        className="text-cyan-400 hover:text-cyan-300 text-[11px] font-bold cursor-pointer"
+                                    >
+                                        MAX ({metrics?.accumulatedFeesTon || '0'} TON)
+                                    </button>
+                                </div>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={claimAmount}
+                                    onChange={(e) => setClaimAmount(e.target.value)}
+                                    className="w-full bg-[#0b101d] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                                />
+                            </div>
+
+                            {/* Destination Address */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-xs">
+                                    <label className="font-semibold text-gray-300">Destination Address</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setClaimDestination('UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ')}
+                                        className="text-amber-400 hover:text-amber-300 text-[11px] font-bold cursor-pointer"
+                                    >
+                                        ⚡ Restock Relayer
+                                    </button>
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Paste destination TON address..."
+                                    value={claimDestination}
+                                    onChange={(e) => setClaimDestination(e.target.value)}
+                                    className="w-full bg-[#0b101d] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-gray-500 font-mono focus:outline-none focus:border-cyan-500"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Presets and Submit */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                            <div className="flex items-center gap-2 text-xs">
+                                <span className="text-gray-400">Quick Dest:</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setClaimDestination('UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ')}
+                                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[11px] cursor-pointer"
+                                >
+                                    Relayer Wallet
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setClaimDestination(ADMIN_WALLET_ADDRESS)}
+                                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[11px] cursor-pointer"
+                                >
+                                    Admin Wallet
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={handleClaimFees}
+                                disabled={isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination}
+                                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-xs text-white shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                {isClaiming ? (
+                                    <>
+                                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Confirming in Wallet...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wallet className="w-3.5 h-3.5" />
+                                        <span>Claim Fees via TonConnect</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {claimStatus && (
+                            <div className={`p-3 rounded-xl text-xs ${claimStatus.startsWith('❌') ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'}`}>
+                                {claimStatus}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

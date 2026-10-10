@@ -1,4 +1,4 @@
-import { Address, fromNano } from '@ton/core';
+import { Address, fromNano, toNano, beginCell, Cell } from '@ton/core';
 import { MIXER_ADDRESS_STRING } from './contracts';
 import { getTonClient } from './ton';
 
@@ -51,6 +51,8 @@ export interface WithdrawalRecord {
 export interface AdminMetrics {
     tvlTon: string;
     totalAdminFeesTon: string;
+    accumulatedFeesTon: string;
+    autoFeeRouting: boolean;
     totalDepositsCount: number;
     totalWithdrawalsCount: number;
     adminWalletBalance: string;
@@ -59,6 +61,30 @@ export interface AdminMetrics {
     adminWalletAddress: string;
     recentDeposits: DepositRecord[];
     recentWithdrawals: WithdrawalRecord[];
+}
+
+/**
+ * Build serialized Boc payload for ClaimFees message (0x1007)
+ */
+export function buildClaimFeesPayload(amountTon: string, destination: string): Cell {
+    const destAddr = Address.parse(destination.trim());
+    const amountCoins = toNano(amountTon);
+
+    return beginCell()
+        .storeUint(0x1007, 32) // ClaimFees opcode
+        .storeCoins(amountCoins)
+        .storeAddress(destAddr)
+        .endCell();
+}
+
+/**
+ * Build serialized Boc payload for SetFeeRouting message (0x1008)
+ */
+export function buildSetFeeRoutingPayload(autoRoute: boolean): Cell {
+    return beginCell()
+        .storeUint(0x1008, 32) // SetFeeRouting opcode
+        .storeBit(autoRoute)
+        .endCell();
 }
 
 /**
@@ -76,6 +102,8 @@ export async function fetchAdminMetrics(): Promise<AdminMetrics> {
         depositsRes,
         withdrawalsRes,
         feePercentRes,
+        accumulatedFeesRes,
+        autoFeeRoutingRes,
         txs,
     ] = await Promise.all([
         client.getContractState(mixerAddr),
@@ -83,12 +111,16 @@ export async function fetchAdminMetrics(): Promise<AdminMetrics> {
         client.runMethod(mixerAddr, 'totalDeposits').catch(() => null),
         client.runMethod(mixerAddr, 'totalWithdrawals').catch(() => null),
         client.runMethod(mixerAddr, 'protocolFeePercent').catch(() => null),
+        client.runMethod(mixerAddr, 'accumulatedFees').catch(() => null),
+        client.runMethod(mixerAddr, 'autoFeeRouting').catch(() => null),
         client.getTransactions(mixerAddr, { limit: 50 }).catch(() => []),
     ]);
 
     const totalDepositsCount = depositsRes ? Number(depositsRes.stack.readBigNumber()) : 0;
     const totalWithdrawalsCount = withdrawalsRes ? Number(withdrawalsRes.stack.readBigNumber()) : 0;
     const protocolFeePercent = feePercentRes ? Number(feePercentRes.stack.readBigNumber()) : 1;
+    const accumulatedFeesTon = accumulatedFeesRes ? fromNano(accumulatedFeesRes.stack.readBigNumber()) : '0.00';
+    const autoFeeRouting = autoFeeRoutingRes ? Boolean(autoFeeRoutingRes.stack.readBoolean()) : false;
 
     const tvlTon = fromNano(mixerState.balance);
     const adminWalletBalance = fromNano(adminState.balance);
@@ -176,6 +208,8 @@ export async function fetchAdminMetrics(): Promise<AdminMetrics> {
     return {
         tvlTon: Number(tvlTon).toFixed(2),
         totalAdminFeesTon: totalAdminFeesCalculated,
+        accumulatedFeesTon: Number(accumulatedFeesTon).toFixed(4),
+        autoFeeRouting,
         totalDepositsCount,
         totalWithdrawalsCount,
         adminWalletBalance: Number(adminWalletBalance).toFixed(4),
