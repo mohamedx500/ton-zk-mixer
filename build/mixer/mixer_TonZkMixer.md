@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: TonZkMixer
-BoC Size: 4514 bytes
+BoC Size: 4958 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 21
@@ -82,15 +82,15 @@ TL-B: `deposit_event#53c98244 assetId:uint256 commitment:uint256 leafIndex:uint3
 Signature: `DepositEvent{assetId:uint256,commitment:uint256,leafIndex:uint32,newRoot:uint256}`
 
 ### WithdrawalEvent
-TL-B: `withdrawal_event#bf4f1a4c assetId:uint256 nullifierHash:uint256 recipient:address = WithdrawalEvent`
-Signature: `WithdrawalEvent{assetId:uint256,nullifierHash:uint256,recipient:address}`
+TL-B: `withdrawal_event#37ee08e5 assetId:uint256 nullifierHash:uint256 recipient:address amount:coins fee:coins = WithdrawalEvent`
+Signature: `WithdrawalEvent{assetId:uint256,nullifierHash:uint256,recipient:address,amount:coins,fee:coins}`
 
 ### TonZkMixer$Data
 TL-B: `_ owner:address paused:bool tonDenomination:coins poolDenominations:dict<uint256, coins> poolActive:dict<uint256, bool> assetToWallet:dict<uint256, address> nextIndex:uint32 currentRoot:uint256 filledSubtrees:dict<uint8, uint256> roots:dict<uint256, bool> nullifiers:dict<uint256, bool> totalDeposits:uint32 totalWithdrawals:uint32 = TonZkMixer`
 Signature: `TonZkMixer{owner:address,paused:bool,tonDenomination:coins,poolDenominations:dict<uint256, coins>,poolActive:dict<uint256, bool>,assetToWallet:dict<uint256, address>,nextIndex:uint32,currentRoot:uint256,filledSubtrees:dict<uint8, uint256>,roots:dict<uint256, bool>,nullifiers:dict<uint256, bool>,totalDeposits:uint32,totalWithdrawals:uint32}`
 
 ## Get methods
-Total get methods: 9
+Total get methods: 11
 
 ## isKnownRoot
 Argument: root
@@ -118,6 +118,12 @@ No arguments
 
 ## poolDenomination
 Argument: assetId
+
+## protocolFeePercent
+No arguments
+
+## adminFeeWallet
+No arguments
 
 ## Exit codes
 * 2: Stack underflow

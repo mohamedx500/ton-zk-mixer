@@ -11,10 +11,10 @@ import {
     ExternalLink,
     Loader2,
     Lock,
-    RefreshCw,
     ShieldAlert,
     Sparkles,
     Wallet,
+    Zap,
 } from 'lucide-react';
 import { parseDepositNote, DepositNote, MerkleProof } from '../lib/crypto';
 import {
@@ -41,6 +41,9 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
     const [leafIndex, setLeafIndex] = useState<number | null>(null);
     const [merkleProof, setMerkleProof] = useState<MerkleProof | null>(null);
     const [isSpent, setIsSpent] = useState<boolean | null>(null);
+
+    // Relayer Toggle
+    const [useRelayer, setUseRelayer] = useState(true);
 
     // ZK Proving state
     const [isProving, setIsProving] = useState(false);
@@ -154,29 +157,59 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
         }
     };
 
-    // Step 3: Submit Anonymous Withdrawal transaction via TonConnect
+    // Step 3: Submit Anonymous Withdrawal transaction (Relayer or TonConnect)
     const handleWithdraw = async () => {
         if (!zkProof) return;
         setErrorMessage(null);
 
-        if (!wallet) {
-            tonConnectUI.openModal();
-            return;
-        }
-
         try {
             setIsSubmitting(true);
-            const txRequest = buildWithdrawTransaction(zkProof);
-            const result = await tonConnectUI.sendTransaction(txRequest);
 
-            setTxSuccess(result.boc || 'Withdrawal dispatched');
+            if (useRelayer) {
+                // GASLESS WITHDRAWAL VIA BACKEND RELAYER
+                const relayPayload = {
+                    rawProof: zkProof.rawProof,
+                    publicSignals: zkProof.publicSignals,
+                    piABase64: zkProof.piA.toBoc().toString('base64'),
+                    piBBase64: zkProof.piB.toBoc().toString('base64'),
+                    piCBase64: zkProof.piC.toBoc().toString('base64'),
+                    root: zkProof.root.toString(),
+                    nullifierHash: zkProof.nullifierHash.toString(),
+                    recipient: zkProof.recipient.toString({ testOnly: true, bounceable: false }),
+                    assetId: zkProof.assetId.toString(),
+                };
+
+                const res = await fetch('http://localhost:4000/relay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(relayPayload),
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || 'Relayer failed to process withdrawal transaction');
+                }
+
+                setTxSuccess(`Gasless withdrawal dispatched via Relayer (${data.relayer.slice(0, 10)}...)!`);
+            } else {
+                // DIRECT TONCONNECT WALLET WITHDRAWAL
+                if (!wallet) {
+                    tonConnectUI.openModal();
+                    setIsSubmitting(false);
+                    return;
+                }
+
+                const txRequest = buildWithdrawTransaction(zkProof);
+                const result = await tonConnectUI.sendTransaction(txRequest);
+                setTxSuccess(result.boc || 'Withdrawal dispatched via wallet');
+            }
 
             // Trigger celebration confetti!
             confetti({
-                particleCount: 100,
-                spread: 70,
+                particleCount: 120,
+                spread: 80,
                 origin: { y: 0.6 },
-                colors: ['#06b6d4', '#10b981', '#3b82f6', '#f59e0b'],
+                colors: ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'],
             });
 
             onWithdrawSuccess?.();
@@ -204,6 +237,37 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         Prove ownership with zero-knowledge without revealing your original deposit identity.
                     </p>
                 </div>
+            </div>
+
+            {/* Relayer Gasless Toggle */}
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-inner border border-white/5 mb-5 transition-all">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                        <Zap className={`w-4 h-4 ${useRelayer ? 'text-amber-400' : 'text-gray-500'}`} />
+                    </div>
+                    <div>
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>Use Relayer (Gasless Withdrawal)</span>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                                Zero Balance Friendly
+                            </span>
+                        </div>
+                        <div className="text-[11px] text-gray-400">
+                            {useRelayer
+                                ? 'Gas is 100% covered by the Relayer network. No TON balance needed in wallet.'
+                                : 'Gas paid via your connected TonConnect wallet.'}
+                        </div>
+                    </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={useRelayer}
+                        onChange={(e) => setUseRelayer(e.target.checked)}
+                        className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-amber-500 peer-checked:to-orange-500"></div>
+                </label>
             </div>
 
             {/* Step 1: Input Secret Note */}
@@ -250,7 +314,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                     <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                         2. Recipient Wallet Address (Clean / Unlinked)
                     </label>
-                    {wallet && (
+                    {wallet && !useRelayer && (
                         <button
                             type="button"
                             onClick={handleUseConnectedWallet}
@@ -268,11 +332,13 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         setRecipientAddress(e.target.value);
                         setZkProof(null);
                     }}
-                    placeholder="0Q... or EQ... (Clean recipient address)"
+                    placeholder="0Q... or EQ... (Fresh empty recipient address)"
                     className="w-full bg-[#070b14] border border-white/10 focus:border-cyan-400 rounded-xl p-3.5 text-xs sm:text-sm text-white font-mono focus:outline-none transition-all placeholder:text-gray-600"
                 />
                 <p className="text-[11px] text-gray-500 mt-1">
-                    Tip: For maximum privacy, withdraw to a fresh address that has never interacted with your deposit wallet.
+                    {useRelayer
+                        ? '✨ Relayer enables withdrawing to a brand-new empty wallet with 0 TON balance.'
+                        : 'Tip: For maximum privacy, withdraw to a fresh address that has never interacted with your deposit wallet.'}
                 </p>
             </div>
 
@@ -321,12 +387,22 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             type="button"
                             disabled={isSubmitting}
                             onClick={handleWithdraw}
-                            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                            className={`w-full py-4 rounded-xl text-black font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg transition-all cursor-pointer ${
+                                useRelayer
+                                    ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-300 hover:to-orange-400 shadow-amber-500/20'
+                                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-emerald-500/20'
+                            }`}
                         >
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>Broadcasting to TON Testnet...</span>
+                                    <span>{useRelayer ? 'Relayer broadcasting transaction...' : 'Broadcasting to TON Testnet...'}</span>
+                                </>
+                            ) : useRelayer ? (
+                                <>
+                                    <Zap className="w-5 h-5 text-black" />
+                                    <span>Submit Gasless Withdrawal via Relayer</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
@@ -362,8 +438,9 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         <span>Anonymous Withdrawal Verified & Sent!</span>
                     </div>
                     <p className="text-gray-300 text-xs leading-relaxed">
-                        The TON TVM Groth16 pairing instructions successfully verified your zero-knowledge proof. 1.0 TON
-                        has been dispatched to your clean recipient wallet.
+                        {useRelayer
+                            ? 'The Relayer verified your zk-SNARK proof and covered gas fees on your behalf. 1.0 TON has been dispatched to your clean recipient wallet.'
+                            : 'The TON TVM Groth16 pairing instructions successfully verified your zero-knowledge proof. 1.0 TON has been dispatched to your clean recipient wallet.'}
                     </p>
                     <div className="pt-1">
                         <a

@@ -70,6 +70,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             success: true,
         });
 
+
         // Verify initial state
         expect(await mixer.getIsPaused()).toBe(false);
         expect(await mixer.getNextIndex()).toBe(0n);
@@ -147,6 +148,8 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             0n // Native TON assetId
         );
 
+        const adminFeeWallet = Address.parse('0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a');
+        const adminBalanceBefore = (await blockchain.getContract(adminFeeWallet)).balance;
         const bobBalanceBefore = await bobRecipient.getBalance();
 
         // Submit withdrawal transaction with ZK proof
@@ -167,15 +170,28 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             }
         );
 
-        // Expect payout to Bob
+        // Expect payout to Bob (Total_Amount - 1% Fee)
         expect(withdrawResult.transactions).toHaveTransaction({
             from: mixer.address,
             to: bobRecipient.address,
             success: true,
         });
 
+        // Expect 1% protocol fee sent directly to predefined Admin Wallet
+        expect(withdrawResult.transactions).toHaveTransaction({
+            from: mixer.address,
+            to: adminFeeWallet,
+        });
+
         const bobBalanceAfter = await bobRecipient.getBalance();
         expect(bobBalanceAfter).toBeGreaterThan(bobBalanceBefore);
+
+        const adminBalanceAfter = (await blockchain.getContract(adminFeeWallet)).balance;
+        expect(adminBalanceAfter).toBeGreaterThan(adminBalanceBefore);
+
+        // Verify getters
+        expect(await mixer.getProtocolFeePercent()).toBe(1n);
+        expect((await mixer.getAdminFeeWallet()).toRawString()).toBe(adminFeeWallet.toRawString());
 
         // Verify nullifier is marked as spent
         expect(await mixer.getIsNullifierSpent(aliceNote2.nullifierHash)).toBe(true);

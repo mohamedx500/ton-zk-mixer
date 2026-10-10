@@ -130,6 +130,8 @@ message WithdrawalEvent {
     assetId: Int as uint256;
     nullifierHash: Int as uint256;
     recipient: Address;
+    amount: Int as coins;
+    fee: Int as coins;
 }
 
 // ============================================================================
@@ -307,28 +309,48 @@ contract TonZkMixer {
         self.nullifiers.set(msg.nullifierHash, true);
         self.totalWithdrawals = self.totalWithdrawals + 1;
 
-        // 6. Execute Payout
+        // 6. Execute Payout with 1% Protocol Fee Split to Admin Wallet (UQDvCkYWzfC7jf11EwKMvy_4WolQeltsPpFxwJoGtiMdCr0M)
+        let adminWallet: Address = address("0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a");
+        let fee: Int = 0;
+        let recipientAmount: Int = 0;
+
         if (msg.assetId == 0) {
-            // Payout native TON with bounce: false so uninitialized recipient wallets receive funds
+            fee = self.tonDenomination / 100; // 1% Protocol Fee (e.g., 0.01 TON for 1.0 TON pool)
+            recipientAmount = self.tonDenomination - fee;
+
+            // Payout recipient: (Total_Amount - Fee) with bounce: false so uninitialized recipient wallets receive funds
             send(SendParameters{
                 to: msg.recipient,
-                value: self.tonDenomination,
+                value: recipientAmount,
                 mode: SendIgnoreErrors,
                 bounce: false,
                 body: "TonZkMixer Anonymous Withdrawal".asComment()
             });
+
+            // Send Protocol Fee directly to Admin Wallet
+            send(SendParameters{
+                to: adminWallet,
+                value: fee,
+                mode: SendIgnoreErrors,
+                bounce: false,
+                body: "TonZkMixer Protocol Fee".asComment()
+            });
         } else {
-            // Payout Jetton
+            // Payout Jetton with fee split
             let jettonWallet: Address? = self.assetToWallet.get(msg.assetId);
             if (jettonWallet != null) {
                 let jettonAmount: Int = self.poolDenominations.get(msg.assetId)!!;
+                fee = jettonAmount / 100;
+                recipientAmount = jettonAmount - fee;
+
+                // Transfer to clean recipient
                 send(SendParameters{
                     to: jettonWallet!!,
-                    value: ton("0.05"),
+                    value: ton("0.04"),
                     mode: SendIgnoreErrors,
                     body: JettonTransfer{
                         query_id: 0,
-                        amount: jettonAmount,
+                        amount: recipientAmount,
                         destination: msg.recipient,
                         response_destination: msg.recipient,
                         custom_payload: null,
@@ -336,13 +358,33 @@ contract TonZkMixer {
                         forward_payload: emptySlice()
                     }.toCell()
                 });
+
+                // Transfer protocol fee to admin wallet
+                if (fee > 0) {
+                    send(SendParameters{
+                        to: jettonWallet!!,
+                        value: ton("0.04"),
+                        mode: SendIgnoreErrors,
+                        body: JettonTransfer{
+                            query_id: 0,
+                            amount: fee,
+                            destination: adminWallet,
+                            response_destination: adminWallet,
+                            custom_payload: null,
+                            forward_ton_amount: 1,
+                            forward_payload: emptySlice()
+                        }.toCell()
+                    });
+                }
             }
         }
 
         emit(WithdrawalEvent{
             assetId: msg.assetId,
             nullifierHash: msg.nullifierHash,
-            recipient: msg.recipient
+            recipient: msg.recipient,
+            amount: recipientAmount,
+            fee: fee
         }.toCell());
     }
 
@@ -528,5 +570,13 @@ contract TonZkMixer {
             return d!!;
         }
         return 0;
+    }
+
+    get fun protocolFeePercent(): Int {
+        return 1; // 1% Protocol Fee
+    }
+
+    get fun adminFeeWallet(): Address {
+        return address("0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a");
     }
 }

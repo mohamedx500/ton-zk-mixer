@@ -51,10 +51,10 @@ builder $DepositEvent$_store(builder build_0, (int, int, int, int) v) inline;
 cell $DepositEvent$_store_cell((int, int, int, int) v, builder b) inline;
 
 ;; $WithdrawalEvent$_store
-builder $WithdrawalEvent$_store(builder build_0, (int, int, slice) v) inline;
+builder $WithdrawalEvent$_store(builder build_0, (int, int, slice, int, int) v) inline;
 
 ;; $WithdrawalEvent$_store_cell
-cell $WithdrawalEvent$_store_cell((int, int, slice) v, builder b) inline;
+cell $WithdrawalEvent$_store_cell((int, int, slice, int, int) v, builder b) inline;
 
 ;; $TonZkMixer$_store
 builder $TonZkMixer$_store(builder build_0, (slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) v) inline;
@@ -128,6 +128,12 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref;
 ;; $TonZkMixer$_fun_poolDenomination
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int), int) $TonZkMixer$_fun_poolDenomination((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) $self, int $assetId) impure inline_ref;
 
+;; $TonZkMixer$_fun_protocolFeePercent
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int), int) $TonZkMixer$_fun_protocolFeePercent((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) $self) impure inline_ref;
+
+;; $TonZkMixer$_fun_adminFeeWallet
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int), slice) $TonZkMixer$_fun_adminFeeWallet((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) $self) impure inline_ref;
+
 ;; $DepositEvent$_constructor_assetId_commitment_leafIndex_newRoot
 ((int, int, int, int)) $DepositEvent$_constructor_assetId_commitment_leafIndex_newRoot(int $assetId, int $commitment, int $leafIndex, int $newRoot) inline;
 
@@ -140,8 +146,8 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref;
 ;; $JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
 ((int, int, slice, slice, cell, int, slice)) $JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int $query_id, int $amount, slice $destination, slice $response_destination, cell $custom_payload, int $forward_ton_amount, slice $forward_payload) inline;
 
-;; $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient
-((int, int, slice)) $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient(int $assetId, int $nullifierHash, slice $recipient) inline;
+;; $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee
+((int, int, slice, int, int)) $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee(int $assetId, int $nullifierHash, slice $recipient, int $amount, int $fee) inline;
 
 
 ;; mixer_TonZkMixer.stdlib.fc
@@ -409,9 +415,19 @@ slice __gen_slice_slice_3ecf9b70dc83f5a6a9afdc47ef0ba3f9d22c54988399e02ee7871543
     B{b5ee9c724101010100620000c080b61272470f2c76aaf8fee9838e01d367807d80037af69c196c450498336824ecc4ba6073bfd2e2a015816826f7f3de1300f0483130e69764278d6185eb448436fa4d325bfa83ac2ca3d4f7d5690fcee8853f689c7c97706feb4680038e7339b1de561f} B>boc <s PUSHSLICE
 """;
 
+;; EQDvCkYWzfC7jf11EwKMvy_4WolQeltsPpFxwJoGtiMdCuDJ
+slice __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521() asm """
+    B{b5ee9c72410101010024000043801de148c2d9be1771bfaea2605197e5ff0b512a0f4b6d87d22e381340d6c463a15071bb57ec} B>boc <s PUSHSLICE
+""";
+
 ;; Cell QrvKCmTom5YSd8LlL2YunHuIVepZUDmC+9nuHeV915w=
 cell __gen_cell_cell_42bbca0a64e89b961277c2e52f662e9c7b8855ea59503982fbd9ee1de57dd79c() asm """
     B{b5ee9c7241010101002500004600000000546f6e5a6b4d6978657220416e6f6e796d6f7573205769746864726177616c4f3d4362} B>boc PUSHREF
+""";
+
+;; Cell Mp0N4JvFPjCEkTfDm3J8CsGWzO81Fi3OM4mDgtJkUn8=
+cell __gen_cell_cell_329d0de09bc53e30849137c39b727c0ac196ccef35162dce33898382d264527f() asm """
+    B{b5ee9c7241010101001d00003600000000546f6e5a6b4d697865722050726f746f636f6c204665656b955b44} B>boc PUSHREF
 """;
 
 ;; Cell zQxs2xI1WZUUoHBJZiB6ZfhmukCKG1Z9uJOJxEzwKJ4=
@@ -496,25 +512,29 @@ cell $DepositEvent$_store_cell((int, int, int, int) v, builder b) inline {
 
 ;;
 ;; Type: WithdrawalEvent
-;; Header: 0xbf4f1a4c
-;; TLB: withdrawal_event#bf4f1a4c assetId:uint256 nullifierHash:uint256 recipient:address = WithdrawalEvent
+;; Header: 0x37ee08e5
+;; TLB: withdrawal_event#37ee08e5 assetId:uint256 nullifierHash:uint256 recipient:address amount:coins fee:coins = WithdrawalEvent
 ;;
 
-builder $WithdrawalEvent$_store(builder build_0, (int, int, slice) v) inline {
-    var (v'assetId, v'nullifierHash, v'recipient) = v;
-    build_0 = store_uint(build_0, 3209632332, 32);
+builder $WithdrawalEvent$_store(builder build_0, (int, int, slice, int, int) v) inline {
+    var (v'assetId, v'nullifierHash, v'recipient, v'amount, v'fee) = v;
+    build_0 = store_uint(build_0, 938346725, 32);
     build_0 = build_0.store_uint(v'assetId, 256);
     build_0 = build_0.store_uint(v'nullifierHash, 256);
     build_0 = build_0.store_slice(v'recipient);
+    build_0 = build_0.store_varuint16(v'amount);
+    var build_1 = begin_cell();
+    build_1 = build_1.store_varuint16(v'fee);
+    build_0 = store_builder_ref(build_0, build_1);
     return build_0;
 }
 
-cell $WithdrawalEvent$_store_cell((int, int, slice) v, builder b) inline {
+cell $WithdrawalEvent$_store_cell((int, int, slice, int, int) v, builder b) inline {
     return $WithdrawalEvent$_store(b, v).end_cell();
 }
 
-((int, int, slice)) $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient(int $assetId, int $nullifierHash, slice $recipient) inline {
-    return ($assetId, $nullifierHash, $recipient);
+((int, int, slice, int, int)) $WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee(int $assetId, int $nullifierHash, slice $recipient, int $amount, int $fee) inline {
+    return ($assetId, $nullifierHash, $recipient, $amount, $fee);
 }
 
 ;;
@@ -835,6 +855,18 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref {
     return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals), $fresh$ret_26);
 }
 
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int), int) $TonZkMixer$_fun_protocolFeePercent((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals)) = $self;
+    var $fresh$ret_27 = 1;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals), $fresh$ret_27);
+}
+
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int), slice) $TonZkMixer$_fun_adminFeeWallet((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals)) = $self;
+    var $fresh$ret_28 = __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521();
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals), $fresh$ret_28);
+}
+
 ;;
 ;; Get methods of a Contract TonZkMixer
 ;;
@@ -893,6 +925,18 @@ _ %poolDenomination(int $assetId) method_id(115762) {
     int $assetId = $assetId;
     var self = $TonZkMixer$_contract_load();
     var res = self~$TonZkMixer$_fun_poolDenomination($assetId);
+    return res;
+}
+
+_ %protocolFeePercent() method_id(81528) {
+    var self = $TonZkMixer$_contract_load();
+    var res = self~$TonZkMixer$_fun_protocolFeePercent();
+    return res;
+}
+
+_ %adminFeeWallet() method_id(118002) {
+    var self = $TonZkMixer$_contract_load();
+    var res = self~$TonZkMixer$_fun_adminFeeWallet();
     return res;
 }
 
@@ -991,16 +1035,27 @@ _ %poolDenomination(int $assetId) method_id(115762) {
         throw_unless(1007, $proofValid);
         $self'nullifiers~__tact_dict_set_uint_int(256, $msg'nullifierHash, true, 1);
         $self'totalWithdrawals = ($self'totalWithdrawals + 1);
+        slice $adminWallet = __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521();
+        int $fee = 0;
+        int $recipientAmount = 0;
         ifnot ($msg'assetId) {
-            $global_send($SendParameters$_constructor_to_value_mode_bounce_body($msg'recipient, $self'tonDenomination, 2, false, __gen_cell_cell_42bbca0a64e89b961277c2e52f662e9c7b8855ea59503982fbd9ee1de57dd79c()));
+            $fee = ($self'tonDenomination / 100);
+            $recipientAmount = ($self'tonDenomination - $fee);
+            $global_send($SendParameters$_constructor_to_value_mode_bounce_body($msg'recipient, $recipientAmount, 2, false, __gen_cell_cell_42bbca0a64e89b961277c2e52f662e9c7b8855ea59503982fbd9ee1de57dd79c()));
+            $global_send($SendParameters$_constructor_to_value_mode_bounce_body($adminWallet, $fee, 2, false, __gen_cell_cell_329d0de09bc53e30849137c39b727c0ac196ccef35162dce33898382d264527f()));
         } else {
             slice $jettonWallet = __tact_dict_get_uint_slice($self'assetToWallet, 256, $msg'assetId);
             if ((~ null?($jettonWallet))) {
                 int $jettonAmount = __tact_dict_get_uint_coins($self'poolDenominations, 256, $msg'assetId);
-                $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 50000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $jettonAmount, $msg'recipient, $msg'recipient, null(), 1, $global_emptySlice()), begin_cell())));
+                $fee = ($jettonAmount / 100);
+                $recipientAmount = ($jettonAmount - $fee);
+                $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 40000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $recipientAmount, $msg'recipient, $msg'recipient, null(), 1, $global_emptySlice()), begin_cell())));
+                if (($fee > 0)) {
+                    $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 40000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $fee, $adminWallet, $adminWallet, null(), 1, $global_emptySlice()), begin_cell())));
+                }
             }
         }
-        $global_emit($WithdrawalEvent$_store_cell($WithdrawalEvent$_constructor_assetId_nullifierHash_recipient($msg'assetId, $msg'nullifierHash, $msg'recipient), begin_cell()));
+        $global_emit($WithdrawalEvent$_store_cell($WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee($msg'assetId, $msg'nullifierHash, $msg'recipient, $recipientAmount, $fee), begin_cell()));
         $TonZkMixer$_contract_store(($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals));
         return ();
     }

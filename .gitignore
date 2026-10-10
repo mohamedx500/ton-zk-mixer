@@ -1,7 +1,31 @@
 node_modules/
 dist/
+build/
+.next/
+out/
+
+# Environment files
 .env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Sensitive Keys & Wallets
 .testnet_wallet.json
+.relayer_wallet.json
+*.wallet.json
+.deployment*.json
+!.deployment.json
+
+# Circuits heavy binaries
 circuits/ptau/
 *.ptau
 *.zkey
+
+# OS & Logs
+.DS_Store
+*.log
+npm-debug.log*

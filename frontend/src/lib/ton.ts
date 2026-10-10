@@ -2,7 +2,9 @@ import { Address, beginCell, Cell, fromNano, toNano } from '@ton/core';
 import { TonClient } from '@ton/ton';
 import {
     MIXER_ADDRESS_STRING,
-    TONCENTER_TESTNET_RPC,
+    TONCENTER_RPC,
+    TONCENTER_API_KEY,
+    IS_MAINNET,
     OP_DEPOSIT_TON,
     OP_WITHDRAW,
     TON_DENOMINATION,
@@ -17,7 +19,10 @@ let clientInstance: TonClient | null = null;
 export function getTonClient(): TonClient {
     if (clientInstance) return clientInstance;
 
-    const client = new TonClient({ endpoint: TONCENTER_TESTNET_RPC });
+    const client = new TonClient({
+        endpoint: TONCENTER_RPC,
+        apiKey: TONCENTER_API_KEY ? TONCENTER_API_KEY : undefined,
+    });
     const api = (client as any).api;
     const originalDoCall = api.doCall.bind(api);
     let lastCallTime = 0;
