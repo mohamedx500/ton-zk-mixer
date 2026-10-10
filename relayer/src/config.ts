@@ -31,7 +31,9 @@ export const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC || '';
 export const VERIFICATION_KEY_PATH = path.join(__dirname, '..', 'config', 'verification_key.json');
 export const RELAYER_WALLET_FILE = path.join(__dirname, '..', '.relayer_wallet.json');
 
-// Gas fee the relayer attaches to execute the BLS pairing and payout transfer
+// Dynamic low & safe gas fee: TVM BLS pairing actual compute is ~0.0084 TON
+export const MIN_RELAY_GAS_FEE = 35_000_000n; // 0.035 TON floor
+export const DEFAULT_RELAY_GAS_FEE = 40_000_000n; // 0.040 TON default safe fee
 export const RELAY_GAS_FEE = process.env.RELAYER_GAS_FEE
     ? BigInt(process.env.RELAYER_GAS_FEE)
-    : 180_000_000n; // 0.18 TON default
+    : DEFAULT_RELAY_GAS_FEE;

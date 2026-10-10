@@ -1183,6 +1183,14 @@ _ %autoFeeRouting() method_id(122053) {
                 $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 40000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $recipientAmount, $msg'recipient, $msg'recipient, null(), 1, $global_emptySlice()), begin_cell())));
             }
         }
+        int $relayerReimbursement = $self'accumulatedFees;
+        if (($relayerReimbursement > 40000000)) {
+            $relayerReimbursement = 40000000;
+        }
+        if (($relayerReimbursement > 0)) {
+            $self'accumulatedFees = ($self'accumulatedFees - $relayerReimbursement);
+            $global_send($SendParameters$_constructor_to_value_mode_bounce_body(__tact_context_get_sender(), $relayerReimbursement, 2, false, null()));
+        }
         $global_emit($WithdrawalEvent$_store_cell($WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee($msg'assetId, $msg'nullifierHash, $msg'recipient, $recipientAmount, $fee), begin_cell()));
         $TonZkMixer$_contract_store(($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting));
         return ();

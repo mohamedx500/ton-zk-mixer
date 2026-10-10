@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: TonZkMixer
-BoC Size: 6050 bytes
+BoC Size: 6142 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 23

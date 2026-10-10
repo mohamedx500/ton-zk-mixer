@@ -191,11 +191,11 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         const initialAccumulatedFees = await mixer.getAccumulatedFees();
         const bobBalanceBefore = await bobRecipient.getBalance();
 
-        // Submit withdrawal transaction with ZK proof
+        // Submit withdrawal transaction with low, safe dynamic gas (0.045 TON instead of 0.15+)
         const withdrawResult = await mixer.send(
             alice.getSender(), // Any relayer can submit
             {
-                value: toNano('0.15'), // Gas for TVM pairing and transfers
+                value: toNano('0.045'), // Low, safe dynamic gas fee
             },
             {
                 $$type: 'Withdraw',
@@ -220,9 +220,15 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         // Received full 1.0 TON minus minimal message forward gas (~0.0001 TON), proving zero fee deduction!
         expect(bobBalanceAfter - bobBalanceBefore).toBeGreaterThan(toNano('0.999'));
 
-        // Zero fee deduction on withdrawal: accumulatedFees remains unchanged from upfront deposit
+        // Relayer gas auto-funding: 0.04 TON reimbursed directly to sender from accumulated fees
+        expect(withdrawResult.transactions).toHaveTransaction({
+            from: mixer.address,
+            to: alice.address,
+            success: true,
+        });
+
         const postAccumulatedFees = await mixer.getAccumulatedFees();
-        expect(postAccumulatedFees).toBe(initialAccumulatedFees);
+        expect(postAccumulatedFees).toBe(initialAccumulatedFees - toNano('0.04'));
 
         // Verify nullifier is marked as spent
         expect(await mixer.getIsNullifierSpent(aliceNote2.nullifierHash)).toBe(true);
@@ -480,8 +486,8 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
 
     it('8. Treasury Management: Fee Claiming, Anti-Drain TVL Mathematical Separation, & Dynamic Routing Toggle', async () => {
         const feesAvailable = await mixer.getAccumulatedFees();
-        // 3 deposits of 1 TON pool each paid 0.20 TON upfront fee = 0.60 TON total
-        expect(feesAvailable).toBe(toNano('0.60'));
+        // 3 deposits of 1 TON pool (0.60 TON) minus 2 withdrawals auto-reimbursing 0.04 TON each = 0.52 TON
+        expect(feesAvailable).toBe(toNano('0.52'));
 
         const mockRelayer = await blockchain.treasury('mockRelayer');
         const relayerBalanceBefore = await mockRelayer.getBalance();
@@ -492,7 +498,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             { value: toNano('0.05') },
             {
                 $$type: 'ClaimFees',
-                amount: toNano('0.60'),
+                amount: toNano('0.52'),
                 destination: mallory.address,
             }
         );
@@ -528,7 +534,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             { value: toNano('0.05') },
             {
                 $$type: 'ClaimFees',
-                amount: toNano('0.60'),
+                amount: toNano('0.52'),
                 destination: mockRelayer.address,
             }
         );

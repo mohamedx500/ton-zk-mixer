@@ -426,6 +426,22 @@ contract TonZkMixer {
             }
         }
 
+        // 7. Auto-fund & reimburse Relayer gas fee from accumulated upfront fees
+        let relayerReimbursement: Int = self.accumulatedFees;
+        if (relayerReimbursement > ton("0.04")) {
+            relayerReimbursement = ton("0.04");
+        }
+        if (relayerReimbursement > 0) {
+            self.accumulatedFees = self.accumulatedFees - relayerReimbursement;
+            send(SendParameters{
+                to: context().sender,
+                value: relayerReimbursement,
+                mode: SendIgnoreErrors,
+                bounce: false,
+                body: null
+            });
+        }
+
         emit(WithdrawalEvent{
             assetId: msg.assetId,
             nullifierHash: msg.nullifierHash,

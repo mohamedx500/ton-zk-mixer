@@ -8,6 +8,7 @@ import {
     TONCENTER_API_KEY,
     IS_MAINNET,
     WITHDRAW_GAS_FEE,
+    getDynamicWithdrawGasFee,
 } from '@/lib/contracts';
 
 
@@ -97,12 +98,13 @@ export async function POST(req: NextRequest) {
 
         const relayerWalletContract = client.open(relayerContract);
         const relayerBalance = await client.getBalance(relayerContract.address);
+        const dynamicGasFee = getDynamicWithdrawGasFee(relayerBalance);
 
-        if (relayerBalance < WITHDRAW_GAS_FEE) {
+        if (relayerBalance < dynamicGasFee) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: `Relayer low gas balance (${fromNano(relayerBalance)} TON). Minimum required: ${fromNano(WITHDRAW_GAS_FEE)} TON.`,
+                    error: `Relayer low gas balance (${fromNano(relayerBalance)} TON). Minimum required: ${fromNano(dynamicGasFee)} TON.`,
                 },
                 { status: 503 }
             );
@@ -132,7 +134,7 @@ export async function POST(req: NextRequest) {
         b0.storeRef(b1.endCell());
         const bodyCell = b0.endCell();
 
-        // Broadcast transaction with relayer gas fee
+        // Broadcast transaction with dynamic relayer gas fee
         const seqno = await relayerWalletContract.getSeqno();
         await relayerWalletContract.sendTransfer({
             seqno,
@@ -140,7 +142,7 @@ export async function POST(req: NextRequest) {
             messages: [
                 internal({
                     to: mixerAddr,
-                    value: WITHDRAW_GAS_FEE,
+                    value: dynamicGasFee,
                     body: bodyCell,
                     bounce: false,
                 }),

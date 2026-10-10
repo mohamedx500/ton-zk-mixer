@@ -13,14 +13,14 @@ const isMainnet = network === 'mainnet';
 const endpoint = process.env.TON_RPC_ENDPOINT || (isMainnet ? 'https://toncenter.com/api/v2/jsonRPC' : 'https://testnet.toncenter.com/api/v2/jsonRPC');
 const apiKey = process.env.TONCENTER_API_KEY || undefined;
 
-// Configuration thresholds
+// Configuration thresholds: optimized for low dynamic fees (0.04 TON/tx)
 const MIN_RELAYER_BALANCE = process.env.RELAYER_MIN_BALANCE
     ? toNano(process.env.RELAYER_MIN_BALANCE)
-    : toNano('0.15'); // Threshold: 0.15 TON
+    : toNano('0.06'); // Threshold: 0.06 TON
 
 const TOPUP_AMOUNT = process.env.RELAYER_TOPUP_AMOUNT
     ? toNano(process.env.RELAYER_TOPUP_AMOUNT)
-    : toNano('0.5'); // Automated refill: 0.5 TON
+    : toNano('0.15'); // Automated refill: 0.15 TON
 
 const CHECK_INTERVAL_MS = parseInt(process.env.MONITOR_INTERVAL_MS || '15000', 10);
 

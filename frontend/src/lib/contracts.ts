@@ -24,7 +24,28 @@ export const OP_JETTON_NOTIFICATION = 0x7362d09c;
 
 export const TON_DENOMINATION = BigInt(1_000_000_000); // 1.0 TON
 export const DEPOSIT_GAS_FEE = BigInt(70_000_000); // 0.07 TON
-export const WITHDRAW_GAS_FEE = BigInt(180_000_000); // 0.18 TON
+
+// Dynamic low & safe withdraw contract call fees (TVM BLS pairing actual compute is ~0.0084 TON)
+export const MIN_SAFE_WITHDRAW_FEE = BigInt(35_000_000); // 0.035 TON floor
+export const RECOMMENDED_WITHDRAW_FEE = BigInt(40_000_000); // 0.040 TON recommended
+export const WITHDRAW_GAS_FEE = RECOMMENDED_WITHDRAW_FEE; // 0.04 TON default
+
+/**
+ * Dynamically resolves the optimal, lowest safe fee to execute TVM pairing
+ * based on current relayer reserves.
+ */
+export function getDynamicWithdrawGasFee(currentBalanceNano?: bigint): bigint {
+    if (!currentBalanceNano) return RECOMMENDED_WITHDRAW_FEE;
+    if (currentBalanceNano < BigInt(80_000_000)) {
+        return MIN_SAFE_WITHDRAW_FEE;
+    }
+    return RECOMMENDED_WITHDRAW_FEE;
+}
+
+// Active Mainnet Gasless Relayer Address
+export const ACTIVE_RELAYER_ADDRESS = IS_MAINNET
+    ? 'UQAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhksqZ'
+    : 'UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ';
 
 export const EXPLORER_URL = (addr: string) =>
     IS_MAINNET ? `https://tonscan.org/address/${addr}` : `https://testnet.tonscan.org/address/${addr}`;

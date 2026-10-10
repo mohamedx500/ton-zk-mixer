@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { Address, Cell, beginCell, fromNano, toNano, internal } from '@ton/core';
-import { PORT, MIXER_ADDRESS, RELAY_GAS_FEE, TON_NETWORK } from './config';
+import { PORT, MIXER_ADDRESS, RELAY_GAS_FEE, MIN_RELAY_GAS_FEE, TON_NETWORK } from './config';
 import { getOrCreateRelayerWallet, getRelayerTonClient } from './wallet';
 import { verifyRelayRequest } from './verifier';
 
@@ -124,8 +124,18 @@ app.post('/relay', async (req: Request, res: Response): Promise<void> => {
         b0.storeRef(b1.endCell());
         const bodyCell = b0.endCell();
 
-        // 5. Broadcast transaction to TON Testnet with relayer's gas
-        console.log(`📤 [Relayer] Dispatching transaction to Mixer (${MIXER_ADDRESS})...`);
+        // 5. Broadcast transaction to TON with relayer's dynamic gas
+        const relayerBalance = await client.getBalance(contract.address);
+        const dynamicFee = relayerBalance < 80_000_000n ? MIN_RELAY_GAS_FEE : RELAY_GAS_FEE;
+
+        if (relayerBalance < dynamicFee) {
+            return res.status(503).json({
+                success: false,
+                error: `Relayer low balance (${fromNano(relayerBalance)} TON). Minimum required: ${fromNano(dynamicFee)} TON.`,
+            });
+        }
+
+        console.log(`📤 [Relayer] Dispatching transaction to Mixer (${MIXER_ADDRESS}) with dynamic fee ${fromNano(dynamicFee)} TON...`);
         const walletContract = client.open(contract);
         const seqno = await walletContract.getSeqno();
 
@@ -135,7 +145,7 @@ app.post('/relay', async (req: Request, res: Response): Promise<void> => {
             messages: [
                 internal({
                     to: Address.parse(MIXER_ADDRESS),
-                    value: RELAY_GAS_FEE,
+                    value: dynamicFee,
                     body: bodyCell,
                     bounce: false,
                 }),

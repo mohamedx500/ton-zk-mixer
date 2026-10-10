@@ -29,7 +29,7 @@ import {
     buildClaimFeesPayload,
     buildSetFeeRoutingPayload,
 } from '../lib/admin';
-import { EXPLORER_URL, TX_EXPLORER_URL } from '../lib/contracts';
+import { EXPLORER_URL, TX_EXPLORER_URL, ACTIVE_RELAYER_ADDRESS } from '../lib/contracts';
 
 export function AdminDashboard() {
     const connectedAddress = useTonAddress();
@@ -462,7 +462,7 @@ export function AdminDashboard() {
                                     <label className="font-semibold text-gray-300">Destination Address</label>
                                     <button
                                         type="button"
-                                        onClick={() => setClaimDestination('UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ')}
+                                        onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
                                         className="text-amber-400 hover:text-amber-300 text-[11px] font-bold cursor-pointer"
                                     >
                                         ⚡ Restock Relayer
@@ -484,7 +484,7 @@ export function AdminDashboard() {
                                 <span className="text-gray-400">Quick Dest:</span>
                                 <button
                                     type="button"
-                                    onClick={() => setClaimDestination('UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ')}
+                                    onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
                                     className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-[11px] cursor-pointer"
                                 >
                                     Relayer Wallet
