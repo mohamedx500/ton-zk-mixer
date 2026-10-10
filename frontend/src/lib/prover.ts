@@ -1,4 +1,5 @@
 import { Address, Cell, beginCell } from '@ton/core';
+import { Buffer } from 'buffer';
 import { buildBls12381, utils } from 'ffjavascript';
 import { DepositNote, MerkleProof, addressToScalar } from './crypto';
 

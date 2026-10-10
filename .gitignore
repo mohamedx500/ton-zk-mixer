@@ -24,6 +24,7 @@ out/
 circuits/ptau/
 *.ptau
 *.zkey
+!frontend/public/circuits/*.zkey
 
 # OS & Logs
 .DS_Store
