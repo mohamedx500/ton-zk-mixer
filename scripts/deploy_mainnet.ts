@@ -40,8 +40,9 @@ async function main() {
     });
     console.log(`Deployer Address (Mainnet): ${mainnetAddress}`);
 
-    const endpoint = process.env.TON_RPC_ENDPOINT || 'https://toncenter.com/api/v2/jsonRPC';
-    const apiKey = process.env.TONCENTER_API_KEY || undefined;
+    const rawEndpoint = process.env.TON_RPC_ENDPOINT || 'https://toncenter.com/api/v2/jsonRPC';
+    const endpoint = rawEndpoint.includes('testnet') ? 'https://toncenter.com/api/v2/jsonRPC' : rawEndpoint;
+    const apiKey = process.env.TONCENTER_API_KEY ? process.env.TONCENTER_API_KEY.trim() : undefined;
 
     const client = new TonClient({
         endpoint,

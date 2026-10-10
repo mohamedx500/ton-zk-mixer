@@ -1,4 +1,4 @@
-export const TON_NETWORK = (process.env.NEXT_PUBLIC_TON_NETWORK || 'testnet').toLowerCase() as
+export const TON_NETWORK = (process.env.NEXT_PUBLIC_TON_NETWORK || 'mainnet').toLowerCase() as
     | 'mainnet'
     | 'testnet';
 
@@ -6,7 +6,7 @@ export const IS_MAINNET = TON_NETWORK === 'mainnet';
 
 export const MIXER_ADDRESS_STRING =
     process.env.NEXT_PUBLIC_MIXER_ADDRESS ||
-    (IS_MAINNET ? '' : '0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET');
+    (IS_MAINNET ? 'UQBc0izk6rtfjroHgkzP4pEBUHfMCtSS1CGT988kw8DbqY7A' : '0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET');
 
 export const TONCENTER_RPC =
     process.env.NEXT_PUBLIC_TON_RPC_ENDPOINT ||
