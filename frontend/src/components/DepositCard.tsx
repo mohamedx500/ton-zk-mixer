@@ -133,7 +133,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                     <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        1. Select Pool Denomination (9 Pools: Poor to Whale)
+                        1. Select Pool Denomination (9 Pools: 1 TON to 1000 TON)
                     </label>
                     <span className="text-[11px] text-cyan-400 font-medium">
                         Tier: {currentTier.category.toUpperCase()}

@@ -577,16 +577,16 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         expect(await mixer.getAutoFeeRouting()).toBe(false);
     });
 
-    it('9. Tiered Upfront Fee Model: Enforces tiered fees across 9 pool sizes (from 0.05 TON poor/micro to 500 TON whale)', async () => {
-        // Verify upfront fee schedule on-chain across all 9 tiers
-        expect(await mixer.getUpfrontFee(toNano('0.05'))).toBe(toNano('0.01'));
-        expect(await mixer.getUpfrontFee(toNano('0.1'))).toBe(toNano('0.02'));
-        expect(await mixer.getUpfrontFee(toNano('0.5'))).toBe(toNano('0.08'));
+    it('9. Tiered Upfront Fee Model: Enforces tiered fees across 9 pool sizes (from 1 TON to 1000 TON)', async () => {
+        // Verify upfront fee schedule on-chain across all 9 tiers (1 TON to 1000 TON)
         expect(await mixer.getUpfrontFee(toNano('1.0'))).toBe(toNano('0.20'));
         expect(await mixer.getUpfrontFee(toNano('5.0'))).toBe(toNano('0.35'));
         expect(await mixer.getUpfrontFee(toNano('10.0'))).toBe(toNano('0.50'));
+        expect(await mixer.getUpfrontFee(toNano('25.0'))).toBe(toNano('0.80'));
         expect(await mixer.getUpfrontFee(toNano('50.0'))).toBe(toNano('1.20'));
         expect(await mixer.getUpfrontFee(toNano('100.0'))).toBe(toNano('2.00'));
+        expect(await mixer.getUpfrontFee(toNano('250.0'))).toBe(toNano('3.50'));
         expect(await mixer.getUpfrontFee(toNano('500.0'))).toBe(toNano('5.00'));
+        expect(await mixer.getUpfrontFee(toNano('1000.0'))).toBe(toNano('8.00'));
     });
 });

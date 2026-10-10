@@ -242,34 +242,34 @@ contract TonZkMixer {
     // Fallback receiver for deployment and plain TON transfers
     receive() {}
 
-    // Upfront Tiered Fee Model: Calculates protocol + relayer upfront fee based on pool size (9 Pools from Micro to Whale)
+    // Upfront Tiered Fee Model: Calculates protocol + relayer upfront fee based on pool size (9 Pools from 1 TON to 1000 TON)
     fun getUpfrontFee(denomination: Int): Int {
-        if (denomination == ton("0.05")) {
-            return ton("0.01"); // 0.05 TON Pool -> 0.01 TON fee (Total: 0.06 TON)
-        }
-        if (denomination == ton("0.1") || denomination == ton("0.10")) {
-            return ton("0.02"); // 0.1 TON Pool -> 0.02 TON fee (Total: 0.12 TON)
-        }
-        if (denomination == ton("0.5") || denomination == ton("0.50")) {
-            return ton("0.08"); // 0.5 TON Pool -> 0.08 TON fee (Total: 0.58 TON)
-        }
         if (denomination == ton("1.0") || denomination == ton("1")) {
-            return ton("0.20"); // 1.0 TON Pool -> 0.20 TON fee (Total: 1.20 TON)
+            return ton("0.20"); // 1 TON Pool -> 0.20 TON fee (Total: 1.20 TON)
         }
         if (denomination == ton("5.0") || denomination == ton("5")) {
-            return ton("0.35"); // 5.0 TON Pool -> 0.35 TON fee (Total: 5.35 TON)
+            return ton("0.35"); // 5 TON Pool -> 0.35 TON fee (Total: 5.35 TON)
         }
         if (denomination == ton("10.0") || denomination == ton("10")) {
-            return ton("0.50"); // 10.0 TON Pool -> 0.50 TON fee (Total: 10.50 TON)
+            return ton("0.50"); // 10 TON Pool -> 0.50 TON fee (Total: 10.50 TON)
+        }
+        if (denomination == ton("25.0") || denomination == ton("25")) {
+            return ton("0.80"); // 25 TON Pool -> 0.80 TON fee (Total: 25.80 TON)
         }
         if (denomination == ton("50.0") || denomination == ton("50")) {
-            return ton("1.20"); // 50.0 TON Pool -> 1.20 TON fee (Total: 51.20 TON)
+            return ton("1.20"); // 50 TON Pool -> 1.20 TON fee (Total: 51.20 TON)
         }
         if (denomination == ton("100.0") || denomination == ton("100")) {
-            return ton("2.00"); // 100.0 TON Pool -> 2.00 TON fee (Total: 102.00 TON)
+            return ton("2.00"); // 100 TON Pool -> 2.00 TON fee (Total: 102.00 TON)
+        }
+        if (denomination == ton("250.0") || denomination == ton("250")) {
+            return ton("3.50"); // 250 TON Pool -> 3.50 TON fee (Total: 253.50 TON)
         }
         if (denomination == ton("500.0") || denomination == ton("500")) {
-            return ton("5.00"); // 500.0 TON Pool -> 5.00 TON fee (Total: 505.00 TON)
+            return ton("5.00"); // 500 TON Pool -> 5.00 TON fee (Total: 505.00 TON)
+        }
+        if (denomination == ton("1000.0") || denomination == ton("1000")) {
+            return ton("8.00"); // 1000 TON Pool -> 8.00 TON fee (Total: 1008.00 TON)
         }
         return denomination / 50; // Fallback: 2%
     }
@@ -282,24 +282,28 @@ contract TonZkMixer {
         nativeThrowUnless(ERR_TREE_FULL, self.nextIndex < 256);
 
         let fee: Int = 0;
-        if (context().value == ton("0.06")) {
-            fee = ton("0.01");
-        } else if (context().value == ton("0.12")) {
-            fee = ton("0.02");
-        } else if (context().value == ton("0.58")) {
-            fee = ton("0.08");
-        } else if (context().value == ton("1.20") || context().value == ton("1.2")) {
+        if (context().value == ton("1.20") || context().value == ton("1.2")) {
             fee = ton("0.20");
         } else if (context().value == ton("5.35")) {
             fee = ton("0.35");
         } else if (context().value == ton("10.50") || context().value == ton("10.5")) {
             fee = ton("0.50");
+        } else if (context().value == ton("25.80") || context().value == ton("25.8")) {
+            fee = ton("0.80");
         } else if (context().value == ton("51.20") || context().value == ton("51.2")) {
             fee = ton("1.20");
         } else if (context().value == ton("102.00") || context().value == ton("102")) {
             fee = ton("2.00");
+        } else if (context().value == ton("253.50") || context().value == ton("253.5")) {
+            fee = ton("3.50");
         } else if (context().value == ton("505.00") || context().value == ton("505")) {
             fee = ton("5.00");
+        } else if (context().value == ton("1008.00") || context().value == ton("1008")) {
+            fee = ton("8.00");
+        } else if (context().value == ton("0.12")) {
+            fee = ton("0.02"); // Backward compatibility
+        } else if (context().value == ton("0.06")) {
+            fee = ton("0.01"); // Backward compatibility
         } else {
             let poolFee: Int = self.getUpfrontFee(self.tonDenomination);
             let expectedTotal: Int = self.tonDenomination + poolFee;

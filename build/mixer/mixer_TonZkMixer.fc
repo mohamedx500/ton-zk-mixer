@@ -728,40 +728,40 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref {
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_getUpfrontFee((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $denomination) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    if (($denomination == 50000000)) {
-        var $fresh$ret_4 = 10000000;
+    if (( (($denomination == 1000000000)) ? (true) : (($denomination == 1000000000)) )) {
+        var $fresh$ret_4 = 200000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_4);
     }
-    if (( (($denomination == 100000000)) ? (true) : (($denomination == 100000000)) )) {
-        var $fresh$ret_5 = 20000000;
+    if (( (($denomination == 5000000000)) ? (true) : (($denomination == 5000000000)) )) {
+        var $fresh$ret_5 = 350000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_5);
     }
-    if (( (($denomination == 500000000)) ? (true) : (($denomination == 500000000)) )) {
-        var $fresh$ret_6 = 80000000;
+    if (( (($denomination == 10000000000)) ? (true) : (($denomination == 10000000000)) )) {
+        var $fresh$ret_6 = 500000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_6);
     }
-    if (( (($denomination == 1000000000)) ? (true) : (($denomination == 1000000000)) )) {
-        var $fresh$ret_7 = 200000000;
+    if (( (($denomination == 25000000000)) ? (true) : (($denomination == 25000000000)) )) {
+        var $fresh$ret_7 = 800000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_7);
     }
-    if (( (($denomination == 5000000000)) ? (true) : (($denomination == 5000000000)) )) {
-        var $fresh$ret_8 = 350000000;
+    if (( (($denomination == 50000000000)) ? (true) : (($denomination == 50000000000)) )) {
+        var $fresh$ret_8 = 1200000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_8);
     }
-    if (( (($denomination == 10000000000)) ? (true) : (($denomination == 10000000000)) )) {
-        var $fresh$ret_9 = 500000000;
+    if (( (($denomination == 100000000000)) ? (true) : (($denomination == 100000000000)) )) {
+        var $fresh$ret_9 = 2000000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_9);
     }
-    if (( (($denomination == 50000000000)) ? (true) : (($denomination == 50000000000)) )) {
-        var $fresh$ret_10 = 1200000000;
+    if (( (($denomination == 250000000000)) ? (true) : (($denomination == 250000000000)) )) {
+        var $fresh$ret_10 = 3500000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_10);
     }
-    if (( (($denomination == 100000000000)) ? (true) : (($denomination == 100000000000)) )) {
-        var $fresh$ret_11 = 2000000000;
+    if (( (($denomination == 500000000000)) ? (true) : (($denomination == 500000000000)) )) {
+        var $fresh$ret_11 = 5000000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_11);
     }
-    if (( (($denomination == 500000000000)) ? (true) : (($denomination == 500000000000)) )) {
-        var $fresh$ret_12 = 5000000000;
+    if (( (($denomination == 1000000000000)) ? (true) : (($denomination == 1000000000000)) )) {
+        var $fresh$ret_12 = 8000000000;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_12);
     }
     var $fresh$ret_13 = ($denomination / 50);
@@ -1085,24 +1085,28 @@ _ %autoFeeRouting() method_id(122053) {
         throw_unless(1002, (~ $self'paused));
         throw_unless(1004, ($self'nextIndex < 256));
         int $fee = 0;
-        if (($Context$_get_value(__tact_context_get()) == 60000000)) {
-            $fee = 10000000;
-        } elseif (($Context$_get_value(__tact_context_get()) == 120000000)) {
-            $fee = 20000000;
-        } elseif (($Context$_get_value(__tact_context_get()) == 580000000)) {
-            $fee = 80000000;
-        } elseif (( (($Context$_get_value(__tact_context_get()) == 1200000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 1200000000)) )) {
+        if (( (($Context$_get_value(__tact_context_get()) == 1200000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 1200000000)) )) {
             $fee = 200000000;
         } elseif (($Context$_get_value(__tact_context_get()) == 5350000000)) {
             $fee = 350000000;
         } elseif (( (($Context$_get_value(__tact_context_get()) == 10500000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 10500000000)) )) {
             $fee = 500000000;
+        } elseif (( (($Context$_get_value(__tact_context_get()) == 25800000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 25800000000)) )) {
+            $fee = 800000000;
         } elseif (( (($Context$_get_value(__tact_context_get()) == 51200000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 51200000000)) )) {
             $fee = 1200000000;
         } elseif (( (($Context$_get_value(__tact_context_get()) == 102000000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 102000000000)) )) {
             $fee = 2000000000;
+        } elseif (( (($Context$_get_value(__tact_context_get()) == 253500000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 253500000000)) )) {
+            $fee = 3500000000;
         } elseif (( (($Context$_get_value(__tact_context_get()) == 505000000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 505000000000)) )) {
             $fee = 5000000000;
+        } elseif (( (($Context$_get_value(__tact_context_get()) == 1008000000000)) ? (true) : (($Context$_get_value(__tact_context_get()) == 1008000000000)) )) {
+            $fee = 8000000000;
+        } elseif (($Context$_get_value(__tact_context_get()) == 120000000)) {
+            $fee = 20000000;
+        } elseif (($Context$_get_value(__tact_context_get()) == 60000000)) {
+            $fee = 10000000;
         } else {
             int $poolFee = ($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)~$TonZkMixer$_fun_getUpfrontFee($self'tonDenomination);
             int $expectedTotal = ($self'tonDenomination + $poolFee);
