@@ -489,6 +489,13 @@ PROGRAM{
   }>
   $TonZkMixer$_fun_getUpfrontFee PROCREF:<{
     DUP
+    50000000 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      10000000 PUSHINT
+    }>
+    DUP
     100000000 PUSHINT
     EQUAL
     IF:<{
@@ -501,6 +508,20 @@ PROGRAM{
     IFJMP:<{
       DROP
       20000000 PUSHINT
+    }>
+    DUP
+    500000000 PUSHINT
+    EQUAL
+    IF:<{
+      TRUE
+    }>ELSE<{
+      DUP
+      500000000 PUSHINT
+      EQUAL
+    }>
+    IFJMP:<{
+      DROP
+      80000000 PUSHINT
     }>
     DUP
     1000000000 PUSHINT
@@ -545,6 +566,20 @@ PROGRAM{
       500000000 PUSHINT
     }>
     DUP
+    50000000000 PUSHINT
+    EQUAL
+    IF:<{
+      TRUE
+    }>ELSE<{
+      DUP
+      50000000000 PUSHINT
+      EQUAL
+    }>
+    IFJMP:<{
+      DROP
+      1200000000 PUSHINT
+    }>
+    DUP
     100000000000 PUSHINT
     EQUAL
     IF:<{
@@ -557,6 +592,20 @@ PROGRAM{
     IFJMP:<{
       DROP
       2000000000 PUSHINT
+    }>
+    DUP
+    500000000000 PUSHINT
+    EQUAL
+    IF:<{
+      TRUE
+    }>ELSE<{
+      DUP
+      500000000000 PUSHINT
+      EQUAL
+    }>
+    IFJMP:<{
+      DROP
+      5000000000 PUSHINT
     }>
     50 PUSHINT
     DIV
@@ -1010,100 +1059,148 @@ PROGRAM{
       1004 THROWIFNOT
       __tact_context_get INLINECALLDICT
       $Context$_get_value INLINECALLDICT
-      120000000 PUSHINT
+      60000000 PUSHINT
       EQUAL
       IF:<{
-        20000000 PUSHINT
+        10000000 PUSHINT
       }>ELSE<{
         __tact_context_get INLINECALLDICT
         $Context$_get_value INLINECALLDICT
-        1200000000 PUSHINT
+        120000000 PUSHINT
         EQUAL
         IF:<{
-          TRUE
+          20000000 PUSHINT
         }>ELSE<{
           __tact_context_get INLINECALLDICT
           $Context$_get_value INLINECALLDICT
-          1200000000 PUSHINT
-          EQUAL
-        }>
-        IF:<{
-          200000000 PUSHINT
-        }>ELSE<{
-          __tact_context_get INLINECALLDICT
-          $Context$_get_value INLINECALLDICT
-          5350000000 PUSHINT
+          580000000 PUSHINT
           EQUAL
           IF:<{
-            350000000 PUSHINT
+            80000000 PUSHINT
           }>ELSE<{
             __tact_context_get INLINECALLDICT
             $Context$_get_value INLINECALLDICT
-            10500000000 PUSHINT
+            1200000000 PUSHINT
             EQUAL
             IF:<{
               TRUE
             }>ELSE<{
               __tact_context_get INLINECALLDICT
               $Context$_get_value INLINECALLDICT
-              10500000000 PUSHINT
+              1200000000 PUSHINT
               EQUAL
             }>
             IF:<{
-              500000000 PUSHINT
+              200000000 PUSHINT
             }>ELSE<{
               __tact_context_get INLINECALLDICT
               $Context$_get_value INLINECALLDICT
-              102000000000 PUSHINT
+              5350000000 PUSHINT
               EQUAL
               IF:<{
-                TRUE
+                350000000 PUSHINT
               }>ELSE<{
                 __tact_context_get INLINECALLDICT
                 $Context$_get_value INLINECALLDICT
-                102000000000 PUSHINT
+                10500000000 PUSHINT
                 EQUAL
-              }>
-              IF:<{
-                2000000000 PUSHINT
-              }>ELSE<{
-                s11 PUSH
-                s14 s15 XCHG
-                s0 s13 XCHG
-                s0 s14 XCHG
-                s11 s12 XCHG
-                s10 s11 XCHG
-                s9 s10 XCHG
-                s8 s9 XCHG
-                s7 s8 XCHG
-                s6 s7 XCHG
-                s5 s6 XCHG
-                s4 s5 XCHG
-                s3 s4 XCHG
-                s0 s1 s3 XCHG3
-                s1 16 s() XCHG
-                $TonZkMixer$_fun_getUpfrontFee INLINECALLDICT
-                s13 s0 PUSH2
-                ADD
-                __tact_context_get INLINECALLDICT
-                $Context$_get_value INLINECALLDICT
-                SWAP
-                EQUAL
-                1003 THROWIFNOT
-                s1 16 s() XCHG
-                s2 s15 XCHG
-                s2 s14 XCHG
-                s2 s13 XCHG
-                s2 s12 XCHG
-                s2 s11 XCHG
-                s2 s10 XCHG
-                s2 s9 XCHG
-                s2 s8 XCHG
-                s2 s7 XCHG
-                s2 s6 XCHG
-                s2 s5 XCHG
-                s2 s4 XCHG
-                s2 s3 XCHG
+                IF:<{
+                  TRUE
+                }>ELSE<{
+                  __tact_context_get INLINECALLDICT
+                  $Context$_get_value INLINECALLDICT
+                  10500000000 PUSHINT
+                  EQUAL
+                }>
+                IF:<{
+                  500000000 PUSHINT
+                }>ELSE<{
+                  __tact_context_get INLINECALLDICT
+                  $Context$_get_value INLINECALLDICT
+                  51200000000 PUSHINT
+                  EQUAL
+                  IF:<{
+                    TRUE
+                  }>ELSE<{
+                    __tact_context_get INLINECALLDICT
+                    $Context$_get_value INLINECALLDICT
+                    51200000000 PUSHINT
+                    EQUAL
+                  }>
+                  IF:<{
+                    1200000000 PUSHINT
+                  }>ELSE<{
+                    __tact_context_get INLINECALLDICT
+                    $Context$_get_value INLINECALLDICT
+                    102000000000 PUSHINT
+                    EQUAL
+                    IF:<{
+                      TRUE
+                    }>ELSE<{
+                      __tact_context_get INLINECALLDICT
+                      $Context$_get_value INLINECALLDICT
+                      102000000000 PUSHINT
+                      EQUAL
+                    }>
+                    IF:<{
+                      2000000000 PUSHINT
+                    }>ELSE<{
+                      __tact_context_get INLINECALLDICT
+                      $Context$_get_value INLINECALLDICT
+                      505000000000 PUSHINT
+                      EQUAL
+                      IF:<{
+                        TRUE
+                      }>ELSE<{
+                        __tact_context_get INLINECALLDICT
+                        $Context$_get_value INLINECALLDICT
+                        505000000000 PUSHINT
+                        EQUAL
+                      }>
+                      IF:<{
+                        5000000000 PUSHINT
+                      }>ELSE<{
+                        s11 PUSH
+                        s14 s15 XCHG
+                        s0 s13 XCHG
+                        s0 s14 XCHG
+                        s11 s12 XCHG
+                        s10 s11 XCHG
+                        s9 s10 XCHG
+                        s8 s9 XCHG
+                        s7 s8 XCHG
+                        s6 s7 XCHG
+                        s5 s6 XCHG
+                        s4 s5 XCHG
+                        s3 s4 XCHG
+                        s0 s1 s3 XCHG3
+                        s1 16 s() XCHG
+                        $TonZkMixer$_fun_getUpfrontFee INLINECALLDICT
+                        s13 s0 PUSH2
+                        ADD
+                        __tact_context_get INLINECALLDICT
+                        $Context$_get_value INLINECALLDICT
+                        SWAP
+                        EQUAL
+                        1003 THROWIFNOT
+                        s1 16 s() XCHG
+                        s2 s15 XCHG
+                        s2 s14 XCHG
+                        s2 s13 XCHG
+                        s2 s12 XCHG
+                        s2 s11 XCHG
+                        s2 s10 XCHG
+                        s2 s9 XCHG
+                        s2 s8 XCHG
+                        s2 s7 XCHG
+                        s2 s6 XCHG
+                        s2 s5 XCHG
+                        s2 s4 XCHG
+                        s2 s3 XCHG
+                      }>
+                    }>
+                  }>
+                }>
               }>
             }>
           }>

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { createDepositNote, DepositNote } from '../lib/crypto';
 import { buildDepositTransaction } from '../lib/ton';
-import { TESTNET_EXPLORER_URL, UPFRONT_POOL_TIERS } from '../lib/contracts';
+import { TESTNET_EXPLORER_URL, UPFRONT_POOL_TIERS, POOL_TIER_IDS, PoolTierId } from '../lib/contracts';
 
 interface DepositCardProps {
     onDepositSuccess?: () => void;
@@ -26,7 +26,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     const [tonConnectUI] = useTonConnectUI();
     const wallet = useTonWallet();
 
-    const [selectedPool, setSelectedPool] = useState<'0.1' | '1.0' | '5.0'>('1.0');
+    const [selectedPool, setSelectedPool] = useState<PoolTierId>('1.0');
     const currentTier = UPFRONT_POOL_TIERS[selectedPool] || UPFRONT_POOL_TIERS['1.0'];
 
     const [note, setNote] = useState<DepositNote | null>(null);
@@ -131,11 +131,16 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
             {/* Step 1: Select Denomination */}
             <div className="mb-4">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-                    1. Select Pool Denomination
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                    {(['0.1', '1.0', '5.0'] as const).map((poolId) => {
+                <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        1. Select Pool Denomination (9 Pools: Poor to Whale)
+                    </label>
+                    <span className="text-[11px] text-cyan-400 font-medium">
+                        Tier: {currentTier.category.toUpperCase()}
+                    </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                    {POOL_TIER_IDS.map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
                         const isCurrentActive = poolId === '1.0';
@@ -148,15 +153,23 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                     setNote(null);
                                     setDepositTxSuccess(null);
                                 }}
-                                className={`py-3 px-3 sm:px-4 rounded-xl border text-center font-medium transition-all cursor-pointer ${
+                                className={`py-2.5 px-2 sm:px-3 rounded-xl border text-center font-medium transition-all cursor-pointer relative overflow-hidden ${
                                     isSelected
-                                        ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-md shadow-cyan-500/10'
-                                        : 'bg-glass-inner border-white/5 text-gray-300 hover:border-white/20'
+                                        ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-md shadow-cyan-500/15 ring-1 ring-cyan-500/40'
+                                        : 'bg-glass-inner border-white/5 text-gray-300 hover:border-white/20 hover:bg-white/[0.02]'
                                 }`}
                             >
-                                <div className="text-base sm:text-lg font-bold">{tier.poolAmount}</div>
-                                <div className="text-[11px] text-gray-400 mt-0.5">
-                                    {isCurrentActive ? '🟢 Active Pool' : 'Standard'}
+                                <div className="flex items-center justify-between text-[10px] text-gray-400 mb-0.5">
+                                    <span className="font-semibold text-gray-400">{tier.label}</span>
+                                    {isCurrentActive && (
+                                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 py-0.2 rounded font-bold">
+                                            Active
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-sm sm:text-base font-bold text-white tracking-tight">{tier.poolAmount}</div>
+                                <div className="text-[10px] text-gray-400 mt-0.5 font-mono">
+                                    Fee: {tier.fee}
                                 </div>
                             </button>
                         );

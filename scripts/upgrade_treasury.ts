@@ -121,14 +121,18 @@ export async function upgradeToTreasuryModel() {
     try {
         const accumulatedFees = await mixer.getAccumulatedFees();
         const autoFeeRouting = await mixer.getAutoFeeRouting();
+        const upfrontFee005 = await mixer.getUpfrontFee(toNano('0.05'));
         const upfrontFee1 = await mixer.getUpfrontFee(toNano('1.0'));
         const upfrontFee10 = await mixer.getUpfrontFee(toNano('10.0'));
         const upfrontFee100 = await mixer.getUpfrontFee(toNano('100.0'));
+        const upfrontFee500 = await mixer.getUpfrontFee(toNano('500.0'));
         console.log(`- Accumulated Fees Available: ${fromNano(accumulatedFees)} TON ✅`);
         console.log(`- Dynamic Fee Routing:        ${autoFeeRouting ? 'Auto-Push' : 'Pull/Accumulate (Default)'} ✅`);
-        console.log(`- Upfront Fee (1 TON Pool):   ${fromNano(upfrontFee1)} TON ✅`);
-        console.log(`- Upfront Fee (10 TON Pool):  ${fromNano(upfrontFee10)} TON ✅`);
-        console.log(`- Upfront Fee (100 TON Pool): ${fromNano(upfrontFee100)} TON ✅`);
+        console.log(`- Upfront Fee (0.05 TON Micro): ${fromNano(upfrontFee005)} TON ✅`);
+        console.log(`- Upfront Fee (1.0 TON Pool):   ${fromNano(upfrontFee1)} TON ✅`);
+        console.log(`- Upfront Fee (10 TON Pool):    ${fromNano(upfrontFee10)} TON ✅`);
+        console.log(`- Upfront Fee (100 TON Pool):   ${fromNano(upfrontFee100)} TON ✅`);
+        console.log(`- Upfront Fee (500 TON Whale):  ${fromNano(upfrontFee500)} TON ✅`);
     } catch (err: any) {
         console.log('ℹ️ Getters query note:', err.message);
     }
