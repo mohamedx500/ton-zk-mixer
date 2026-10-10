@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: TonZkMixer
-BoC Size: 5555 bytes
+BoC Size: 5662 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 23
@@ -98,7 +98,7 @@ TL-B: `_ owner:address paused:bool tonDenomination:coins poolDenominations:dict<
 Signature: `TonZkMixer{owner:address,paused:bool,tonDenomination:coins,poolDenominations:dict<uint256, coins>,poolActive:dict<uint256, bool>,assetToWallet:dict<uint256, address>,nextIndex:uint32,currentRoot:uint256,filledSubtrees:dict<uint8, uint256>,roots:dict<uint256, bool>,nullifiers:dict<uint256, bool>,totalDeposits:uint32,totalWithdrawals:uint32,accumulatedFees:coins,autoFeeRouting:bool}`
 
 ## Get methods
-Total get methods: 13
+Total get methods: 15
 
 ## isKnownRoot
 Argument: root
@@ -134,6 +134,12 @@ No arguments
 No arguments
 
 ## accumulatedFees
+No arguments
+
+## upfrontFee
+Argument: denomination
+
+## userTvl
 No arguments
 
 ## autoFeeRouting

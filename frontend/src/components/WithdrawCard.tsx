@@ -26,6 +26,13 @@ import {
 import { generateClientWithdrawProof, ZkWithdrawProof } from '../lib/prover';
 import { TESTNET_EXPLORER_URL, RELAYER_ENDPOINT } from '../lib/contracts';
 
+function getFormattedPayoutAmount(amountStr?: string): string {
+    if (!amountStr) return '1 TON';
+    if (amountStr.includes('100')) return '100 TON';
+    if (amountStr.includes('10')) return '10 TON';
+    return '1 TON';
+}
+
 interface WithdrawCardProps {
     onWithdrawSuccess?: () => void;
 }
@@ -271,6 +278,15 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                 </label>
             </div>
 
+            {/* Upfront Fees Paid Notice Banner */}
+            <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs mb-5 shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="leading-relaxed">
+                    <span className="font-bold">Fees were paid upfront. </span>
+                    You will receive exactly <span className="font-extrabold text-white underline decoration-emerald-400 decoration-2">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '[1 / 10 / 100] TON'}</span>.
+                </div>
+            </div>
+
             {/* Step 1: Input Secret Note */}
             <div className="mb-5">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
@@ -415,12 +431,12 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             ) : useRelayer ? (
                                 <>
                                     <Zap className="w-5 h-5 text-black" />
-                                    <span>Submit Gasless Withdrawal via Relayer</span>
+                                    <span>Submit Gasless Withdrawal (Receive {parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
-                                    <span>Submit Anonymous Withdrawal (1.0 TON)</span>
+                                    <span>Submit Anonymous Withdrawal ({parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'})</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
@@ -452,9 +468,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         <span>Anonymous Withdrawal Verified & Sent!</span>
                     </div>
                     <p className="text-gray-300 text-xs leading-relaxed">
-                        {useRelayer
-                            ? 'The Relayer verified your zk-SNARK proof and covered gas fees on your behalf. 1.0 TON has been dispatched to your clean recipient wallet.'
-                            : 'The TON TVM Groth16 pairing instructions successfully verified your zero-knowledge proof. 1.0 TON has been dispatched to your clean recipient wallet.'}
+                        Fees were paid upfront. Exactly {parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'} has been dispatched to your clean recipient wallet with zero fee deductions.
                     </p>
                     <div className="pt-1">
                         <a

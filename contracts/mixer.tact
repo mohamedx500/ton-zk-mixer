@@ -242,13 +242,32 @@ contract TonZkMixer {
     // Fallback receiver for deployment and plain TON transfers
     receive() {}
 
+    // Upfront Tiered Fee Model: Calculates protocol + relayer upfront fee based on pool size
+    fun getUpfrontFee(denomination: Int): Int {
+        if (denomination == ton("1.0") || denomination == ton("1")) {
+            return ton("0.20");
+        }
+        if (denomination == ton("10.0") || denomination == ton("10")) {
+            return ton("0.50");
+        }
+        if (denomination == ton("100.0") || denomination == ton("100")) {
+            return ton("2.00");
+        }
+        return denomination / 50; // Fallback: 2%
+    }
+
     // ------------------------------------------------------------------------
-    // Deposit: Native TON
+    // Deposit: Native TON (Upfront Tiered Fee Model)
     // ------------------------------------------------------------------------
     receive(msg: DepositTon) {
         nativeThrowUnless(ERR_PAUSED, !self.paused);
         nativeThrowUnless(ERR_TREE_FULL, self.nextIndex < 256);
-        nativeThrowUnless(ERR_INVALID_AMOUNT, context().value >= self.tonDenomination + ton("0.05"));
+
+        let fee: Int = self.getUpfrontFee(self.tonDenomination);
+        let expectedTotal: Int = self.tonDenomination + fee;
+        nativeThrowUnless(ERR_INVALID_AMOUNT, context().value == expectedTotal);
+
+        self.accumulatedFees = self.accumulatedFees + fee;
 
         let leafIndex: Int = self.nextIndex;
         let newRoot: Int = self.insertCommitment(msg.commitment);
@@ -327,16 +346,14 @@ contract TonZkMixer {
         self.nullifiers.set(msg.nullifierHash, true);
         self.totalWithdrawals = self.totalWithdrawals + 1;
 
-        // 6. Execute Payout with 1% Protocol Fee
-        let adminWallet: Address = address("0:ef0a4616cdf0bb8dfd7513028cbf2ff85a89507a5b6c3e9171c09a06b6231d0a");
+        // 6. Execute Payout with Upfront Tiered Fee Model (Zero fee deduction on withdrawal)
         let fee: Int = 0;
         let recipientAmount: Int = 0;
 
         if (msg.assetId == 0) {
-            fee = self.tonDenomination / 100; // 1% Protocol Fee (e.g., 0.01 TON for 1.0 TON pool)
-            recipientAmount = self.tonDenomination - fee;
+            recipientAmount = self.tonDenomination;
 
-            // Payout recipient: (Total_Amount - Fee) with bounce: false so uninitialized recipient wallets receive funds
+            // Payout recipient full pool denomination: bounce: false so uninitialized recipient wallets receive funds
             send(SendParameters{
                 to: msg.recipient,
                 value: recipientAmount,
@@ -344,28 +361,12 @@ contract TonZkMixer {
                 bounce: false,
                 body: "TonZkMixer Anonymous Withdrawal".asComment()
             });
-
-            // Dynamic Fee Routing:
-            if (self.autoFeeRouting) {
-                // Auto-Push Mode: Direct transfer to Admin Wallet
-                send(SendParameters{
-                    to: adminWallet,
-                    value: fee,
-                    mode: SendIgnoreErrors,
-                    bounce: false,
-                    body: "TonZkMixer Protocol Fee".asComment()
-                });
-            } else {
-                // Pull/Accumulation Mode: Retain inside contract for manual claiming
-                self.accumulatedFees = self.accumulatedFees + fee;
-            }
         } else {
-            // Payout Jetton with fee split
+            // Payout Jetton without fee deduction
             let jettonWallet: Address? = self.assetToWallet.get(msg.assetId);
             if (jettonWallet != null) {
                 let jettonAmount: Int = self.poolDenominations.get(msg.assetId)!!;
-                fee = jettonAmount / 100;
-                recipientAmount = jettonAmount - fee;
+                recipientAmount = jettonAmount;
 
                 // Transfer to clean recipient
                 send(SendParameters{
@@ -382,24 +383,6 @@ contract TonZkMixer {
                         forward_payload: emptySlice()
                     }.toCell()
                 });
-
-                // Transfer protocol fee to admin wallet
-                if (fee > 0) {
-                    send(SendParameters{
-                        to: jettonWallet!!,
-                        value: ton("0.04"),
-                        mode: SendIgnoreErrors,
-                        body: JettonTransfer{
-                            query_id: 0,
-                            amount: fee,
-                            destination: adminWallet,
-                            response_destination: adminWallet,
-                            custom_payload: null,
-                            forward_ton_amount: 1,
-                            forward_payload: emptySlice()
-                        }.toCell()
-                    });
-                }
             }
         }
 
@@ -511,6 +494,9 @@ contract TonZkMixer {
         nativeThrowUnless(ERR_NOT_OWNER, context().sender == self.owner);
         self.poolActive.set(msg.assetId, msg.active);
         self.poolDenominations.set(msg.assetId, msg.denomination);
+        if (msg.assetId == 0) {
+            self.tonDenomination = msg.denomination;
+        }
     }
 
     receive(msg: EmergencyRescue) {
@@ -629,6 +615,18 @@ contract TonZkMixer {
 
     get fun accumulatedFees(): Int {
         return self.accumulatedFees;
+    }
+
+    get fun upfrontFee(denomination: Int): Int {
+        return self.getUpfrontFee(denomination);
+    }
+
+    get fun userTvl(): Int {
+        let bal: Int = myBalance();
+        if (bal > self.accumulatedFees) {
+            return bal - self.accumulatedFees;
+        }
+        return 0;
     }
 
     get fun autoFeeRouting(): Bool {

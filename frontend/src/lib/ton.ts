@@ -200,7 +200,7 @@ export async function syncTreeFromBlockchain(
 /**
  * Construct TonConnect SendTransaction payload for Deposit
  */
-export function buildDepositTransaction(commitment: bigint, value: bigint = TON_DENOMINATION + DEPOSIT_GAS_FEE) {
+export function buildDepositTransaction(commitment: bigint, value: bigint = BigInt(1_200_000_000)) {
     const bodyCell = beginCell()
         .storeUint(OP_DEPOSIT_TON, 32)
         .storeUint(commitment, 256)

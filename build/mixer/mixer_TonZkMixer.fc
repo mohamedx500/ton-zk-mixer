@@ -92,6 +92,9 @@ int $global_mimcPermutation(int $x, int $k) impure inline_ref;
 ;; $global_mimcHash2
 int $global_mimcHash2(int $left, int $right) impure inline_ref;
 
+;; $TonZkMixer$_fun_getUpfrontFee
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_getUpfrontFee((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $denomination) impure inline_ref;
+
 ;; $TonZkMixer$_fun_getTreeZero
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_getTreeZero((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $level) impure inline_ref;
 
@@ -136,6 +139,12 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref;
 
 ;; $TonZkMixer$_fun_accumulatedFees
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_accumulatedFees((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref;
+
+;; $TonZkMixer$_fun_upfrontFee
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_upfrontFee((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $denomination) impure inline_ref;
+
+;; $TonZkMixer$_fun_userTvl
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_userTvl((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref;
 
 ;; $TonZkMixer$_fun_autoFeeRouting
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_autoFeeRouting((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref;
@@ -260,6 +269,10 @@ builder $global_beginCell() impure asm """
 
 slice $global_emptySlice() impure asm """
     b{} PUSHSLICE
+""";
+
+int $global_myBalance() impure asm """
+    BALANCE FIRST
 """;
 
 () $global_send((int, cell, cell, cell, int, slice, int) $params) impure asm """
@@ -429,11 +442,6 @@ slice __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482
 ;; Cell QrvKCmTom5YSd8LlL2YunHuIVepZUDmC+9nuHeV915w=
 cell __gen_cell_cell_42bbca0a64e89b961277c2e52f662e9c7b8855ea59503982fbd9ee1de57dd79c() asm """
     B{b5ee9c7241010101002500004600000000546f6e5a6b4d6978657220416e6f6e796d6f7573205769746864726177616c4f3d4362} B>boc PUSHREF
-""";
-
-;; Cell Mp0N4JvFPjCEkTfDm3J8CsGWzO81Fi3OM4mDgtJkUn8=
-cell __gen_cell_cell_329d0de09bc53e30849137c39b727c0ac196ccef35162dce33898382d264527f() asm """
-    B{b5ee9c7241010101001d00003600000000546f6e5a6b4d697865722050726f746f636f6c204665656b955b44} B>boc PUSHREF
 """;
 
 ;; Cell zQxs2xI1WZUUoHBJZiB6ZfhmukCKG1Z9uJOJxEzwKJ4=
@@ -733,38 +741,56 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref {
     return $global_mimcPermutation($left, $right);
 }
 
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_getUpfrontFee((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $denomination) impure inline_ref {
+    var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
+    if (( (($denomination == 1000000000)) ? (true) : (($denomination == 1000000000)) )) {
+        var $fresh$ret_4 = 200000000;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_4);
+    }
+    if (( (($denomination == 10000000000)) ? (true) : (($denomination == 10000000000)) )) {
+        var $fresh$ret_5 = 500000000;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_5);
+    }
+    if (( (($denomination == 100000000000)) ? (true) : (($denomination == 100000000000)) )) {
+        var $fresh$ret_6 = 2000000000;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_6);
+    }
+    var $fresh$ret_7 = ($denomination / 50);
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_7);
+}
+
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_getTreeZero((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $level) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
     ifnot ($level) {
-        var $fresh$ret_5 = 0;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_5);
-    }
-    if (($level == 1)) {
-        var $fresh$ret_6 = 26760436723079599114156261024773088945162174177681114247257228059452133286738;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_6);
-    }
-    if (($level == 2)) {
-        var $fresh$ret_7 = 49805117892226887705433882477829019469189709515680730241134068488479104321007;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_7);
-    }
-    if (($level == 3)) {
-        var $fresh$ret_8 = 34162532089165557872555999490810826360866891512524212903868944992409165958346;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_8);
-    }
-    if (($level == 4)) {
-        var $fresh$ret_9 = 12065341230963984502268999964813370256733330825792765139130654822054443574461;
+        var $fresh$ret_9 = 0;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_9);
     }
-    if (($level == 5)) {
-        var $fresh$ret_10 = 20095215596226596229888342491272490362691963655779245281594603364219523414282;
+    if (($level == 1)) {
+        var $fresh$ret_10 = 26760436723079599114156261024773088945162174177681114247257228059452133286738;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_10);
     }
-    if (($level == 6)) {
-        var $fresh$ret_11 = 26688408143737521602050809276927750311697202602580550002857195015397954451642;
+    if (($level == 2)) {
+        var $fresh$ret_11 = 49805117892226887705433882477829019469189709515680730241134068488479104321007;
         return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_11);
     }
-    var $fresh$ret_12 = 15253914714795283522559445283510429755384964837064974290229706328058425059510;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_12);
+    if (($level == 3)) {
+        var $fresh$ret_12 = 34162532089165557872555999490810826360866891512524212903868944992409165958346;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_12);
+    }
+    if (($level == 4)) {
+        var $fresh$ret_13 = 12065341230963984502268999964813370256733330825792765139130654822054443574461;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_13);
+    }
+    if (($level == 5)) {
+        var $fresh$ret_14 = 20095215596226596229888342491272490362691963655779245281594603364219523414282;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_14);
+    }
+    if (($level == 6)) {
+        var $fresh$ret_15 = 26688408143737521602050809276927750311697202602580550002857195015397954451642;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_15);
+    }
+    var $fresh$ret_16 = 15253914714795283522559445283510429755384964837064974290229706328058425059510;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_16);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_insertCommitment((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $leaf) impure inline_ref {
@@ -786,8 +812,8 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref {
     $self'nextIndex = ($self'nextIndex + 1);
     $self'currentRoot = $currentLevelHash;
     $self'roots~__tact_dict_set_uint_int(256, $currentLevelHash, true, 1);
-    var $fresh$ret_4 = $currentLevelHash;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_4);
+    var $fresh$ret_8 = $currentLevelHash;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_8);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_verifyProof((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, cell $piACell, cell $piBCell, cell $piCCell, int $root, int $nullifierHash, int $recipient, int $assetId) impure inline_ref {
@@ -796,108 +822,125 @@ int $global_mimcHash2(int $left, int $right) impure inline_ref {
     slice $piB = $global_cellToRawSlice($piBCell);
     slice $piC = $global_cellToRawSlice($piCCell);
     if (( (( (($Slice$_fun_bits($piA) != 384)) ? (true) : (($Slice$_fun_bits($piB) != 768)) )) ? (true) : (($Slice$_fun_bits($piC) != 384)) )) {
-        var $fresh$ret_13 = false;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_13);
+        var $fresh$ret_17 = false;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_17);
     }
     if (( (( (($global_blsG1InGroup($piA) == 0)) ? (true) : (($global_blsG2InGroup($piB) == 0)) )) ? (true) : (($global_blsG1InGroup($piC) == 0)) )) {
-        var $fresh$ret_14 = false;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_14);
+        var $fresh$ret_18 = false;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_18);
     }
     if (( (( (($global_blsG1IsZero($piA) != 0)) ? (true) : (($global_blsG2IsZero($piB) != 0)) )) ? (true) : (($global_blsG1IsZero($piC) != 0)) )) {
-        var $fresh$ret_15 = false;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_15);
+        var $fresh$ret_19 = false;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_19);
     }
     slice $acc = $global_blsG1Multiexp_4(__gen_slice_slice_7afbc06deb586ffb65a1bb23198e7193129d3322c6b8779826dd2151ee3dcbe0(), $root, __gen_slice_slice_c58323e34dcb24b43e94678559d3ee9c3dc18869bd76d1a72580cc6512d2c041(), $nullifierHash, __gen_slice_slice_a131ddd08b762e418eb83fed223cc7d45ec60e75bfc9fefe49b8153fecc38d08(), $recipient, __gen_slice_slice_1d2023a9e0d9d0b9ded7c1e24954552c8cdd71c21f799910c96ee70ae4b988f5(), $assetId, 4);
     slice $cpub = $global_blsG1Add($acc, __gen_slice_slice_8017ad6fe0e0cd47082c3a1ff989156736fac0dd38b12b8512b49867edd134e4());
     slice $piANeg = $global_blsG1Neg($piA);
     int $ok = $global_blsPairing($cpub, __gen_slice_slice_7a54d77f578f36f304404759fdd5a7310aab46bea0d2b497cf928b05bc018273(), $piANeg, $piB, $piC, __gen_slice_slice_80c323f8159119965ec82e2dee54d75d5066ecb70a039a9565694dd7869c1b47(), __gen_slice_slice_403d7c52a2b2f94e9d82927cdeee418e0bc29b528da7dbcfede06e329e13da25(), __gen_slice_slice_3ecf9b70dc83f5a6a9afdc47ef0ba3f9d22c54988399e02ee787154375a6135c(), 4);
-    var $fresh$ret_16 = ($ok != 0);
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_16);
+    var $fresh$ret_20 = ($ok != 0);
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_20);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_isKnownRoot((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $root) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
     int $known = __tact_dict_get_uint_int($self'roots, 256, $root, 1);
-    var $fresh$ret_17 = ( ((~ null?($known))) ? ($known) : (false) );
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_17);
+    var $fresh$ret_21 = ( ((~ null?($known))) ? ($known) : (false) );
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_21);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_isNullifierSpent((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $nullifierHash) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
     int $spent = __tact_dict_get_uint_int($self'nullifiers, 256, $nullifierHash, 1);
-    var $fresh$ret_18 = ( ((~ null?($spent))) ? ($spent) : (false) );
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_18);
+    var $fresh$ret_22 = ( ((~ null?($spent))) ? ($spent) : (false) );
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_22);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_currentRoot((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_19 = $self'currentRoot;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_19);
+    var $fresh$ret_23 = $self'currentRoot;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_23);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_nextIndex((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_20 = $self'nextIndex;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_20);
+    var $fresh$ret_24 = $self'nextIndex;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_24);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_isPaused((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_21 = $self'paused;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_21);
+    var $fresh$ret_25 = $self'paused;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_25);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), slice) $TonZkMixer$_fun_owner((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_22 = $self'owner;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_22);
+    var $fresh$ret_26 = $self'owner;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_26);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_totalDeposits((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_23 = $self'totalDeposits;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_23);
+    var $fresh$ret_27 = $self'totalDeposits;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_27);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_totalWithdrawals((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_24 = $self'totalWithdrawals;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_24);
+    var $fresh$ret_28 = $self'totalWithdrawals;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_28);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_poolDenomination((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $assetId) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
     int $d = __tact_dict_get_uint_coins($self'poolDenominations, 256, $assetId);
     if ((~ null?($d))) {
-        var $fresh$ret_25 = $d;
-        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_25);
+        var $fresh$ret_29 = $d;
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_29);
     }
-    var $fresh$ret_26 = 0;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_26);
+    var $fresh$ret_30 = 0;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_30);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_protocolFeePercent((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_27 = 1;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_27);
+    var $fresh$ret_31 = 1;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_31);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), slice) $TonZkMixer$_fun_adminFeeWallet((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_28 = __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521();
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_28);
+    var $fresh$ret_32 = __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521();
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_32);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_accumulatedFees((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_29 = $self'accumulatedFees;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_29);
+    var $fresh$ret_33 = $self'accumulatedFees;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_33);
+}
+
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_upfrontFee((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self, int $denomination) impure inline_ref {
+    var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
+    var $fresh$ret_34 = ($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)~$TonZkMixer$_fun_getUpfrontFee($denomination);
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_34);
+}
+
+((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_userTvl((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
+    int $bal = $global_myBalance();
+    if (($bal > $self'accumulatedFees)) {
+        var $fresh$ret_35 = ($bal - $self'accumulatedFees);
+        return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_35);
+    }
+    var $fresh$ret_36 = 0;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_36);
 }
 
 ((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int), int) $TonZkMixer$_fun_autoFeeRouting((slice, int, int, cell, cell, cell, int, int, cell, cell, cell, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)) = $self;
-    var $fresh$ret_30 = $self'autoFeeRouting;
-    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_30);
+    var $fresh$ret_37 = $self'autoFeeRouting;
+    return (($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting), $fresh$ret_37);
 }
 
 ;;
@@ -979,6 +1022,19 @@ _ %accumulatedFees() method_id(66927) {
     return res;
 }
 
+_ %upfrontFee(int $denomination) method_id(130273) {
+    int $denomination = $denomination;
+    var self = $TonZkMixer$_contract_load();
+    var res = self~$TonZkMixer$_fun_upfrontFee($denomination);
+    return res;
+}
+
+_ %userTvl() method_id(93943) {
+    var self = $TonZkMixer$_contract_load();
+    var res = self~$TonZkMixer$_fun_userTvl();
+    return res;
+}
+
 _ %autoFeeRouting() method_id(122053) {
     var self = $TonZkMixer$_contract_load();
     var res = self~$TonZkMixer$_fun_autoFeeRouting();
@@ -1019,7 +1075,10 @@ _ %autoFeeRouting() method_id(122053) {
         var $msg'commitment = in_msg~load_uint(256);
         throw_unless(1002, (~ $self'paused));
         throw_unless(1004, ($self'nextIndex < 256));
-        throw_unless(1003, ($Context$_get_value(__tact_context_get()) >= ($self'tonDenomination + 50000000)));
+        int $fee = ($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)~$TonZkMixer$_fun_getUpfrontFee($self'tonDenomination);
+        int $expectedTotal = ($self'tonDenomination + $fee);
+        throw_unless(1003, ($Context$_get_value(__tact_context_get()) == $expectedTotal));
+        $self'accumulatedFees = ($self'accumulatedFees + $fee);
         int $leafIndex = $self'nextIndex;
         int $newRoot = ($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting)~$TonZkMixer$_fun_insertCommitment($msg'commitment);
         $self'totalDeposits = ($self'totalDeposits + 1);
@@ -1080,28 +1139,17 @@ _ %autoFeeRouting() method_id(122053) {
         throw_unless(1007, $proofValid);
         $self'nullifiers~__tact_dict_set_uint_int(256, $msg'nullifierHash, true, 1);
         $self'totalWithdrawals = ($self'totalWithdrawals + 1);
-        slice $adminWallet = __gen_slice_address_2bbf22513017f3b8e3b9fba7da35d90210323aa52c9706b4086482a7bb906521();
         int $fee = 0;
         int $recipientAmount = 0;
         ifnot ($msg'assetId) {
-            $fee = ($self'tonDenomination / 100);
-            $recipientAmount = ($self'tonDenomination - $fee);
+            $recipientAmount = $self'tonDenomination;
             $global_send($SendParameters$_constructor_to_value_mode_bounce_body($msg'recipient, $recipientAmount, 2, false, __gen_cell_cell_42bbca0a64e89b961277c2e52f662e9c7b8855ea59503982fbd9ee1de57dd79c()));
-            if ($self'autoFeeRouting) {
-                $global_send($SendParameters$_constructor_to_value_mode_bounce_body($adminWallet, $fee, 2, false, __gen_cell_cell_329d0de09bc53e30849137c39b727c0ac196ccef35162dce33898382d264527f()));
-            } else {
-                $self'accumulatedFees = ($self'accumulatedFees + $fee);
-            }
         } else {
             slice $jettonWallet = __tact_dict_get_uint_slice($self'assetToWallet, 256, $msg'assetId);
             if ((~ null?($jettonWallet))) {
                 int $jettonAmount = __tact_dict_get_uint_coins($self'poolDenominations, 256, $msg'assetId);
-                $fee = ($jettonAmount / 100);
-                $recipientAmount = ($jettonAmount - $fee);
+                $recipientAmount = $jettonAmount;
                 $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 40000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $recipientAmount, $msg'recipient, $msg'recipient, null(), 1, $global_emptySlice()), begin_cell())));
-                if (($fee > 0)) {
-                    $global_send($SendParameters$_constructor_to_value_mode_body($jettonWallet, 40000000, 2, $JettonTransfer$_store_cell($JettonTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $fee, $adminWallet, $adminWallet, null(), 1, $global_emptySlice()), begin_cell())));
-                }
             }
         }
         $global_emit($WithdrawalEvent$_store_cell($WithdrawalEvent$_constructor_assetId_nullifierHash_recipient_amount_fee($msg'assetId, $msg'nullifierHash, $msg'recipient, $recipientAmount, $fee), begin_cell()));
@@ -1126,6 +1174,9 @@ _ %autoFeeRouting() method_id(122053) {
         throw_unless(1001, ( equal_slices_bits(__tact_context_get_sender(), $self'owner) ));
         $self'poolActive~__tact_dict_set_uint_int(256, $msg'assetId, $msg'active, 1);
         $self'poolDenominations~__tact_dict_set_uint_coins(256, $msg'assetId, $msg'denomination);
+        ifnot ($msg'assetId) {
+            $self'tonDenomination = $msg'denomination;
+        }
         $TonZkMixer$_contract_store(($self'owner, $self'paused, $self'tonDenomination, $self'poolDenominations, $self'poolActive, $self'assetToWallet, $self'nextIndex, $self'currentRoot, $self'filledSubtrees, $self'roots, $self'nullifiers, $self'totalDeposits, $self'totalWithdrawals, $self'accumulatedFees, $self'autoFeeRouting));
         return ();
     }

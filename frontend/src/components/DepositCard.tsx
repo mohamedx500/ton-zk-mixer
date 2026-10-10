@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { createDepositNote, DepositNote } from '../lib/crypto';
 import { buildDepositTransaction } from '../lib/ton';
-import { TESTNET_EXPLORER_URL } from '../lib/contracts';
+import { TESTNET_EXPLORER_URL, UPFRONT_POOL_TIERS } from '../lib/contracts';
 
 interface DepositCardProps {
     onDepositSuccess?: () => void;
@@ -26,7 +26,9 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     const [tonConnectUI] = useTonConnectUI();
     const wallet = useTonWallet();
 
-    const [selectedAmount, setSelectedAmount] = useState('1.0');
+    const [selectedPool, setSelectedPool] = useState<'1' | '10' | '100'>('1');
+    const currentTier = UPFRONT_POOL_TIERS[selectedPool];
+
     const [note, setNote] = useState<DepositNote | null>(null);
     const [hasCopied, setHasCopied] = useState(false);
     const [isBackedUp, setIsBackedUp] = useState(false);
@@ -37,7 +39,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     const handleGenerateNote = () => {
         setErrorMessage(null);
         setDepositTxSuccess(null);
-        const newNote = createDepositNote(`${selectedAmount} TON`);
+        const newNote = createDepositNote(`${currentTier.poolAmount}`);
         setNote(newNote);
         setHasCopied(false);
         setIsBackedUp(false);
@@ -92,7 +94,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
         try {
             setIsDepositing(true);
-            const txRequest = buildDepositTransaction(note.commitment);
+            const txRequest = buildDepositTransaction(note.commitment, currentTier.totalNano);
             const result = await tonConnectUI.sendTransaction(txRequest);
 
             setDepositTxSuccess(result.boc || 'Transaction dispatched');
@@ -118,42 +120,68 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                         <span>Anonymous Deposit</span>
                     </h2>
                     <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                        Deposit TON into the privacy pool and receive an untraceable cryptographic note.
+                        Deposit TON into the privacy pool with upfront gas & protocol fees. Full denomination payout upon withdrawal.
                     </p>
                 </div>
             </div>
 
             {/* Step 1: Select Denomination */}
-            <div className="mb-6">
+            <div className="mb-4">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
                     1. Select Pool Denomination
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                    {['0.1', '1.0', '5.0'].map((amt) => {
-                        const isSelected = selectedAmount === amt;
-                        const isCurrentActive = amt === '1.0'; // Active pool on testnet
+                    {(['1', '10', '100'] as const).map((poolId) => {
+                        const tier = UPFRONT_POOL_TIERS[poolId];
+                        const isSelected = selectedPool === poolId;
                         return (
                             <button
-                                key={amt}
+                                key={poolId}
                                 type="button"
                                 onClick={() => {
-                                    setSelectedAmount(amt);
+                                    setSelectedPool(poolId);
                                     setNote(null);
                                     setDepositTxSuccess(null);
                                 }}
-                                className={`py-3 px-4 rounded-xl border text-center font-medium transition-all ${
+                                className={`py-3 px-3 sm:px-4 rounded-xl border text-center font-medium transition-all cursor-pointer ${
                                     isSelected
                                         ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-md shadow-cyan-500/10'
                                         : 'bg-glass-inner border-white/5 text-gray-300 hover:border-white/20'
                                 }`}
                             >
-                                <div className="text-lg font-bold">{amt} TON</div>
-                                <div className="text-[11px] text-gray-400">
-                                    {isCurrentActive ? '🟢 Active Pool' : 'Standard'}
+                                <div className="text-base sm:text-lg font-bold">{tier.poolAmount}</div>
+                                <div className="text-[11px] text-gray-400 mt-0.5">
+                                    Fee: {tier.fee}
                                 </div>
                             </button>
                         );
                     })}
+                </div>
+            </div>
+
+            {/* Dynamic Upfront Cost Breakdown */}
+            <div className="bg-[#080d1a] border border-cyan-500/20 rounded-xl p-4 mb-6 shadow-inner space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400 font-medium">Pool Amount:</span>
+                    <span className="text-white font-bold">{currentTier.poolAmount}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400 font-medium flex items-center gap-1.5">
+                        <span>Protocol & Relayer Fee:</span>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-semibold">
+                            Paid Upfront
+                        </span>
+                    </span>
+                    <span className="text-cyan-300 font-bold">{currentTier.fee}</span>
+                </div>
+                <div className="h-px bg-white/10 my-1" />
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-gray-200 font-bold">Total to Pay:</span>
+                    <span className="text-cyan-400 font-extrabold text-sm sm:text-base tracking-wide">{currentTier.total}</span>
+                </div>
+                <div className="pt-0.5 flex items-center gap-1.5 text-[11px] text-emerald-400">
+                    <Check className="w-3.5 h-3.5 shrink-0" />
+                    <span>Fees are paid upfront. You will receive exactly {currentTier.poolAmount} on withdrawal.</span>
                 </div>
             </div>
 
@@ -262,12 +290,12 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                 </>
                             ) : !wallet ? (
                                 <>
-                                    <span>Connect Wallet to Deposit {selectedAmount} TON</span>
+                                    <span>Connect Wallet to Pay {currentTier.total}</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
-                                    <span>Deposit {selectedAmount} TON into Privacy Pool</span>
+                                    <span>Pay {currentTier.total} (Deposit {currentTier.poolAmount})</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}

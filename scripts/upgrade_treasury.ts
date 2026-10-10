@@ -86,7 +86,7 @@ export async function upgradeToTreasuryModel() {
 
     await mixer.send(
         client.open(walletContract).sender(keyPair.secretKey),
-        { value: toNano('0.05') },
+        { value: toNano('0.01') },
         {
             $$type: 'UpgradeCode',
             new_code: newCode,
@@ -121,13 +121,19 @@ export async function upgradeToTreasuryModel() {
     try {
         const accumulatedFees = await mixer.getAccumulatedFees();
         const autoFeeRouting = await mixer.getAutoFeeRouting();
+        const upfrontFee1 = await mixer.getUpfrontFee(toNano('1.0'));
+        const upfrontFee10 = await mixer.getUpfrontFee(toNano('10.0'));
+        const upfrontFee100 = await mixer.getUpfrontFee(toNano('100.0'));
         console.log(`- Accumulated Fees Available: ${fromNano(accumulatedFees)} TON ✅`);
         console.log(`- Dynamic Fee Routing:        ${autoFeeRouting ? 'Auto-Push' : 'Pull/Accumulate (Default)'} ✅`);
+        console.log(`- Upfront Fee (1 TON Pool):   ${fromNano(upfrontFee1)} TON ✅`);
+        console.log(`- Upfront Fee (10 TON Pool):  ${fromNano(upfrontFee10)} TON ✅`);
+        console.log(`- Upfront Fee (100 TON Pool): ${fromNano(upfrontFee100)} TON ✅`);
     } catch (err: any) {
         console.log('ℹ️ Getters query note:', err.message);
     }
 
-    console.log('\n🎉 UPGRADE COMPLETE: Treasury & Pull-Fee System is now live on-chain!');
+    console.log('\n🎉 UPGRADE COMPLETE: Upfront Tiered Fee Model is now live on-chain!');
 }
 
 if (require.main === module) {

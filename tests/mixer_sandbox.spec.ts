@@ -83,7 +83,43 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         expect(await mixer.getIsKnownRoot(initialRoot)).toBe(true);
     });
 
-    it('1. Should accept native TON deposit and update on-chain Merkle tree', async () => {
+    it('1. Should enforce exact upfront deposit (1.20 TON for 1 TON pool) and reject any other msg.value', async () => {
+        // Strict Rejection: msg.value does NOT equal pool_size + upfront_fee
+        const invalidDepositUnder = await mixer.send(
+            alice.getSender(),
+            {
+                value: toNano('1.0'), // Missing 0.20 TON upfront fee
+            },
+            {
+                $$type: 'DepositTon',
+                commitment: 999999n,
+            }
+        );
+        expect(invalidDepositUnder.transactions).toHaveTransaction({
+            from: alice.address,
+            to: mixer.address,
+            success: false,
+            exitCode: 1003, // ERR_INVALID_AMOUNT
+        });
+
+        const invalidDepositOver = await mixer.send(
+            alice.getSender(),
+            {
+                value: toNano('1.25'), // Overpaying disrupts anonymity set
+            },
+            {
+                $$type: 'DepositTon',
+                commitment: 999999n,
+            }
+        );
+        expect(invalidDepositOver.transactions).toHaveTransaction({
+            from: alice.address,
+            to: mixer.address,
+            success: false,
+            exitCode: 1003, // ERR_INVALID_AMOUNT
+        });
+
+        // Exact deposit: 1.0 TON pool + 0.20 TON upfront fee = exactly 1.20 TON
         aliceNote1 = createDepositNote();
         sharedTree.insert(aliceNote1.commitment);
         const expectedRoot = sharedTree.getRoot();
@@ -91,7 +127,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         const depositResult = await mixer.send(
             alice.getSender(),
             {
-                value: TON_DENOMINATION + toNano('0.06'), // 1 TON deposit + gas
+                value: toNano('1.20'),
             },
             {
                 $$type: 'DepositTon',
@@ -105,25 +141,26 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             success: true,
         });
 
-        // Verify contract updated nextIndex and currentRoot matches off-chain calculation
+        // Verify contract updated nextIndex, totalDeposits, and accumulatedFees
         expect(await mixer.getNextIndex()).toBe(1n);
         expect(await mixer.getTotalDeposits()).toBe(1n);
+        expect(await mixer.getAccumulatedFees()).toBe(toNano('0.20'));
 
         const contractRoot = await mixer.getCurrentRoot();
         expect(contractRoot).toBe(expectedRoot);
         expect(await mixer.getIsKnownRoot(contractRoot)).toBe(true);
     });
 
-    it('2. Should verify ZK-SNARK Groth16 proof on-chain and anonymously withdraw TON', async () => {
+    it('2. Should verify ZK-SNARK Groth16 proof on-chain and anonymously withdraw FULL pool denomination (1.0 TON)', async () => {
         aliceNote2 = createDepositNote();
         const leafIndex = sharedTree.insert(aliceNote2.commitment);
         const merkleProof = sharedTree.getProof(leafIndex);
 
-        // Perform deposit of note 2
+        // Perform deposit of note 2 with exact upfront fee (1.20 TON)
         const depositResult = await mixer.send(
             alice.getSender(),
             {
-                value: TON_DENOMINATION + toNano('0.06'),
+                value: toNano('1.20'),
             },
             {
                 $$type: 'DepositTon',
@@ -137,6 +174,9 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             success: true,
         });
 
+        // Accumulated fees increases by exactly 0.20 TON upfront
+        expect(await mixer.getAccumulatedFees()).toBe(toNano('0.40'));
+
         const onchainRoot = await mixer.getCurrentRoot();
         expect(onchainRoot).toBe(sharedTree.getRoot());
 
@@ -149,7 +189,6 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         );
 
         const initialAccumulatedFees = await mixer.getAccumulatedFees();
-        expect(await mixer.getAutoFeeRouting()).toBe(false);
         const bobBalanceBefore = await bobRecipient.getBalance();
 
         // Submit withdrawal transaction with ZK proof
@@ -170,7 +209,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             }
         );
 
-        // Expect payout to Bob (Total_Amount - 1% Fee)
+        // Expect payout to Bob of the full 1.0 TON pool denomination (minus minimal network message gas)
         expect(withdrawResult.transactions).toHaveTransaction({
             from: mixer.address,
             to: bobRecipient.address,
@@ -178,14 +217,12 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         });
 
         const bobBalanceAfter = await bobRecipient.getBalance();
-        expect(bobBalanceAfter).toBeGreaterThan(bobBalanceBefore);
+        // Received full 1.0 TON minus minimal message forward gas (~0.0001 TON), proving zero fee deduction!
+        expect(bobBalanceAfter - bobBalanceBefore).toBeGreaterThan(toNano('0.999'));
 
-        // In default Pull/Accumulation mode, 1% fee is held inside contract
+        // Zero fee deduction on withdrawal: accumulatedFees remains unchanged from upfront deposit
         const postAccumulatedFees = await mixer.getAccumulatedFees();
-        expect(postAccumulatedFees).toBe(initialAccumulatedFees + toNano('0.01'));
-
-        // Verify getters
-        expect(await mixer.getProtocolFeePercent()).toBe(1n);
+        expect(postAccumulatedFees).toBe(initialAccumulatedFees);
 
         // Verify nullifier is marked as spent
         expect(await mixer.getIsNullifierSpent(aliceNote2.nullifierHash)).toBe(true);
@@ -235,7 +272,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
 
         await mixer.send(
             alice.getSender(),
-            { value: TON_DENOMINATION + toNano('0.06') },
+            { value: toNano('1.20') },
             {
                 $$type: 'DepositTon',
                 commitment: aliceNote3.commitment,
@@ -368,7 +405,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
         // Deposits while paused are blocked
         const blockedDeposit = await mixer.send(
             alice.getSender(),
-            { value: TON_DENOMINATION + toNano('0.06') },
+            { value: toNano('1.20') },
             { $$type: 'DepositTon', commitment: 12345n }
         );
         expect(blockedDeposit.transactions).toHaveTransaction({
@@ -443,7 +480,8 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
 
     it('8. Treasury Management: Fee Claiming, Anti-Drain TVL Mathematical Separation, & Dynamic Routing Toggle', async () => {
         const feesAvailable = await mixer.getAccumulatedFees();
-        expect(feesAvailable).toBe(toNano('0.01'));
+        // 3 deposits of 1 TON pool each paid 0.20 TON upfront fee = 0.60 TON total
+        expect(feesAvailable).toBe(toNano('0.60'));
 
         const mockRelayer = await blockchain.treasury('mockRelayer');
         const relayerBalanceBefore = await mockRelayer.getBalance();
@@ -454,7 +492,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             { value: toNano('0.05') },
             {
                 $$type: 'ClaimFees',
-                amount: toNano('0.01'),
+                amount: toNano('0.60'),
                 destination: mallory.address,
             }
         );
@@ -490,7 +528,7 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             { value: toNano('0.05') },
             {
                 $$type: 'ClaimFees',
-                amount: toNano('0.01'),
+                amount: toNano('0.60'),
                 destination: mockRelayer.address,
             }
         );
@@ -531,5 +569,12 @@ describe('TonZkMixer End-to-End Sandbox Protocol Test', () => {
             { $$type: 'SetFeeRouting', autoRoute: false }
         );
         expect(await mixer.getAutoFeeRouting()).toBe(false);
+    });
+
+    it('9. Tiered Upfront Fee Model: Enforces tiered fees across pool sizes (1 TON -> 0.20 TON, 10 TON -> 0.50 TON, 100 TON -> 2.00 TON)', async () => {
+        // Verify upfront fee schedule on-chain
+        expect(await mixer.getUpfrontFee(toNano('1.0'))).toBe(toNano('0.20'));
+        expect(await mixer.getUpfrontFee(toNano('10.0'))).toBe(toNano('0.50'));
+        expect(await mixer.getUpfrontFee(toNano('100.0'))).toBe(toNano('2.00'));
     });
 });
