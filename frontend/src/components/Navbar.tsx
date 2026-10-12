@@ -2,10 +2,9 @@
 
 import React from 'react';
 import { TonConnectButton, useTonAddress } from '@tonconnect/ui-react';
-import { ExternalLink, Crown, MapPin, Globe } from 'lucide-react';
-import { MIXER_ADDRESS_STRING, EXPLORER_URL, IS_MAINNET } from '../lib/contracts';
+import { Crown } from 'lucide-react';
 import { isAuthorizedAdmin } from '../lib/admin';
-import { TonLogoFull, TonIcon, GramDiamondMark, GramCircularBadge } from './TonIcons';
+import { TonLogoFull } from './TonIcons';
 
 interface NavbarProps {
     activeTab?: 'deposit' | 'withdraw' | 'admin' | 'map';
@@ -32,48 +31,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
                     </div>
                 </div>
 
-                {/* Primary Navigation - ton.org style */}
-                <nav className="hidden md:flex items-center space-x-1 font-mono text-xs text-[#94A3B8]">
-                    <button
-                        type="button"
-                        onClick={() => onSelectTab?.('deposit')}
-                        className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                            activeTab === 'deposit' ? 'text-white bg-white/10 font-bold' : 'hover:text-white hover:bg-white/5'
-                        }`}
-                    >
-                        Deposit
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => onSelectTab?.('withdraw')}
-                        className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                            activeTab === 'withdraw' ? 'text-white bg-white/10 font-bold' : 'hover:text-white hover:bg-white/5'
-                        }`}
-                    >
-                        Withdraw
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => onSelectTab?.('map')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                            activeTab === 'map' ? 'text-[#30A1F5] bg-[#30A1F5]/15 font-bold' : 'hover:text-white hover:bg-white/5'
-                        }`}
-                    >
-                        <Globe className="w-3.5 h-3.5 text-[#30A1F5]" />
-                        <span>Live Map</span>
-                    </button>
-                    <a
-                        href="https://ton.org"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/5 transition-colors"
-                    >
-                        <span>TON.org</span>
-                        <ExternalLink className="w-3 h-3 opacity-60" />
-                    </a>
-                </nav>
-
-                {/* Right controls: Admin tab, Network badge, TonConnect */}
+                {/* Right controls: Admin tab, TonConnect */}
                 <div className="flex items-center space-x-3">
                     {/* Admin Mode Shortcut if Admin */}
                     {isAdmin && (
@@ -96,22 +54,6 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
                             )}
                         </button>
                     )}
-
-                    {/* Network Badge */}
-                    <div className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full border border-white/10 bg-[#121822] text-[9px] font-mono font-bold tracking-wider uppercase text-[#94A3B8] shadow-sm">
-                        <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                                IS_MAINNET ? 'bg-emerald-400 animate-pulse' : 'bg-[#30A1F5] animate-pulse'
-                            }`}
-                        />
-                        <span>{IS_MAINNET ? 'MAINNET' : 'TESTNET'}</span>
-                    </div>
-
-                    {/* Gram Asset Badge */}
-                    <div className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-white/10 bg-[#121822] text-[9px] font-mono text-[#94A3B8]">
-                        <GramDiamondMark className="w-3.5 h-3.5" />
-                        <span>GRAM</span>
-                    </div>
 
                     {/* Official TonConnect Wallet Button */}
                     <div className="tonconnect-wrapper-minimalist">

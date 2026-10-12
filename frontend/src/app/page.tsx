@@ -100,26 +100,6 @@ export default function Home() {
                             : 'Sever all past on-chain links using Groth16 zk-SNARKs and MiMC hashing. 100% non-custodial and untraceable.'}
                     </p>
 
-                    {/* ton.org style metric badges row */}
-                    {activeTab !== 'admin' && (
-                        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
-                                <span className="text-white font-bold mr-1">381</span> Validators
-                            </div>
-                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
-                                <span className="text-white font-bold mr-1">757</span> Nodes
-                            </div>
-                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
-                                <span className="text-[#30A1F5] font-bold mr-1">9</span> ZK Pools
-                            </div>
-                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
-                                <span className="text-emerald-400 font-bold mr-1">&lt; 420ms</span> ZK Latency
-                            </div>
-                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
-                                <span className="text-white font-bold mr-1">4.2M</span> 24h Transactions
-                            </div>
-                        </div>
-                    )}
                 </motion.div>
 
                 {/* Tab Switcher in ton.org Style */}
