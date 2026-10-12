@@ -117,51 +117,53 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     };
 
     return (
-        <div className="bg-[#10161F] p-6 sm:p-8 rounded-2xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
+        <div className="bg-[#10161F] p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
             {/* Header with ton.org Aesthetic & Clean Badges */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-[#222E3E] pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 border-b border-[#222E3E] pb-4 sm:pb-5">
                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
-                        <div className="p-2 rounded-xl bg-[#1C2735] border border-[#2B3B4E]">
-                            <Shield className="w-5 h-5 text-[#30A1F5]" />
+                    <h2 className="text-lg sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
+                        <div className="p-1.5 sm:p-2 rounded-xl bg-[#1C2735] border border-[#2B3B4E]">
+                            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#30A1F5]" />
                         </div>
                         <span>Protocol Deposit</span>
                     </h2>
-                    <p className="text-xs text-[#94A3B8] mt-1 font-mono">
+                    <p className="text-[11px] sm:text-xs text-[#94A3B8] mt-1 font-mono">
                         Initialize anonymous pool contribution via ZK commitment
                     </p>
                 </div>
                 
                 {/* Official Assets Badges - Perfectly Sized & Aligned */}
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
-                        <TonIcon className="w-4 h-4 shrink-0" />
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
+                        <TonIcon className="w-3.5 h-3.5 shrink-0" />
                         <span className="font-bold">TON NATIVE</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
-                        <GramCircularBadge className="w-4 h-4 shrink-0" />
+                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
+                        <GramCircularBadge className="w-3.5 h-3.5 shrink-0" />
                         <span>GRAM BADGE</span>
                     </div>
                 </div>
             </div>
 
             {/* Step 1: Select Denomination with Edged Corners & Smooth Hover */}
-            <div className="mb-7">
+            <div className="mb-6 sm:mb-7">
                 <div className="flex items-center justify-between mb-3">
-                    <label className="text-[11px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
+                    <label className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
                         <Shield className="w-3.5 h-3.5 text-[#30A1F5]" />
                         <span>[1] SELECT ANONYMITY POOL</span>
                     </label>
-                    <span className="text-[10px] font-mono text-[#64748B]">
+                    <span className="text-[9px] sm:text-[10px] font-mono text-[#64748B]">
                         9 UPFRONT TIERS
                     </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {POOL_TIER_IDS.map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
                         const isWhaleTier = Number(tier.poolAmount) >= 100;
+                        const amountNumber = tier.poolAmount.replace(' TON', '');
+                        const feeNumber = tier.fee.replace(' TON', '');
                         
                         return (
                             <button
@@ -172,24 +174,27 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                     setNote(null);
                                     setDepositTxSuccess(null);
                                 }}
-                                className={`group py-3.5 px-2.5 rounded-xl border text-center transition-all duration-200 transform active:scale-[0.98] cursor-pointer ${
+                                className={`group py-2.5 sm:py-3.5 px-1.5 sm:px-2.5 rounded-xl border text-center transition-all duration-200 transform active:scale-[0.98] cursor-pointer overflow-hidden ${
                                     isSelected
                                         ? 'bg-[#30A1F5] text-black border-[#30A1F5] shadow-lg shadow-[#30A1F5]/20 font-bold'
                                         : 'bg-[#141C26] text-[#94A3B8] border-[#222E3E] hover:border-[#30A1F5]/50 hover:bg-[#1A2432] hover:text-white'
                                 }`}
                             >
-                                <div className="flex items-center justify-center gap-2">
+                                <div className="flex items-center justify-center gap-1 sm:gap-1.5">
                                     {isWhaleTier ? (
-                                        <GramDiamondMark className="w-4 h-4 shrink-0" />
+                                        <GramDiamondMark className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                                     ) : (
-                                        <TonIcon className="w-4 h-4 shrink-0" />
+                                        <TonIcon className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                                     )}
-                                    <span className="text-sm sm:text-base font-bold font-mono tracking-tight">
-                                        {tier.poolAmount}
+                                    <span className="text-xs sm:text-base font-bold font-mono tracking-tight whitespace-nowrap">
+                                        {amountNumber}
+                                    </span>
+                                    <span className={`text-[9px] sm:text-xs font-mono font-medium ${isSelected ? 'text-black/80' : 'text-[#94A3B8]'}`}>
+                                        TON
                                     </span>
                                 </div>
-                                <div className={`text-[9px] font-mono mt-1 ${isSelected ? 'text-black/80 font-bold' : 'text-[#64748B]'}`}>
-                                    + {tier.fee} FEE
+                                <div className={`text-[8px] sm:text-[9px] font-mono mt-0.5 sm:mt-1 truncate tracking-tight ${isSelected ? 'text-black/80 font-semibold' : 'text-[#64748B]'}`}>
+                                    +{feeNumber} fee
                                 </div>
                             </button>
                         );
@@ -198,7 +203,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             </div>
 
             {/* Dynamic Upfront Cost Breakdown Card with Edged Corners */}
-            <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-4 mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
+            <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-3.5 sm:p-4 mb-6 sm:mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-[#94A3B8] uppercase">
                         <TonIcon className="w-4 h-4 shrink-0" />
@@ -279,11 +284,11 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                         </div>
 
                         {/* Actions: Copy & Download with Edged Corners */}
-                        <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                             <button
                                 type="button"
                                 onClick={handleCopyNote}
-                                className={`flex-1 py-3 px-4 rounded-xl border text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98] ${
+                                className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl border text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98] ${
                                     hasCopied
                                         ? 'bg-[#30A1F5] text-black border-[#30A1F5] font-bold shadow-md'
                                         : 'bg-[#141C26] text-white border-[#222E3E] hover:border-white/30 hover:bg-[#1A2432]'
@@ -291,13 +296,13 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                             >
                                 {hasCopied ? (
                                     <>
-                                        <Check className="w-3.5 h-3.5" />
-                                        <span>COPIED TO CLIPBOARD</span>
+                                        <Check className="w-3.5 h-3.5 shrink-0" />
+                                        <span>COPIED!</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Copy className="w-3.5 h-3.5" />
-                                        <span>COPY TXT</span>
+                                        <Copy className="w-3.5 h-3.5 shrink-0" />
+                                        <span>COPY NOTE</span>
                                     </>
                                 )}
                             </button>
@@ -305,22 +310,22 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                             <button
                                 type="button"
                                 onClick={handleDownloadNote}
-                                className="py-3 px-4 rounded-xl bg-[#141C26] border border-[#222E3E] hover:border-white/30 hover:bg-[#1A2432] text-white text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                                className="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl bg-[#141C26] border border-[#222E3E] hover:border-white/30 hover:bg-[#1A2432] text-white text-[10px] sm:text-xs font-mono uppercase flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 cursor-pointer active:scale-[0.98]"
                             >
-                                <Download className="w-3.5 h-3.5" />
+                                <Download className="w-3.5 h-3.5 shrink-0" />
                                 <span>SAVE .TXT</span>
                             </button>
                         </div>
 
                         {/* Backup Confirmation Checkbox with Edged Corners */}
-                        <label className="flex items-center gap-3 p-3.5 rounded-xl bg-[#141C26] border border-[#222E3E] cursor-pointer select-none text-[10px] sm:text-xs font-mono uppercase text-[#94A3B8] hover:text-white transition-colors">
+                        <label className="flex items-start sm:items-center gap-3 p-3 sm:p-3.5 rounded-xl bg-[#141C26] border border-[#222E3E] cursor-pointer select-none text-[10px] sm:text-xs font-mono uppercase text-[#94A3B8] hover:text-white transition-colors">
                             <input
                                 type="checkbox"
                                 checked={isBackedUp}
                                 onChange={(e) => setIsBackedUp(e.target.checked)}
-                                className="w-4 h-4 rounded-md border-[#222E3E] bg-[#0B0E14] text-[#30A1F5] focus:ring-0 cursor-pointer accent-[#30A1F5]"
+                                className="w-4 h-4 mt-0.5 sm:mt-0 rounded-md border-[#222E3E] bg-[#0B0E14] text-[#30A1F5] focus:ring-0 cursor-pointer accent-[#30A1F5] shrink-0"
                             />
-                            <span>I HAVE BACKED UP MY SECRET NOTE SAFELY</span>
+                            <span className="leading-snug">I HAVE BACKED UP MY SECRET NOTE SAFELY</span>
                         </label>
 
                         {/* Step 3: Deposit Button with Edged Corners */}

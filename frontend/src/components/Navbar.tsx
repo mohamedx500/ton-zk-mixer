@@ -16,15 +16,15 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
     const isAdmin = isAuthorizedAdmin(connectedAddress);
 
     return (
-        <header className="sticky top-0 z-40 w-full bg-[#080B10]/85 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-3.5 transition-colors">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <header className="sticky top-0 z-40 w-full bg-[#080B10]/90 backdrop-blur-xl border-b border-[#222E3E]/80 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 transition-colors">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
                 {/* Official TON Logo from ton-assets */}
                 <div
-                    className="flex items-center space-x-3 cursor-pointer select-none group"
+                    className="flex items-center space-x-2 sm:space-x-3 cursor-pointer select-none group shrink-0"
                     onClick={() => onSelectTab?.('deposit')}
                 >
-                    <div className="flex items-center gap-2.5">
-                        <TonLogoFull className="h-6 sm:h-7 w-auto text-white group-hover:text-[#30A1F5] transition-colors" />
+                    <div className="flex items-center gap-2 sm:gap-2.5">
+                        <TonLogoFull className="h-5 sm:h-7 w-auto text-white group-hover:text-[#30A1F5] transition-colors" />
                         <span className="hidden sm:inline-block px-2.5 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase rounded-full border border-[#30A1F5]/40 text-[#30A1F5] bg-[#30A1F5]/10 shadow-sm">
                             ZK-PRIVACY
                         </span>

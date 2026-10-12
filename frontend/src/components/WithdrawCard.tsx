@@ -232,28 +232,28 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
     };
 
     return (
-        <div className="bg-[#10161F] p-6 sm:p-8 rounded-2xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
+        <div className="bg-[#10161F] p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
             {/* Header with ton.org Aesthetic */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-[#222E3E] pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 border-b border-[#222E3E] pb-4 sm:pb-5">
                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
-                        <div className="p-2 rounded-xl bg-[#1C2735] border border-[#2B3B4E]">
-                            <Lock className="w-5 h-5 text-[#30A1F5]" />
+                    <h2 className="text-lg sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
+                        <div className="p-1.5 sm:p-2 rounded-xl bg-[#1C2735] border border-[#2B3B4E]">
+                            <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#30A1F5]" />
                         </div>
                         <span>Protocol Withdrawal</span>
                     </h2>
-                    <p className="text-xs text-[#94A3B8] mt-1 font-mono">
+                    <p className="text-[11px] sm:text-xs text-[#94A3B8] mt-1 font-mono">
                         Redeem cryptographic note to any unlinked destination without trace
                     </p>
                 </div>
                 
                 {/* Crypto Utility Badges */}
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
                         <ZkCircuitIcon className="w-3.5 h-3.5 text-[#30A1F5]" />
                         <span className="font-bold">GROTH16 ZK</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
+                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
                         <RelayerFuelIcon className="w-3.5 h-3.5 text-emerald-400" />
                         <span>GASLESS RELAY</span>
                     </div>
@@ -261,11 +261,11 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             </div>
 
             {/* Gasless Relayer Mode Banner with Edged Corners & Smooth Toggle */}
-            <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-4 mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
+            <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-3.5 sm:p-4 mb-6 sm:mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
                 <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5 sm:gap-3">
                         <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-200 ${
+                            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center border transition-all duration-200 shrink-0 ${
                                 useRelayer
                                     ? 'bg-[#30A1F5] text-black border-[#30A1F5] shadow-md shadow-[#30A1F5]/20 font-bold'
                                     : 'bg-[#0B0E14] text-[#94A3B8] border-[#222E3E]'
@@ -274,15 +274,15 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             <RelayerFuelIcon className="w-4 h-4" />
                         </div>
                         <div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-white uppercase">Relayer Network Mode</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                <span className="font-bold text-white uppercase text-[11px] sm:text-xs">Relayer Network Mode</span>
                                 {useRelayer && (
-                                    <span className="text-[9px] bg-[#30A1F5] text-black px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm">
+                                    <span className="text-[8px] sm:text-[9px] bg-[#30A1F5] text-black px-1.5 sm:px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm">
                                         GASLESS ACTIVE
                                     </span>
                                 )}
                             </div>
-                            <p className="text-[10px] text-[#94A3B8] mt-0.5 uppercase">
+                            <p className="text-[9px] sm:text-[10px] text-[#94A3B8] mt-0.5 uppercase">
                                 {useRelayer
                                     ? '> GASLESS: RECIPIENT WALLET REQUIRES 0 TON.'
                                     : '> SELF-BROADCAST: PAY MESSAGE GAS (~0.04 TON) FROM WALLET.'}
@@ -309,8 +309,8 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             </div>
 
             {/* Step 1: Input Secret Note with Edged Corners */}
-            <div className="mb-7">
-                <div className="flex items-center justify-between mb-3">
+            <div className="mb-6 sm:mb-7">
+                <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                     <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
                         <NullifierIcon className="w-3.5 h-3.5 text-[#30A1F5]" />
                         <span>[1] DEPOSIT CREDENTIALS</span>
@@ -332,8 +332,36 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             handleVerifyNote(e.target.value);
                         }}
                         placeholder="PASTE SECRET NOTE (TONZK-1.0-HEX...)..."
-                        className="w-full bg-[#0B0E14] border border-[#222E3E] focus:border-[#30A1F5] rounded-xl p-4 text-[11px] sm:text-xs text-white font-mono uppercase focus:outline-none transition-all duration-200 placeholder:text-[#64748B] shadow-inner"
+                        className="w-full bg-[#0B0E14] border border-[#222E3E] focus:border-[#30A1F5] rounded-xl p-3.5 sm:p-4 text-[11px] sm:text-xs text-white font-mono uppercase focus:outline-none transition-all duration-200 placeholder:text-[#64748B] shadow-inner pr-20"
                     />
+                    {noteString ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setNoteString('');
+                                handleVerifyNote('');
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-[#94A3B8] hover:text-white font-mono px-2 py-1 rounded-lg bg-[#141C26] border border-[#222E3E] cursor-pointer"
+                        >
+                            CLEAR
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                try {
+                                    const text = await navigator.clipboard.readText();
+                                    if (text) {
+                                        setNoteString(text.trim());
+                                        handleVerifyNote(text.trim());
+                                    }
+                                } catch (_) {}
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-[#30A1F5] hover:text-white font-mono px-2.5 py-1 rounded-lg bg-[#141C26] border border-[#222E3E] hover:border-[#30A1F5]/40 cursor-pointer"
+                        >
+                            PASTE
+                        </button>
+                    )}
                 </div>
 
                 {/* Tree Verification Status */}
@@ -371,7 +399,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             </div>
 
             {/* Step 2: Input Clean Recipient Address with Edged Corners */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
                 <div className="flex items-center justify-between mb-3">
                     <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
                         <Wallet className="w-3.5 h-3.5 text-[#30A1F5]" />
@@ -388,16 +416,46 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         </button>
                     )}
                 </div>
-                <input
-                    type="text"
-                    value={recipientAddress}
-                    onChange={(e) => {
-                        setRecipientAddress(e.target.value);
-                        setZkProof(null);
-                    }}
-                    placeholder="0Q... OR UQ... (UNLINKED DESTINATION)"
-                    className="w-full bg-[#0B0E14] border border-[#222E3E] focus:border-[#30A1F5] rounded-xl p-4 text-[11px] sm:text-xs text-white font-mono uppercase focus:outline-none transition-all duration-200 placeholder:text-[#64748B] shadow-inner"
-                />
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={recipientAddress}
+                        onChange={(e) => {
+                            setRecipientAddress(e.target.value);
+                            setZkProof(null);
+                        }}
+                        placeholder="0Q... OR UQ... (UNLINKED DESTINATION)"
+                        className="w-full bg-[#0B0E14] border border-[#222E3E] focus:border-[#30A1F5] rounded-xl p-3.5 sm:p-4 text-[11px] sm:text-xs text-white font-mono uppercase focus:outline-none transition-all duration-200 placeholder:text-[#64748B] shadow-inner pr-20"
+                    />
+                    {recipientAddress ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setRecipientAddress('');
+                                setZkProof(null);
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-[#94A3B8] hover:text-white font-mono px-2 py-1 rounded-lg bg-[#141C26] border border-[#222E3E] cursor-pointer"
+                        >
+                            CLEAR
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                try {
+                                    const text = await navigator.clipboard.readText();
+                                    if (text) {
+                                        setRecipientAddress(text.trim());
+                                        setZkProof(null);
+                                    }
+                                } catch (_) {}
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] text-[#30A1F5] hover:text-white font-mono px-2.5 py-1 rounded-lg bg-[#141C26] border border-[#222E3E] hover:border-[#30A1F5]/40 cursor-pointer"
+                        >
+                            PASTE
+                        </button>
+                    )}
+                </div>
                 <p className="text-[10px] text-[#94A3B8] mt-2 font-mono uppercase">
                     {useRelayer
                         ? '> GASLESS RELAY: DESTINATION CAN BE A FRESH 0-BALANCE ADDRESS.'

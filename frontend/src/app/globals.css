@@ -41,6 +41,27 @@
   background: radial-gradient(circle at 50% 0%, rgba(48, 161, 245, 0.15) 0%, rgba(8, 11, 16, 0) 70%);
 }
 
+/* TonConnect Custom Responsive Polish */
+.tonconnect-wrapper-minimalist button {
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+}
+
+@media (max-width: 640px) {
+  .tonconnect-wrapper-minimalist button {
+    font-size: 10px !important;
+    height: 34px !important;
+    padding: 0 10px !important;
+  }
+}
+
 @keyframes dash {
   to {
     stroke-dashoffset: -20;

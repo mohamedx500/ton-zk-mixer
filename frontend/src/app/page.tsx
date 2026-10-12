@@ -60,24 +60,28 @@ export default function Home() {
             <Navbar activeTab={activeTab} onSelectTab={setActiveTab} />
 
             {/* Main Content Area */}
-            <main className={`flex-1 ${activeTab === 'map' ? 'max-w-5xl' : 'max-w-4xl'} w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 relative z-10 transition-all duration-300`}>
+            <main className={`flex-1 ${activeTab === 'map' ? 'max-w-5xl' : 'max-w-4xl'} w-full mx-auto px-3 sm:px-6 py-6 sm:py-12 space-y-6 sm:space-y-8 relative z-10 transition-all duration-300`}>
                 {/* Hero / Header Section styled in ton.org aesthetic */}
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className="text-center space-y-4"
+                    className="text-center space-y-3 sm:space-y-4 px-1"
                 >
                     {/* The Open Network Official Pill Badge */}
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#121822] border border-[#222E3E] text-white text-[11px] font-mono tracking-wider shadow-sm">
-                        <TonIcon className="w-3.5 h-3.5" />
-                        <span className="font-bold">The Open Network</span>
-                        <span className="text-white/20">•</span>
-                        <GramDiamondMark className="w-3.5 h-3.5" />
-                        <span className="text-[#30A1F5]">ZK Privacy Protocol</span>
+                    <div className="inline-flex items-center flex-wrap sm:flex-nowrap justify-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-[#121822]/90 border border-[#222E3E] text-white text-[10px] sm:text-[11px] font-mono tracking-wider shadow-sm max-w-full">
+                        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                            <TonIcon className="w-3.5 h-3.5 shrink-0" />
+                            <span className="font-bold">The Open Network</span>
+                        </span>
+                        <span className="text-white/20 hidden xs:inline">•</span>
+                        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[#30A1F5]">
+                            <GramDiamondMark className="w-3.5 h-3.5 shrink-0" />
+                            <span>ZK Privacy Protocol</span>
+                        </span>
                     </div>
 
-                    <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight max-w-2xl mx-auto">
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.18] max-w-2xl mx-auto">
                         {activeTab === 'admin' ? (
                             'System Administration'
                         ) : activeTab === 'map' ? (
@@ -85,16 +89,16 @@ export default function Home() {
                         ) : (
                             <>
                                 Decentralized L1 Privacy{' '}
-                                <span className="bg-gradient-to-r from-[#30A1F5] to-[#7DD3FC] bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-[#30A1F5] via-[#60B9FA] to-[#93C5FD] bg-clip-text text-transparent">
                                     developed for TON
                                 </span>
                             </>
                         )}
                     </h1>
 
-                    <p className="max-w-xl mx-auto text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans">
+                    <p className="max-w-md sm:max-w-xl mx-auto text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans">
                         {activeTab === 'admin'
-                            ? 'Telemetry telemetry hub & treasury governance. Authorized deployer key access only.'
+                            ? 'Telemetry hub & treasury governance. Authorized deployer key access only.'
                             : activeTab === 'map'
                             ? 'Real-time global transaction visualization showing zero-knowledge mixing hops and relayer node telemetry.'
                             : 'Sever all past on-chain links using Groth16 zk-SNARKs and MiMC hashing. 100% non-custodial and untraceable.'}
@@ -103,45 +107,46 @@ export default function Home() {
                 </motion.div>
 
                 {/* Tab Switcher in ton.org Style */}
-                <div className="flex justify-center">
-                    <div className="bg-[#121822] p-1.5 border border-[#222E3E] flex items-center gap-1.5 rounded-2xl shadow-xl backdrop-blur-md">
+                <div className="flex justify-center w-full px-1">
+                    <div className={`w-full sm:w-auto ${isAdmin ? 'grid grid-cols-4' : 'grid grid-cols-3'} sm:flex items-center bg-[#121822]/90 p-1 sm:p-1.5 border border-[#222E3E] gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl shadow-xl backdrop-blur-md`}>
                         <button
                             type="button"
                             onClick={() => setActiveTab('deposit')}
-                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 font-mono text-[11px] sm:text-xs transition-all duration-200 uppercase tracking-wider rounded-lg sm:rounded-xl cursor-pointer active:scale-95 whitespace-nowrap ${
                                 activeTab === 'deposit'
                                     ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
                                     : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                             }`}
                         >
-                            <Shield className="w-3.5 h-3.5" />
+                            <Shield className="w-3.5 h-3.5 shrink-0" />
                             <span>Deposit</span>
                         </button>
 
                         <button
                             type="button"
                             onClick={() => setActiveTab('withdraw')}
-                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 font-mono text-[11px] sm:text-xs transition-all duration-200 uppercase tracking-wider rounded-lg sm:rounded-xl cursor-pointer active:scale-95 whitespace-nowrap ${
                                 activeTab === 'withdraw'
                                     ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
                                     : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                             }`}
                         >
-                            <Lock className="w-3.5 h-3.5" />
+                            <Lock className="w-3.5 h-3.5 shrink-0" />
                             <span>Withdraw</span>
                         </button>
 
                         <button
                             type="button"
                             onClick={() => setActiveTab('map')}
-                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 font-mono text-[11px] sm:text-xs transition-all duration-200 uppercase tracking-wider rounded-lg sm:rounded-xl cursor-pointer active:scale-95 whitespace-nowrap ${
                                 activeTab === 'map'
                                     ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
                                     : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                             }`}
                         >
-                            <Globe className="w-3.5 h-3.5" />
-                            <span>Network Map</span>
+                            <Globe className="w-3.5 h-3.5 shrink-0" />
+                            <span className="hidden xs:inline">Network Map</span>
+                            <span className="xs:hidden">Map</span>
                         </button>
 
                         {/* Admin Panel Tab in Switcher if Admin */}
@@ -149,13 +154,13 @@ export default function Home() {
                             <button
                                 type="button"
                                 onClick={() => setActiveTab('admin')}
-                                className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 font-mono text-[11px] sm:text-xs transition-all duration-200 uppercase tracking-wider rounded-lg sm:rounded-xl cursor-pointer active:scale-95 whitespace-nowrap ${
                                     activeTab === 'admin'
                                         ? 'bg-white text-black font-bold shadow-md'
                                         : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                                 }`}
                             >
-                                <Crown className="w-3.5 h-3.5" />
+                                <Crown className="w-3.5 h-3.5 shrink-0" />
                                 <span>Admin</span>
                             </button>
                         )}

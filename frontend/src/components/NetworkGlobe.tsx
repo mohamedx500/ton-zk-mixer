@@ -610,8 +610,23 @@ export function NetworkGlobe() {
                         ringRepeatPeriod="repeatPeriod"
                     />
 
-                    {/* Floating Telemetry Callout Badge 1: TON ZK-Verifier Contract */}
-                    <div className="absolute top-4 left-4 z-20 max-w-[270px] w-full p-3.5 rounded-xl bg-[#0B0E14]/90 border border-white/10 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto transition-all">
+                    {/* Mobile Compact Telemetry Status Bar */}
+                    <div className="md:hidden absolute top-3 left-3 right-3 z-20 flex items-center justify-between p-2.5 rounded-xl bg-[#0B0E14]/90 border border-white/10 backdrop-blur-md font-mono text-[9px] shadow-lg pointer-events-auto">
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                            <span className="font-bold text-white uppercase">ZK-VERIFIER</span>
+                            <span className="text-[#30A1F5] font-bold">
+                                {contractState ? `${Number(contractState.balance).toFixed(2)} TON` : '0.98 TON'}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <Zap className="w-3 h-3 text-emerald-400 shrink-0" />
+                            <span className="text-emerald-400 font-bold uppercase">RELAYER OK</span>
+                        </div>
+                    </div>
+
+                    {/* Floating Telemetry Callout Badge 1: TON ZK-Verifier Contract (Desktop) */}
+                    <div className="hidden md:block absolute top-4 left-4 z-20 max-w-[270px] w-full p-3.5 rounded-xl bg-[#0B0E14]/90 border border-white/10 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto transition-all">
                         <div className="flex items-center justify-between mb-2">
                             <span className="font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <Shield className="w-3.5 h-3.5 text-[#30A1F5]" />
@@ -653,8 +668,8 @@ export function NetworkGlobe() {
                         </div>
                     </div>
 
-                    {/* Floating Telemetry Callout Badge 2: Gasless Relayer Node */}
-                    <div className="absolute top-4 right-4 z-20 max-w-[250px] w-full p-3.5 rounded-xl bg-[#0B0E14]/90 border border-white/10 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto transition-all">
+                    {/* Floating Telemetry Callout Badge 2: Gasless Relayer Node (Desktop) */}
+                    <div className="hidden md:block absolute top-4 right-4 z-20 max-w-[250px] w-full p-3.5 rounded-xl bg-[#0B0E14]/90 border border-white/10 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto transition-all">
                         <div className="flex items-center justify-between mb-2">
                             <span className="font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <Zap className="w-3.5 h-3.5 text-emerald-400" />
@@ -696,7 +711,7 @@ export function NetworkGlobe() {
 
                     {/* Floating Telemetry Callout Badge 3 (Dynamic): Latest Real Transaction */}
                     {latestTx && (
-                        <div className="absolute bottom-4 left-4 z-20 max-w-[320px] w-full p-3.5 rounded-xl bg-[#0B0E14]/95 border border-[#30A1F5]/30 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto">
+                        <div className="absolute bottom-3 sm:bottom-4 left-3 right-3 sm:right-auto sm:left-4 z-20 sm:max-w-[320px] p-3 sm:p-3.5 rounded-xl bg-[#0B0E14]/95 border border-[#30A1F5]/30 backdrop-blur-md font-mono text-[10px] shadow-2xl pointer-events-auto">
                             <div className="flex items-center justify-between mb-1.5">
                                 <span className="text-[9px] text-[#30A1F5] font-bold uppercase tracking-wider">
                                     LATEST REAL TRANSACTION
