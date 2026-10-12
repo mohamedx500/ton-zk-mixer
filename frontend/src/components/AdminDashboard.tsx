@@ -31,7 +31,7 @@ import {
     buildSetFeeRoutingPayload,
 } from '../lib/admin';
 import { EXPLORER_URL, TX_EXPLORER_URL, ACTIVE_RELAYER_ADDRESS } from '../lib/contracts';
-import { TonIcon, TonDiamond, ZkCircuitIcon } from './TonIcons';
+import { TonIcon, TonDiamond, GramIcon, ZkCircuitIcon } from './TonIcons';
 
 export function AdminDashboard() {
     const connectedAddress = useTonAddress();
@@ -84,7 +84,8 @@ export function AdminDashboard() {
                     },
                 ],
             });
-            setClaimStatus('[SUCCESS] CLAIM TX BROADCASTED');
+            setClaimStatus(`[SUCCESS] CLAIM DISPATCHED: ${claimAmount} TON -> ${claimDestination.slice(0, 8)}...`);
+            setClaimAmount('');
             setTimeout(loadData, 5000);
         } catch (err: any) {
             console.error('Claim error:', err);
@@ -138,9 +139,9 @@ export function AdminDashboard() {
     // Access control verification view
     if (!isAdmin) {
         return (
-            <div className="bg-minimal-card p-8 border border-brand-border text-brand-white text-center max-w-2xl mx-auto space-y-6">
-                <div className="w-16 h-16 border border-brand-border bg-brand-gray flex items-center justify-center mx-auto text-brand-silver">
-                    <ShieldAlert className="w-8 h-8" />
+            <div className="bg-minimal-card p-8 rounded-2xl border border-brand-border text-brand-white text-center max-w-2xl mx-auto space-y-6 shadow-2xl">
+                <div className="w-16 h-16 rounded-2xl border border-brand-border bg-brand-gray flex items-center justify-center mx-auto text-brand-silver">
+                    <ShieldAlert className="w-8 h-8 text-red-400" />
                 </div>
 
                 <div className="space-y-2">
@@ -152,12 +153,12 @@ export function AdminDashboard() {
                     </p>
                 </div>
 
-                <div className="bg-brand-black p-5 border border-brand-border max-w-md mx-auto text-left space-y-4 font-mono text-[10px] uppercase">
+                <div className="bg-brand-black p-5 rounded-xl border border-brand-border max-w-md mx-auto text-left space-y-4 font-mono text-[10px] uppercase shadow-inner">
                     <div>
                         <div className="text-brand-silver tracking-widest mb-1">
                             CONNECTED WALLET
                         </div>
-                        <div className="text-brand-white truncate">
+                        <div className="text-brand-white truncate font-semibold">
                             {connectedAddress || 'NULL'}
                         </div>
                     </div>
@@ -166,7 +167,7 @@ export function AdminDashboard() {
                         <div className="text-brand-silver tracking-widest mb-1">
                             REQUIRED ADMIN KEY
                         </div>
-                        <div className="text-brand-white truncate">
+                        <div className="text-brand-white truncate font-semibold">
                             {ADMIN_WALLET_ADDRESS}
                         </div>
                     </div>
@@ -188,31 +189,33 @@ export function AdminDashboard() {
 
     return (
         <div className="space-y-8">
-            {/* Header & Status Bar */}
-            <div className="bg-minimal-card p-6 border border-brand-border text-brand-white">
+            {/* Header & Status Bar with Edged Corners */}
+            <div className="bg-minimal-card p-6 sm:p-7 rounded-2xl border border-brand-border text-brand-white shadow-xl">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-white text-black text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-white">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-white text-black text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-white shadow-sm">
                             <ShieldCheck className="w-3.5 h-3.5" />
                             <span>ADMIN_AUTH [OK]</span>
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-wider flex items-center gap-2">
-                            <Terminal className="w-6 h-6 text-brand-silver" />
+                        <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-wider flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-brand-gray border border-brand-border">
+                                <Terminal className="w-5 h-5 text-brand-silver" />
+                            </div>
                             <span>SYS_ADMIN DASHBOARD</span>
                         </h2>
-                        <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-brand-silver bg-brand-black p-2 border border-brand-border">
+                        <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-brand-silver bg-brand-black p-2.5 rounded-xl border border-brand-border shadow-inner">
                             <span>ADMIN KEY:</span>
-                            <span className="text-brand-white truncate max-w-[200px] sm:max-w-none">
+                            <span className="text-brand-white truncate max-w-[200px] sm:max-w-none font-semibold">
                                 {ADMIN_WALLET_ADDRESS}
                             </span>
                             <button
                                 type="button"
                                 onClick={() => handleCopy(ADMIN_WALLET_ADDRESS, 'admin-wallet')}
-                                className="p-1 hover:bg-brand-silver hover:text-black transition-colors cursor-pointer border border-brand-border"
+                                className="p-1 rounded-md hover:bg-brand-silver hover:text-black transition-colors cursor-pointer border border-brand-border"
                                 title="Copy Admin Wallet"
                             >
                                 {copiedKey === 'admin-wallet' ? (
-                                    <Check className="w-3 h-3" />
+                                    <Check className="w-3 h-3 text-emerald-400" />
                                 ) : (
                                     <Copy className="w-3 h-3" />
                                 )}
@@ -225,7 +228,7 @@ export function AdminDashboard() {
                             type="button"
                             onClick={loadData}
                             disabled={isLoading}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-gray hover:bg-brand-silver hover:text-black border border-brand-border text-[10px] font-mono font-bold uppercase tracking-widest transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-gray hover:bg-brand-silver hover:text-black border border-brand-border text-[10px] font-mono font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
                         >
                             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                             <span>{isLoading ? 'SYNCING...' : 'SYNC TELEMETRY'}</span>
@@ -235,9 +238,9 @@ export function AdminDashboard() {
 
                 <div className="mt-6 pt-4 border-t border-brand-border flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono uppercase text-brand-silver">
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 bg-brand-white animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="font-bold text-brand-white">FEE MODEL:</span>
-                        <span>UPFRONT TIERED + GASLESS RELAYER</span>
+                        <span>9-TIER UPFRONT + ZERO-FEE GASLESS RELAY</span>
                     </div>
                     {lastUpdated && (
                         <div>
@@ -247,20 +250,20 @@ export function AdminDashboard() {
                 </div>
             </div>
 
-            {/* 5 High-Impact KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* 5 High-Impact KPI Cards with Edged Corners & Ton Icons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
                 {/* TVL */}
-                <div className="bg-brand-gray p-5 border border-brand-border">
-                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                <div className="bg-brand-gray/80 p-5 rounded-xl border border-brand-border hover:border-brand-silver/50 transition-all duration-200">
+                    <div className="flex items-center justify-between mb-3 border-b border-brand-border pb-2">
                         <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
                             POOL TVL
                         </span>
-                        <TrendingUp className="w-4 h-4 text-brand-silver grayscale" />
+                        <TrendingUp className="w-4 h-4 text-brand-silver" />
                     </div>
                     <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
-                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
+                        <TonIcon className="w-4 h-4" />
                         <span>{metrics ? metrics.tvlTon : '—'}</span>
-                        <span className="text-xs text-brand-silver">TON</span>
+                        <span className="text-xs text-brand-silver font-normal">TON</span>
                     </div>
                     <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
                         LOCKED LIQUIDITY
@@ -268,8 +271,8 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Accumulated Treasury Fees */}
-                <div className="bg-brand-black p-5 border border-brand-white">
-                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                <div className="bg-brand-black p-5 rounded-xl border border-brand-white shadow-lg">
+                    <div className="flex items-center justify-between mb-3 border-b border-brand-border pb-2">
                         <span className="text-[10px] font-mono font-bold text-brand-white uppercase tracking-widest">
                             TREASURY FEES
                         </span>
@@ -278,7 +281,7 @@ export function AdminDashboard() {
                     <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
                         <TonDiamond className="w-4 h-4" />
                         <span>{metrics ? metrics.accumulatedFeesTon : '0.00'}</span>
-                        <span className="text-xs">TON</span>
+                        <span className="text-xs font-normal">TON</span>
                     </div>
                     <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
                         UNCLAIMED BALANCE
@@ -286,17 +289,17 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Total Admin Fees Earned */}
-                <div className="bg-brand-gray p-5 border border-brand-border">
-                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                <div className="bg-brand-gray/80 p-5 rounded-xl border border-brand-border hover:border-brand-silver/50 transition-all duration-200">
+                    <div className="flex items-center justify-between mb-3 border-b border-brand-border pb-2">
                         <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
                             TOTAL EARNED
                         </span>
-                        <Zap className="w-4 h-4 text-brand-silver grayscale" />
+                        <Zap className="w-4 h-4 text-brand-silver" />
                     </div>
                     <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
-                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
+                        <GramIcon className="w-4 h-4" />
                         <span>{metrics ? metrics.totalAdminFeesTon : '—'}</span>
-                        <span className="text-xs text-brand-silver">TON</span>
+                        <span className="text-xs text-brand-silver font-normal">TON</span>
                     </div>
                     <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
                         LIFETIME INCOME
@@ -304,16 +307,16 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Total Privacy Transactions */}
-                <div className="bg-brand-gray p-5 border border-brand-border">
-                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                <div className="bg-brand-gray/80 p-5 rounded-xl border border-brand-border hover:border-brand-silver/50 transition-all duration-200">
+                    <div className="flex items-center justify-between mb-3 border-b border-brand-border pb-2">
                         <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
                             TX VOLUME
                         </span>
-                        <Lock className="w-4 h-4 text-brand-silver grayscale" />
+                        <Lock className="w-4 h-4 text-brand-silver" />
                     </div>
                     <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-1.5">
                         <span>{metrics ? metrics.totalDepositsCount : '—'}</span>
-                        <span className="text-xs text-brand-silver">DEP</span>
+                        <span className="text-xs text-brand-silver font-normal">DEP</span>
                     </div>
                     <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
                         {metrics ? metrics.totalWithdrawalsCount : '—'} ZK W/D
@@ -321,17 +324,17 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Admin Wallet Balance */}
-                <div className="bg-brand-gray p-5 border border-brand-border">
-                    <div className="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+                <div className="bg-brand-gray/80 p-5 rounded-xl border border-brand-border hover:border-brand-silver/50 transition-all duration-200">
+                    <div className="flex items-center justify-between mb-3 border-b border-brand-border pb-2">
                         <span className="text-[10px] font-mono font-bold text-brand-silver uppercase tracking-widest">
                             ADMIN WALLET
                         </span>
-                        <Wallet className="w-4 h-4 text-brand-silver grayscale" />
+                        <Wallet className="w-4 h-4 text-brand-silver" />
                     </div>
                     <div className="text-xl font-bold font-mono text-brand-white flex items-center gap-2">
-                        <TonDiamond className="w-4 h-4 grayscale opacity-80" />
+                        <TonIcon className="w-4 h-4" />
                         <span>{metrics ? metrics.adminWalletBalance : '—'}</span>
-                        <span className="text-xs text-brand-silver">TON</span>
+                        <span className="text-xs text-brand-silver font-normal">TON</span>
                     </div>
                     <div className="text-[9px] font-mono uppercase text-brand-silver mt-2">
                         CONNECTED BALANCE
@@ -339,25 +342,25 @@ export function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Treasury Management & Dynamic Fee Routing Section */}
-            <div className="bg-minimal-card p-6 sm:p-8 border border-brand-border space-y-6">
+            {/* Treasury Management & Dynamic Fee Routing Section with Edged Corners */}
+            <div className="bg-minimal-card p-6 sm:p-8 rounded-2xl border border-brand-border space-y-6 shadow-xl">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-border">
                     <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-gray text-brand-white text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-border">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gray text-brand-white text-[10px] font-mono font-bold uppercase tracking-widest border border-brand-border">
                             <Sliders className="w-3.5 h-3.5" />
                             <span>ROUTING ENGINE</span>
                         </div>
                         <h3 className="text-lg font-bold text-brand-white uppercase tracking-wider">
-                            TREASURY CLAIM & RELAYER RESTOCK
+                            TREASURY CLAIM &amp; RELAYER RESTOCK
                         </h3>
                     </div>
 
                     {/* Routing Mode Toggle */}
-                    <div className="bg-brand-black p-4 border border-brand-border flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+                    <div className="bg-brand-black p-4 rounded-xl border border-brand-border flex flex-col sm:flex-row sm:items-center gap-4 shrink-0 shadow-inner">
                         <div>
                             <div className="text-[10px] font-mono font-bold text-brand-white flex items-center gap-2 uppercase">
                                 <span>ROUTING:</span>
-                                <span className={`px-2 py-1 border ${
+                                <span className={`px-2.5 py-1 rounded-lg border font-bold ${
                                     metrics?.autoFeeRouting
                                         ? 'bg-brand-white text-black border-brand-white'
                                         : 'bg-brand-gray text-brand-white border-brand-border'
@@ -371,7 +374,7 @@ export function AdminDashboard() {
                             type="button"
                             onClick={handleToggleRouting}
                             disabled={isToggling}
-                            className="px-4 py-2 bg-brand-gray hover:bg-brand-silver hover:text-black text-[10px] font-mono font-bold text-brand-white border border-brand-border transition-colors shrink-0 cursor-pointer flex items-center gap-2 uppercase tracking-widest"
+                            className="px-4 py-2 rounded-xl bg-brand-gray hover:bg-brand-silver hover:text-black text-[10px] font-mono font-bold text-brand-white border border-brand-border transition-all duration-200 shrink-0 cursor-pointer flex items-center gap-2 uppercase tracking-widest active:scale-95"
                         >
                             {isToggling ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sliders className="w-3.5 h-3.5" />}
                             <span>SWITCH MODE</span>
@@ -380,12 +383,12 @@ export function AdminDashboard() {
                 </div>
 
                 {toggleStatus && (
-                    <div className="p-4 bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
+                    <div className="p-4 rounded-xl bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
                         {toggleStatus}
                     </div>
                 )}
 
-                {/* Claim Fees Interactive Panel */}
+                {/* Claim Fees Interactive Panel with Edged Corners */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -399,7 +402,7 @@ export function AdminDashboard() {
                                     value={claimAmount}
                                     onChange={(e) => setClaimAmount(e.target.value)}
                                     placeholder="0.00"
-                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors"
+                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-xl p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors shadow-inner"
                                 />
                                 <div className="flex items-center gap-2 mt-3 text-[9px] font-mono uppercase tracking-widest">
                                     <button
@@ -408,14 +411,14 @@ export function AdminDashboard() {
                                             const available = Number(metrics?.accumulatedFeesTon || 0);
                                             setClaimAmount((available * 0.5).toFixed(2));
                                         }}
-                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2 py-1.5 border border-brand-border text-brand-silver transition-colors"
+                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2.5 py-1.5 rounded-lg border border-brand-border text-brand-silver transition-colors cursor-pointer"
                                     >
                                         50%
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setClaimAmount(metrics?.accumulatedFeesTon || '0')}
-                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2 py-1.5 border border-brand-border text-brand-silver transition-colors"
+                                        className="bg-brand-gray hover:bg-brand-silver hover:text-black px-2.5 py-1.5 rounded-lg border border-brand-border text-brand-silver transition-colors cursor-pointer"
                                     >
                                         MAX ({metrics?.accumulatedFeesTon || '0'})
                                     </button>
@@ -425,7 +428,7 @@ export function AdminDashboard() {
                                             setClaimAmount('0.5');
                                             setClaimDestination(ACTIVE_RELAYER_ADDRESS);
                                         }}
-                                        className="bg-brand-white text-black hover:bg-brand-silver px-2 py-1.5 border border-brand-white font-bold transition-colors"
+                                        className="bg-brand-white text-black hover:bg-brand-silver px-2.5 py-1.5 rounded-lg border border-brand-white font-bold transition-colors cursor-pointer"
                                     >
                                         [RESTOCK] RELAYER (0.5)
                                     </button>
@@ -441,13 +444,13 @@ export function AdminDashboard() {
                                     value={claimDestination}
                                     onChange={(e) => setClaimDestination(e.target.value)}
                                     placeholder="TARGET TON WALLET"
-                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-none p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors"
+                                    className="w-full bg-brand-black border border-brand-border focus:border-brand-silver rounded-xl p-3.5 text-xs text-brand-white font-mono uppercase focus:outline-none transition-colors shadow-inner"
                                 />
                                 <div className="flex items-center gap-2 mt-3 text-[9px] font-mono uppercase tracking-widest">
                                     <button
                                         type="button"
                                         onClick={() => setClaimDestination(ACTIVE_RELAYER_ADDRESS)}
-                                        className="text-brand-silver hover:text-brand-white underline underline-offset-2 truncate"
+                                        className="text-brand-silver hover:text-brand-white underline underline-offset-2 truncate cursor-pointer"
                                     >
                                         USE RELAYER: {ACTIVE_RELAYER_ADDRESS.slice(0, 14)}...
                                     </button>
@@ -459,9 +462,9 @@ export function AdminDashboard() {
                             type="button"
                             onClick={handleClaimFees}
                             disabled={isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination}
-                            className={`w-full py-4 font-mono font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors ${
+                            className={`w-full py-4 rounded-xl font-mono font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg active:scale-95 ${
                                 isClaiming || !claimAmount || Number(claimAmount) <= 0 || !claimDestination
-                                    ? 'bg-brand-offblack text-brand-silver border border-brand-border cursor-not-allowed'
+                                    ? 'bg-brand-offblack text-brand-silver border border-brand-border cursor-not-allowed opacity-70'
                                     : 'bg-brand-white text-brand-black hover:bg-brand-silver border border-brand-white'
                             }`}
                         >
@@ -470,20 +473,20 @@ export function AdminDashboard() {
                         </button>
 
                         {claimStatus && (
-                            <div className="p-4 bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
+                            <div className="p-4 rounded-xl bg-brand-gray border border-brand-border text-[10px] font-mono uppercase text-brand-white font-bold">
                                 {claimStatus}
                             </div>
                         )}
                     </div>
 
                     {/* Operational Security Safeguard Note */}
-                    <div className="bg-brand-black p-5 border border-brand-border space-y-3 font-mono text-[10px] uppercase">
+                    <div className="bg-brand-black p-5 rounded-xl border border-brand-border space-y-3 font-mono text-[10px] uppercase shadow-inner">
                         <div className="font-bold text-brand-white flex items-center gap-2 border-b border-brand-border pb-2">
-                            <ShieldCheck className="w-4 h-4" />
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
                             <span>MATH SEPARATION</span>
                         </div>
-                        <p className="text-brand-silver leading-relaxed pt-1">
-                            USER POOL LIQUIDITY IS STRICTLY LOCKED. CLAIM TRANSACTIONS ASSERT REQUEST &lt;= ACCUMULATED FEES.
+                        <p className="text-brand-silver leading-relaxed pt-1 normal-case text-[11px]">
+                            User pool deposits are strictly isolated. Claim transactions mathematically assert request &lt;= accumulated fees to prevent draining pool funds.
                         </p>
                         <div className="pt-2 mt-2 border-t border-brand-border space-y-2 text-brand-silver">
                             <div><span className="text-brand-white">CONTRACT:</span> {metrics?.contractAddress.slice(0, 16)}...</div>
@@ -493,10 +496,10 @@ export function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Audit Logs: Recent Deposits & Withdrawals */}
+            {/* Audit Logs: Recent Deposits & Withdrawals with Edged Corners */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Deposits */}
-                <div className="bg-minimal-card p-6 border border-brand-border space-y-4">
+                <div className="bg-minimal-card p-6 rounded-2xl border border-brand-border space-y-4 shadow-xl">
                     <div className="flex items-center justify-between border-b border-brand-border pb-3">
                         <div className="flex items-center gap-2">
                             <ArrowDownLeft className="w-4 h-4 text-brand-silver" />
@@ -514,24 +517,24 @@ export function AdminDashboard() {
                             value={depositSearch}
                             onChange={(e) => setDepositSearch(e.target.value)}
                             placeholder="SEARCH HASH OR COMMITMENT..."
-                            className="w-full bg-brand-black border border-brand-border rounded-none pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver"
+                            className="w-full bg-brand-black border border-brand-border rounded-xl pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver shadow-inner"
                         />
                     </div>
 
                     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                         {filteredDeposits.length === 0 ? (
-                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed">
+                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed rounded-xl">
                                 NO MATCHES FOUND
                             </div>
                         ) : (
                             filteredDeposits.map((d, i) => (
                                 <div
                                     key={i}
-                                    className="p-3 bg-brand-gray border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
+                                    className="p-3 bg-brand-gray/80 rounded-xl border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
                                 >
                                     <div>
                                         <div className="text-brand-white font-bold flex items-center gap-1.5 mb-1">
-                                            <TonDiamond className="w-3 h-3 grayscale" />
+                                            <TonDiamond className="w-3 h-3" />
                                             <span>{d.amount}</span>
                                         </div>
                                         <div className="text-brand-silver truncate max-w-[160px] sm:max-w-[200px]">
@@ -557,7 +560,7 @@ export function AdminDashboard() {
                 </div>
 
                 {/* Recent Withdrawals */}
-                <div className="bg-minimal-card p-6 border border-brand-border space-y-4">
+                <div className="bg-minimal-card p-6 rounded-2xl border border-brand-border space-y-4 shadow-xl">
                     <div className="flex items-center justify-between border-b border-brand-border pb-3">
                         <div className="flex items-center gap-2">
                             <ArrowUpRight className="w-4 h-4 text-brand-silver" />
@@ -575,24 +578,24 @@ export function AdminDashboard() {
                             value={withdrawSearch}
                             onChange={(e) => setWithdrawSearch(e.target.value)}
                             placeholder="SEARCH HASH OR DESTINATION..."
-                            className="w-full bg-brand-black border border-brand-border rounded-none pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver"
+                            className="w-full bg-brand-black border border-brand-border rounded-xl pl-9 pr-3 py-3 text-[10px] sm:text-xs text-brand-white font-mono uppercase focus:outline-none focus:border-brand-silver shadow-inner"
                         />
                     </div>
 
                     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                         {filteredWithdrawals.length === 0 ? (
-                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed">
+                            <div className="p-6 text-center text-[10px] font-mono text-brand-silver uppercase border border-brand-border border-dashed rounded-xl">
                                 NO MATCHES FOUND
                             </div>
                         ) : (
                             filteredWithdrawals.map((w, i) => (
                                 <div
                                     key={i}
-                                    className="p-3 bg-brand-gray border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
+                                    className="p-3 bg-brand-gray/80 rounded-xl border border-brand-border hover:border-brand-silver transition-colors text-[9px] sm:text-[10px] font-mono flex items-center justify-between uppercase"
                                 >
                                     <div>
                                         <div className="text-brand-white font-bold flex items-center gap-1.5 mb-1">
-                                            <TonDiamond className="w-3 h-3 grayscale" />
+                                            <TonDiamond className="w-3 h-3" />
                                             <span>{w.amountReceived}</span>
                                         </div>
                                         <div className="text-brand-silver truncate max-w-[160px] sm:max-w-[200px]">

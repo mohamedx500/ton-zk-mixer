@@ -11,7 +11,7 @@ import { StatsCard } from '../components/StatsCard';
 import { PrivacyExplainer } from '../components/PrivacyExplainer';
 import { Shield, Lock, Crown } from 'lucide-react';
 import { isAuthorizedAdmin } from '../lib/admin';
-import { TonIcon } from '../components/TonIcons';
+import { TonIcon, GramIcon } from '../components/TonIcons';
 
 export default function Home() {
     const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'admin'>('deposit');
@@ -31,39 +31,42 @@ export default function Home() {
 
             {/* Main Content Area */}
             <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 relative z-10">
-                {/* Hero / Header */}
+                {/* Hero / Header with Edged Corners & Crypto Utility */}
                 <motion.div
-                    initial={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
                     className="text-center space-y-3"
                 >
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-brand-gray border border-brand-border text-brand-silver text-[10px] font-mono tracking-widest uppercase mb-1">
-                        <TonIcon className="w-3 h-3 grayscale opacity-70" />
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-brand-gray border border-brand-border text-brand-white text-[10px] font-mono tracking-widest uppercase mb-1 rounded-full shadow-sm">
+                        <TonIcon className="w-3.5 h-3.5" />
                         <span>Zero-Knowledge Privacy Protocol</span>
+                        <span className="text-brand-border">|</span>
+                        <GramIcon className="w-3.5 h-3.5" />
+                        <span className="text-brand-silver">TON Ecosystem</span>
                     </div>
 
                     <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-brand-white uppercase">
-                        {activeTab === 'admin' ? 'SYSTEM ADMINISTRATION' : 'BREAK THE TRACE'}
+                        {activeTab === 'admin' ? 'SYSTEM ADMINISTRATION' : 'BREAK THE ON-CHAIN TRACE'}
                     </h1>
 
                     <p className="max-w-xl mx-auto text-xs sm:text-sm text-brand-silver leading-relaxed font-mono">
                         {activeTab === 'admin'
                             ? '> INITIALIZING TELEMETRY... AUTHORIZED ACCESS ONLY.'
-                            : '> SECURE. ANONYMOUS. UNTRACEABLE. DEPOSIT TON TO BREAK THE ON-CHAIN LINK.'}
+                            : '> MATHEMATICALLY UNTRACEABLE. DEPOSIT TON TO SEVER ALL PREVIOUS ON-CHAIN HISTORY.'}
                     </p>
                 </motion.div>
 
-                {/* Tab Switcher */}
+                {/* Tab Switcher with Edged Corners & Smooth Transitions */}
                 <div className="flex justify-center">
-                    <div className="bg-brand-offblack p-1 border border-brand-border flex items-center gap-1">
+                    <div className="bg-brand-offblack p-1.5 border border-brand-border flex items-center gap-1.5 rounded-2xl shadow-lg">
                         <button
                             type="button"
                             onClick={() => setActiveTab('deposit')}
-                            className={`flex items-center gap-2 px-6 py-2 font-mono text-xs transition-colors uppercase tracking-wider ${
+                            className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                 activeTab === 'deposit'
-                                    ? 'bg-brand-white text-black font-bold'
-                                    : 'text-brand-silver hover:text-white bg-transparent'
+                                    ? 'bg-brand-white text-black font-bold shadow-md'
+                                    : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
                             }`}
                         >
                             <Shield className="w-3.5 h-3.5" />
@@ -73,25 +76,25 @@ export default function Home() {
                         <button
                             type="button"
                             onClick={() => setActiveTab('withdraw')}
-                            className={`flex items-center gap-2 px-6 py-2 font-mono text-xs transition-colors uppercase tracking-wider ${
+                            className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                 activeTab === 'withdraw'
-                                    ? 'bg-brand-white text-black font-bold'
-                                    : 'text-brand-silver hover:text-white bg-transparent'
+                                    ? 'bg-brand-white text-black font-bold shadow-md'
+                                    : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
                             }`}
                         >
                             <Lock className="w-3.5 h-3.5" />
                             <span>Withdraw</span>
                         </button>
 
-                        {/* Exclusive Admin Panel Tab in Switcher if Admin */}
+                        {/* Admin Panel Tab in Switcher if Admin */}
                         {isAdmin && (
                             <button
                                 type="button"
                                 onClick={() => setActiveTab('admin')}
-                                className={`flex items-center gap-2 px-6 py-2 font-mono text-xs transition-colors uppercase tracking-wider ${
+                                className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                     activeTab === 'admin'
-                                        ? 'bg-brand-white text-black font-bold'
-                                        : 'text-brand-silver hover:text-white bg-transparent'
+                                        ? 'bg-brand-white text-black font-bold shadow-md'
+                                        : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
                                 }`}
                             >
                                 <Crown className="w-3.5 h-3.5" />
@@ -107,10 +110,10 @@ export default function Home() {
                         {activeTab === 'deposit' && (
                             <motion.div
                                 key="deposit-tab"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.15 }}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.22, ease: 'easeOut' }}
                             >
                                 <DepositCard onDepositSuccess={triggerRefresh} />
                             </motion.div>
@@ -119,10 +122,10 @@ export default function Home() {
                         {activeTab === 'withdraw' && (
                             <motion.div
                                 key="withdraw-tab"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.15 }}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.22, ease: 'easeOut' }}
                             >
                                 <WithdrawCard onWithdrawSuccess={triggerRefresh} />
                             </motion.div>
@@ -131,10 +134,10 @@ export default function Home() {
                         {activeTab === 'admin' && (
                             <motion.div
                                 key="admin-tab"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.15 }}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.22, ease: 'easeOut' }}
                             >
                                 <AdminDashboard />
                             </motion.div>
@@ -158,15 +161,20 @@ export default function Home() {
                 {activeTab !== 'admin' && <PrivacyExplainer />}
             </main>
 
-            {/* Footer */}
+            {/* Footer with Crypto Utility Links */}
             <footer className="border-t border-brand-border py-8 px-4 text-center font-mono text-[10px] text-brand-silver uppercase tracking-widest bg-brand-black">
                 <div className="flex flex-wrap items-center justify-center gap-4 mb-3">
                     <a href="https://tact-lang.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">TACT</a>
                     <span>/</span>
-                    <a href="https://ton.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                        <TonIcon className="w-3 h-3 inline grayscale" />
+                    <a href="https://ton.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">
+                        <TonIcon className="w-3.5 h-3.5 inline" />
                         <span>TON</span>
                     </a>
+                    <span>/</span>
+                    <span className="flex items-center gap-1.5 text-brand-silver/90">
+                        <GramIcon className="w-3.5 h-3.5 inline" />
+                        <span>GRAM</span>
+                    </span>
                     <span>/</span>
                     <a href="https://iden3.io/circom" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">CIRCOM</a>
                 </div>
@@ -177,4 +185,3 @@ export default function Home() {
         </div>
     );
 }
-
