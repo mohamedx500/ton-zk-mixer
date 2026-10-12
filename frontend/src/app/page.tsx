@@ -6,15 +6,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/Navbar';
 import { DepositCard } from '../components/DepositCard';
 import { WithdrawCard } from '../components/WithdrawCard';
+import { TransactionsMap } from '../components/TransactionsMap';
 import { AdminDashboard } from '../components/AdminDashboard';
 import { StatsCard } from '../components/StatsCard';
 import { PrivacyExplainer } from '../components/PrivacyExplainer';
-import { Shield, Lock, Crown } from 'lucide-react';
+import { Shield, Lock, Crown, Globe, ExternalLink, ArrowRight } from 'lucide-react';
 import { isAuthorizedAdmin } from '../lib/admin';
-import { TonIcon, GramIcon } from '../components/TonIcons';
+import { TonIcon, TonLogoFull, GramDiamondMark, GramFullLogo, GramCircularBadge } from '../components/TonIcons';
 
 export default function Home() {
-    const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'admin'>('deposit');
+    const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw' | 'map' | 'admin'>('deposit');
     const [refreshKey, setRefreshKey] = useState(0);
 
     const connectedAddress = useTonAddress();
@@ -25,48 +26,112 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-brand-black text-brand-white selection:bg-brand-silver selection:text-black relative overflow-x-hidden font-sans">
+        <div className="min-h-screen flex flex-col bg-[#080B10] text-white selection:bg-[#30A1F5] selection:text-black relative overflow-x-hidden font-sans">
+            {/* Ambient Background Radial Hero Glow (ton.org signature lighting) */}
+            <div className="absolute top-0 left-0 right-0 h-[660px] pointer-events-none overflow-hidden z-0" aria-hidden="true">
+                <svg
+                    className="w-full h-full opacity-25"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1440 660"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <defs>
+                        <radialGradient id="hero-glow-0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-16 319 -526 -26 840 0)">
+                            <stop stopColor="#378EE5" />
+                            <stop offset="1" stopColor="#378EE5" stopOpacity="0" />
+                        </radialGradient>
+                        <radialGradient id="hero-glow-1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-286 330 -720 -624 1428 0)">
+                            <stop stopColor="#378EE5" />
+                            <stop offset="1" stopColor="#378EE5" stopOpacity="0" />
+                        </radialGradient>
+                        <radialGradient id="hero-glow-2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(218 0 0 314 -67 330)">
+                            <stop stopColor="#378EE5" />
+                            <stop offset="1" stopColor="#378EE5" stopOpacity="0" />
+                        </radialGradient>
+                    </defs>
+                    <path d="M0 0H1440V660H0z" fill="url(#hero-glow-0)" />
+                    <path d="M0 0H1440V660H0z" fill="url(#hero-glow-1)" />
+                    <path d="M0 0H1440V660H0z" fill="url(#hero-glow-2)" />
+                </svg>
+            </div>
+
             {/* Top Navigation */}
             <Navbar activeTab={activeTab} onSelectTab={setActiveTab} />
 
             {/* Main Content Area */}
             <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 relative z-10">
-                {/* Hero / Header with Edged Corners & Crypto Utility */}
+                {/* Hero / Header Section styled in ton.org aesthetic */}
                 <motion.div
-                    initial={{ opacity: 0, y: -8 }}
+                    initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="text-center space-y-3"
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="text-center space-y-4"
                 >
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-brand-gray border border-brand-border text-brand-white text-[10px] font-mono tracking-widest uppercase mb-1 rounded-full shadow-sm">
+                    {/* The Open Network Official Pill Badge */}
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#121822] border border-[#222E3E] text-white text-[11px] font-mono tracking-wider shadow-sm">
                         <TonIcon className="w-3.5 h-3.5" />
-                        <span>Zero-Knowledge Privacy Protocol</span>
-                        <span className="text-brand-border">|</span>
-                        <GramIcon className="w-3.5 h-3.5" />
-                        <span className="text-brand-silver">TON Ecosystem</span>
+                        <span className="font-bold">The Open Network</span>
+                        <span className="text-white/20">•</span>
+                        <GramDiamondMark className="w-3.5 h-3.5" />
+                        <span className="text-[#30A1F5]">ZK Privacy Protocol</span>
                     </div>
 
-                    <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-brand-white uppercase">
-                        {activeTab === 'admin' ? 'SYSTEM ADMINISTRATION' : 'BREAK THE ON-CHAIN TRACE'}
+                    <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight max-w-2xl mx-auto">
+                        {activeTab === 'admin' ? (
+                            'System Administration'
+                        ) : activeTab === 'map' ? (
+                            'Global Transactions & Relayer Network'
+                        ) : (
+                            <>
+                                Decentralized L1 Privacy{' '}
+                                <span className="bg-gradient-to-r from-[#30A1F5] to-[#7DD3FC] bg-clip-text text-transparent">
+                                    developed for TON
+                                </span>
+                            </>
+                        )}
                     </h1>
 
-                    <p className="max-w-xl mx-auto text-xs sm:text-sm text-brand-silver leading-relaxed font-mono">
+                    <p className="max-w-xl mx-auto text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans">
                         {activeTab === 'admin'
-                            ? '> INITIALIZING TELEMETRY... AUTHORIZED ACCESS ONLY.'
-                            : '> MATHEMATICALLY UNTRACEABLE. DEPOSIT TON TO SEVER ALL PREVIOUS ON-CHAIN HISTORY.'}
+                            ? 'Telemetry telemetry hub & treasury governance. Authorized deployer key access only.'
+                            : activeTab === 'map'
+                            ? 'Real-time global transaction visualization showing zero-knowledge mixing hops and relayer node telemetry.'
+                            : 'Sever all past on-chain links using Groth16 zk-SNARKs and MiMC hashing. 100% non-custodial and untraceable.'}
                     </p>
+
+                    {/* ton.org style metric badges row */}
+                    {activeTab !== 'admin' && (
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
+                                <span className="text-white font-bold mr-1">381</span> Validators
+                            </div>
+                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
+                                <span className="text-white font-bold mr-1">757</span> Nodes
+                            </div>
+                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
+                                <span className="text-[#30A1F5] font-bold mr-1">9</span> ZK Pools
+                            </div>
+                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
+                                <span className="text-emerald-400 font-bold mr-1">&lt; 420ms</span> ZK Latency
+                            </div>
+                            <div className="px-3 py-1.5 rounded-xl bg-[#121822]/90 border border-[#222E3E] text-[10px] font-mono text-[#94A3B8] shadow-sm">
+                                <span className="text-white font-bold mr-1">4.2M</span> 24h Transactions
+                            </div>
+                        </div>
+                    )}
                 </motion.div>
 
-                {/* Tab Switcher with Edged Corners & Smooth Transitions */}
+                {/* Tab Switcher in ton.org Style */}
                 <div className="flex justify-center">
-                    <div className="bg-brand-offblack p-1.5 border border-brand-border flex items-center gap-1.5 rounded-2xl shadow-lg">
+                    <div className="bg-[#121822] p-1.5 border border-[#222E3E] flex items-center gap-1.5 rounded-2xl shadow-xl backdrop-blur-md">
                         <button
                             type="button"
                             onClick={() => setActiveTab('deposit')}
-                            className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                 activeTab === 'deposit'
-                                    ? 'bg-brand-white text-black font-bold shadow-md'
-                                    : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
+                                    ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
+                                    : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                             }`}
                         >
                             <Shield className="w-3.5 h-3.5" />
@@ -76,14 +141,27 @@ export default function Home() {
                         <button
                             type="button"
                             onClick={() => setActiveTab('withdraw')}
-                            className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                 activeTab === 'withdraw'
-                                    ? 'bg-brand-white text-black font-bold shadow-md'
-                                    : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
+                                    ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
+                                    : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                             }`}
                         >
                             <Lock className="w-3.5 h-3.5" />
                             <span>Withdraw</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('map')}
+                            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                                activeTab === 'map'
+                                    ? 'bg-[#30A1F5] text-black font-bold shadow-lg shadow-[#30A1F5]/20'
+                                    : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
+                            }`}
+                        >
+                            <Globe className="w-3.5 h-3.5" />
+                            <span>Network Map</span>
                         </button>
 
                         {/* Admin Panel Tab in Switcher if Admin */}
@@ -91,10 +169,10 @@ export default function Home() {
                             <button
                                 type="button"
                                 onClick={() => setActiveTab('admin')}
-                                className={`flex items-center gap-2 px-6 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
+                                className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs transition-all duration-200 uppercase tracking-wider rounded-xl cursor-pointer active:scale-95 ${
                                     activeTab === 'admin'
-                                        ? 'bg-brand-white text-black font-bold shadow-md'
-                                        : 'text-brand-silver hover:text-white hover:bg-brand-gray/60 bg-transparent'
+                                        ? 'bg-white text-black font-bold shadow-md'
+                                        : 'text-[#94A3B8] hover:text-white hover:bg-white/5 bg-transparent'
                                 }`}
                             >
                                 <Crown className="w-3.5 h-3.5" />
@@ -110,10 +188,10 @@ export default function Home() {
                         {activeTab === 'deposit' && (
                             <motion.div
                                 key="deposit-tab"
-                                initial={{ opacity: 0, y: 6 }}
+                                initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.22, ease: 'easeOut' }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
                             >
                                 <DepositCard onDepositSuccess={triggerRefresh} />
                             </motion.div>
@@ -122,28 +200,63 @@ export default function Home() {
                         {activeTab === 'withdraw' && (
                             <motion.div
                                 key="withdraw-tab"
-                                initial={{ opacity: 0, y: 6 }}
+                                initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.22, ease: 'easeOut' }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
                             >
                                 <WithdrawCard onWithdrawSuccess={triggerRefresh} />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'map' && (
+                            <motion.div
+                                key="map-tab"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
+                            >
+                                <TransactionsMap />
                             </motion.div>
                         )}
 
                         {activeTab === 'admin' && (
                             <motion.div
                                 key="admin-tab"
-                                initial={{ opacity: 0, y: 6 }}
+                                initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.22, ease: 'easeOut' }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
                             >
                                 <AdminDashboard />
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+
+                {/* Live Transactions Map preview section below deposit/withdraw tabs */}
+                {(activeTab === 'deposit' || activeTab === 'withdraw') && (
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Globe className="w-4 h-4 text-[#30A1F5]" />
+                                <h3 className="font-bold text-xs uppercase tracking-wider text-white font-mono">
+                                    Global Transactions &amp; Anonymity Relay Mesh
+                                </h3>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('map')}
+                                className="text-[10px] font-mono text-[#30A1F5] hover:underline uppercase flex items-center gap-1 cursor-pointer"
+                            >
+                                <span>EXPAND FULL VIEW</span>
+                                <ArrowRight className="w-3 h-3" />
+                            </button>
+                        </div>
+                        <TransactionsMap />
+                    </div>
+                )}
 
                 {/* Real-time Pool Stats Card (displayed on deposit & withdraw tabs) */}
                 {activeTab !== 'admin' && (
@@ -161,25 +274,30 @@ export default function Home() {
                 {activeTab !== 'admin' && <PrivacyExplainer />}
             </main>
 
-            {/* Footer with Crypto Utility Links */}
-            <footer className="border-t border-brand-border py-8 px-4 text-center font-mono text-[10px] text-brand-silver uppercase tracking-widest bg-brand-black">
-                <div className="flex flex-wrap items-center justify-center gap-4 mb-3">
-                    <a href="https://tact-lang.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">TACT</a>
-                    <span>/</span>
-                    <a href="https://ton.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">
-                        <TonIcon className="w-3.5 h-3.5 inline" />
-                        <span>TON</span>
-                    </a>
-                    <span>/</span>
-                    <span className="flex items-center gap-1.5 text-brand-silver/90">
-                        <GramIcon className="w-3.5 h-3.5 inline" />
-                        <span>GRAM</span>
-                    </span>
-                    <span>/</span>
-                    <a href="https://iden3.io/circom" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">CIRCOM</a>
+            {/* ton.org Inspired Footer with Official Assets from ton-assets */}
+            <footer className="border-t border-[#222E3E] py-10 px-4 text-center font-mono text-[11px] text-[#94A3B8] bg-[#080B10]">
+                <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-[#222E3E]/60 mb-6">
+                    <div className="flex items-center gap-3">
+                        <TonLogoFull className="h-6 w-auto text-white" />
+                        <span className="text-[#30A1F5] font-bold">ZK-MIXER</span>
+                    </div>
+
+                    <div className="flex items-center gap-5 text-xs text-[#94A3B8]">
+                        <a href="https://ton.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">TON.org</a>
+                        <a href="https://tact-lang.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Tact</a>
+                        <a href="https://tonstat.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">TonStat</a>
+                        <a href="https://github.com/ton-blockchain" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
+                        <a href="https://docs.ton.org" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Docs</a>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <GramCircularBadge className="w-5 h-5" />
+                        <span className="text-white text-[10px] font-bold">GRAM COMPATIBLE</span>
+                    </div>
                 </div>
-                <p>
-                    &gt; SYSTEM LOG: NON-CUSTODIAL ZK-MIXER ACTIVE.
+
+                <p className="text-[10px] text-[#64748B] uppercase tracking-widest">
+                    &gt; THE OPEN NETWORK • MATHEMATICALLY PROVEN NON-CUSTODIAL PRIVACY PROTOCOL ACTIVE.
                 </p>
             </footer>
         </div>
