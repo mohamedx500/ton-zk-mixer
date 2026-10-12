@@ -195,6 +195,9 @@ function startFrontend() {
         if (!isShuttingDown) {
             console.log(`${RED}⚠️ Frontend process exited (code: ${code}, signal: ${signal})${RESET}`);
         }
+    });
+}
+
 // 4. Start Auto-Top-Up Monitor Process
 function startMonitor() {
     if (!process.env.DEPLOYER_MNEMONIC || !process.env.RELAYER_MNEMONIC) {
