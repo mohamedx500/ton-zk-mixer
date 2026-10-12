@@ -30,7 +30,7 @@ The protocol operates with **zero on-chain leakage of the depositor's identity**
 | Network | Component | On-Chain Address | Verification & Explorer |
 | :--- | :--- | :--- | :--- |
 | **TON Mainnet** | **TonZkMixer Core** | `UQBc0izk6rtfjroHgkzP4pEBUHfMCtSS1CGT988kw8DbqY7A` | [View on TonScan](https://tonscan.org/address/UQBc0izk6rtfjroHgkzP4pEBUHfMCtSS1CGT988kw8DbqY7A) |
-| **TON Mainnet** | **Gasless Relayer** | `UQAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhksqZ` | [View on TonScan](https://tonscan.org/address/UQAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhksqZ) |
+| **TON Mainnet** | **Gasless Relayer** | `UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ` | [View on TonScan](https://tonscan.org/address/UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ) |
 | **TON Testnet** | **TonZkMixer Core** | `0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET` | [View on Testnet Explorer](https://testnet.tonscan.org/address/0QAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhknET) |
 
 ---

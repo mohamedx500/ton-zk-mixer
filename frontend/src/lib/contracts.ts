@@ -42,10 +42,8 @@ export function getDynamicWithdrawGasFee(currentBalanceNano?: bigint): bigint {
     return RECOMMENDED_WITHDRAW_FEE;
 }
 
-// Active Mainnet Gasless Relayer Address
-export const ACTIVE_RELAYER_ADDRESS = IS_MAINNET
-    ? 'UQAz-Jy7XX5pMi925pFFHGzTgKRqirwK7CgtZMT5mGAhksqZ'
-    : 'UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ';
+// Active Gasless Relayer Address
+export const ACTIVE_RELAYER_ADDRESS = 'UQAqBeQ17Cx9xaTLQr_H8Oa9HpRXrZeT2vuJ_Sb0FOoBsfnQ';
 
 export const EXPLORER_URL = (addr: string) =>
     IS_MAINNET ? `https://tonscan.org/address/${addr}` : `https://testnet.tonscan.org/address/${addr}`;
