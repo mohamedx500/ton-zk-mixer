@@ -204,6 +204,26 @@ export interface GlobePointData {
     label: string;
 }
 
+/**
+ * Converts a RealOnChainTx into an active animated GlobeArcData
+ */
+function buildArcFromTx(tx: RealOnChainTx): GlobeArcData {
+    const isDeposit = tx.type === 'DEPOSIT';
+    return {
+        startLat: tx.originLat,
+        startLng: tx.originLng,
+        endLat: tx.targetNode.lat,
+        endLng: tx.targetNode.lng,
+        color: isDeposit
+            ? ['rgba(48, 161, 245, 0.95)', 'rgba(125, 211, 252, 0.5)']
+            : ['rgba(255, 255, 255, 0.95)', 'rgba(148, 163, 184, 0.4)'],
+        stroke: isDeposit ? 1.4 : 1.1,
+        altitude: 0.22,
+        txHash: tx.hash,
+        type: tx.type,
+    };
+}
+
 export function NetworkGlobe() {
     const globeContainerRef = useRef<HTMLDivElement | null>(null);
     const globeRef = useRef<any>(null);
@@ -218,6 +238,12 @@ export function NetworkGlobe() {
     const [relayerBalance, setRelayerBalance] = useState<string>('0.00');
     const [realTxs, setRealTxs] = useState<RealOnChainTx[]>([]);
     const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+
+    // State Machine: One-Shot History + Live Delta Only (Zero infinite loops)
+    const [activeArcs, setActiveArcs] = useState<GlobeArcData[]>([]);
+    const lastSeenLtRef = useRef<bigint>(0n);
+    const isInitialLoadRef = useRef<boolean>(true);
+    const arcTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Auto-resize handling via ResizeObserver
     useEffect(() => {
@@ -247,6 +273,15 @@ export function NetworkGlobe() {
             });
     }, []);
 
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (arcTimeoutRef.current) {
+                clearTimeout(arcTimeoutRef.current);
+            }
+        };
+    }, []);
+
     // Fetch 100% Real On-Chain Transactions and State from TonCenter
     const fetchOnChainTelemetry = useCallback(async () => {
         try {
@@ -271,9 +306,22 @@ export function NetworkGlobe() {
                 setRelayerBalance(fromNano(relayerState.balance));
             }
 
+            if (!txsList || txsList.length === 0) {
+                setRealTxs([]);
+                setActiveArcs([]);
+                return;
+            }
+
             // Parse actual on-chain transactions
             const parsedList: RealOnChainTx[] = [];
+            let maxLt = 0n;
+
             for (const tx of txsList) {
+                const txLt = BigInt(tx.lt.toString());
+                if (txLt > maxLt) {
+                    maxLt = txLt;
+                }
+
                 const txHashHex = tx.hash().toString('hex');
                 const shortHash = `${txHashHex.slice(0, 6)}...${txHashHex.slice(-6)}`;
                 const origin = deriveOriginFromTxHash(txHashHex);
@@ -324,19 +372,68 @@ export function NetworkGlobe() {
 
             setRealTxs(parsedList);
             setLastSyncTime(new Date());
+
+            // STATE MACHINE LOGIC: One-Shot History + Live Delta Only
+            if (isInitialLoadRef.current) {
+                // Initial Load: Replay Real Historical Transactions ONCE
+                isInitialLoadRef.current = false;
+                lastSeenLtRef.current = maxLt;
+
+                const initialArcs = parsedList.map(buildArcFromTx);
+                setActiveArcs(initialArcs);
+
+                // Clear after one animation cycle (~4000ms) so arcs do NOT loop infinitely
+                if (arcTimeoutRef.current) clearTimeout(arcTimeoutRef.current);
+                arcTimeoutRef.current = setTimeout(() => {
+                    setActiveArcs([]);
+                }, 4000);
+            } else {
+                // Live Polling: Animate ONLY New Transactions
+                if (maxLt > lastSeenLtRef.current) {
+                    // New transaction(s) detected on-chain!
+                    const newTxs = parsedList.filter((tx) => BigInt(tx.lt) > lastSeenLtRef.current);
+                    lastSeenLtRef.current = maxLt;
+
+                    if (newTxs.length > 0) {
+                        const deltaArcs = newTxs.map(buildArcFromTx);
+                        setActiveArcs(deltaArcs);
+
+                        // Clear after one animation cycle (~4000ms)
+                        if (arcTimeoutRef.current) clearTimeout(arcTimeoutRef.current);
+                        arcTimeoutRef.current = setTimeout(() => {
+                            setActiveArcs([]);
+                        }, 4000);
+                    }
+                }
+                // If maxLt === lastSeenLtRef.current: Do NOTHING, activeArcs stays []
+            }
         } catch (err: any) {
             console.error('Failed to fetch on-chain mixer telemetry:', err);
             setErrorMsg(err.message || 'On-chain telemetry synchronization failed');
+            // If RPC call fails or returns empty, show 0 arcs — never fallback to fake data
+            setActiveArcs([]);
         } finally {
             setIsLoadingData(false);
         }
     }, []);
 
-    // Initial load + periodical real sync every 30s
+    // Initial load + poll every 15 seconds
     useEffect(() => {
         fetchOnChainTelemetry();
-        const timer = setInterval(fetchOnChainTelemetry, 30000);
+        const timer = setInterval(fetchOnChainTelemetry, 15000);
         return () => clearInterval(timer);
+    }, [fetchOnChainTelemetry]);
+
+    // Listen for custom window event when user completes a Deposit or Withdraw in the UI
+    useEffect(() => {
+        const handleTxDispatched = () => {
+            fetchOnChainTelemetry();
+        };
+
+        window.addEventListener('tonzk:transaction_dispatched', handleTxDispatched);
+        return () => {
+            window.removeEventListener('tonzk:transaction_dispatched', handleTxDispatched);
+        };
     }, [fetchOnChainTelemetry]);
 
     // Setup Globe Controls (OrbitControls & subtle auto-rotation)
@@ -352,77 +449,59 @@ export function NetworkGlobe() {
         }
     }, [globeRef.current]);
 
-    // Arcs strictly representing real on-chain transactions
-    const arcsData: GlobeArcData[] = useMemo(() => {
-        return realTxs.map((tx) => {
-            const isDeposit = tx.type === 'DEPOSIT';
-            return {
-                startLat: tx.originLat,
-                startLng: tx.originLng,
-                endLat: tx.targetNode.lat,
-                endLng: tx.targetNode.lng,
-                color: isDeposit
-                    ? ['rgba(48, 161, 245, 0.85)', 'rgba(125, 211, 252, 0.4)']
-                    : ['rgba(255, 255, 255, 0.9)', 'rgba(148, 163, 184, 0.35)'],
-                stroke: isDeposit ? 1.4 : 1.1,
-                altitude: 0.22,
-                txHash: tx.hash,
-                type: tx.type,
-            };
-        });
-    }, [realTxs]);
-
-    // Rings representing active protocol nodes + origin pulses
+    // Rings: Protocol verification nodes + active arc origin pulses
     const ringsData: GlobeRingData[] = useMemo(() => {
         const rings: GlobeRingData[] = [];
 
-        // Add rings at core protocol verification nodes
+        // Core protocol verification nodes
         for (const node of PROTOCOL_NODES) {
             rings.push({
                 lat: node.lat,
                 lng: node.lng,
                 color: '#30A1F5',
-                maxR: 3.5,
-                propagationSpeed: 1.6,
+                maxR: 3.2,
+                propagationSpeed: 1.5,
+                repeatPeriod: 1400,
+            });
+        }
+
+        // Only pulse at active arc origins when arcs are actively firing
+        for (const arc of activeArcs) {
+            rings.push({
+                lat: arc.startLat,
+                lng: arc.startLng,
+                color: arc.type === 'DEPOSIT' ? '#38BDF8' : '#FFFFFF',
+                maxR: 2.8,
+                propagationSpeed: 1.4,
                 repeatPeriod: 1200,
             });
         }
 
-        // Add rings at most recent transaction origins (up to 5)
-        for (const tx of realTxs.slice(0, 5)) {
-            rings.push({
-                lat: tx.originLat,
-                lng: tx.originLng,
-                color: tx.type === 'DEPOSIT' ? '#38BDF8' : '#FFFFFF',
-                maxR: 2.8,
-                propagationSpeed: 1.4,
-                repeatPeriod: 1500,
-            });
-        }
-
         return rings;
-    }, [realTxs]);
+    }, [activeArcs]);
 
-    // Glowing points for nodes and active origins
+    // Static, quiet historical nodes for all real on-chain transaction locations + protocol nodes
     const pointsData: GlobePointData[] = useMemo(() => {
         const points: GlobePointData[] = [];
 
+        // Protocol Nodes
         for (const node of PROTOCOL_NODES) {
             points.push({
                 lat: node.lat,
                 lng: node.lng,
                 color: node.color,
-                radius: 0.7,
+                radius: 0.65,
                 label: `${node.name} (${node.city}, ${node.country}) - ${node.role}`,
             });
         }
 
+        // Real Historical Transaction Origins (quiet, static on the globe surface)
         for (const tx of realTxs) {
             points.push({
                 lat: tx.originLat,
                 lng: tx.originLng,
-                color: tx.type === 'DEPOSIT' ? '#30A1F5' : '#E2E8F0',
-                radius: 0.45,
+                color: tx.type === 'DEPOSIT' ? '#30A1F5' : '#CBD5E1',
+                radius: 0.35,
                 label: `Tx ${tx.shortHash} (${tx.type}) from ${tx.originRegion}`,
             });
         }
@@ -460,6 +539,11 @@ export function NetworkGlobe() {
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                                     <span>ON-CHAIN VERIFIED</span>
                                 </span>
+                                {activeArcs.length > 0 && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#30A1F5]/10 border border-[#30A1F5]/30 text-[#30A1F5] animate-pulse">
+                                        <span>TRANSACTION PROPAGATING</span>
+                                    </span>
+                                )}
                             </div>
                             <p className="text-[10px] text-[#94A3B8] font-mono mt-0.5">
                                 Visualizing 100% verified transactions directly from TON Mainnet contract
@@ -500,7 +584,7 @@ export function NetworkGlobe() {
                         polygonSideColor={() => '#0B0F19'}
                         polygonStrokeColor={() => '#1E293B'}
                         polygonAltitude={0.005}
-                        arcsData={arcsData}
+                        arcsData={activeArcs}
                         arcStartLat="startLat"
                         arcStartLng="startLng"
                         arcEndLat="endLat"

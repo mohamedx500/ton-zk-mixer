@@ -219,6 +219,9 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
             }
 
             setIsSummaryDrawerOpen(false);
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('tonzk:transaction_dispatched'));
+            }
             onWithdrawSuccess?.();
         } catch (err: any) {
             console.error('Withdraw error:', err);

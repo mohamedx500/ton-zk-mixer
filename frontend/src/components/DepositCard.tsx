@@ -104,6 +104,9 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             const result = await tonConnectUI.sendTransaction(txRequest);
 
             setDepositTxSuccess(result.boc || 'Transaction dispatched');
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('tonzk:transaction_dispatched'));
+            }
             onDepositSuccess?.();
         } catch (err: any) {
             console.error('Deposit error:', err);
