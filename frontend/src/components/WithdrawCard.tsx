@@ -26,12 +26,12 @@ import { TonIcon, TonDiamond, GramDiamondMark, ZkCircuitIcon, MerkleTreeIcon, Nu
 import { BottomSheet } from './BottomSheet';
 
 function getFormattedPayoutAmount(amountStr?: string): string {
-    if (!amountStr) return '1.0 TON';
-    const clean = amountStr.replace(' TON', '').trim();
+    if (!amountStr) return '1.0 GRAM';
+    const clean = amountStr.replace(' TON', '').replace(' GRAM', '').trim();
     if (UPFRONT_POOL_TIERS[clean]) {
-        return UPFRONT_POOL_TIERS[clean].poolAmount;
+        return `${UPFRONT_POOL_TIERS[clean].poolAmount.replace(' TON', '')} GRAM`;
     }
-    return amountStr.includes('TON') ? amountStr : `${amountStr} TON`;
+    return amountStr.includes('GRAM') ? amountStr : `${amountStr.replace(' TON', '')} GRAM`;
 }
 
 interface WithdrawCardProps {
@@ -526,13 +526,13 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                             ) : useRelayer ? (
                                 <>
                                     <RelayerFuelIcon className="w-4 h-4" />
-                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'}]</span>
+                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 GRAM'}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             ) : (
                                 <>
-                                    <TonIcon className="w-4 h-4" />
-                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1 TON'}]</span>
+                                    <GramDiamondMark className="w-4 h-4" />
+                                    <span>EXECUTE PAYOUT [{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 GRAM'}]</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
@@ -591,7 +591,7 @@ export function WithdrawCard({ onWithdrawSuccess }: WithdrawCardProps) {
                         <div className="p-4 rounded-xl bg-[#141C26] border border-[#222E3E] space-y-3">
                             <div className="flex justify-between border-b border-[#222E3E] pb-2">
                                 <span className="text-[#94A3B8]">DENOMINATION:</span>
-                                <span className="text-white font-bold">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 TON'}</span>
+                                <span className="text-white font-bold">{parsedNote ? getFormattedPayoutAmount(parsedNote.amount) : '1.0 GRAM'}</span>
                             </div>
                             <div className="flex justify-between border-b border-[#222E3E] pb-2">
                                 <span className="text-[#94A3B8]">TARGET:</span>

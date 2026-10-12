@@ -18,7 +18,7 @@ import {
 import { createDepositNote, DepositNote } from '../lib/crypto';
 import { buildDepositTransaction } from '../lib/ton';
 import { UPFRONT_POOL_TIERS, POOL_TIER_IDS, PoolTierId } from '../lib/contracts';
-import { TonIcon, GramDiamondMark, GramCircularBadge } from './TonIcons';
+import { GramDiamondMark } from './TonIcons';
 
 interface DepositCardProps {
     onDepositSuccess?: () => void;
@@ -42,7 +42,8 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
     const handleGenerateNote = () => {
         setErrorMessage(null);
         setDepositTxSuccess(null);
-        const newNote = createDepositNote(`${currentTier.poolAmount}`);
+        const amountNumber = currentTier.poolAmount.replace(' TON', '');
+        const newNote = createDepositNote(`${amountNumber} GRAM`);
         setNote(newNote);
         setHasCopied(false);
         setIsBackedUp(false);
@@ -97,7 +98,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
         try {
             setIsDepositing(true);
-            const noteAmountStr = note.amount.replace(' TON', '').trim();
+            const noteAmountStr = note.amount.replace(' TON', '').replace(' GRAM', '').trim();
             const tier = UPFRONT_POOL_TIERS[noteAmountStr] || UPFRONT_POOL_TIERS[selectedPool] || UPFRONT_POOL_TIERS['1.0'];
 
             const txRequest = buildDepositTransaction(note.commitment, tier.totalNano);
@@ -118,7 +119,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
     return (
         <div className="bg-[#10161F] p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
-            {/* Header with ton.org Aesthetic & Clean Badges */}
+            {/* Header with ton.org Aesthetic */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 border-b border-[#222E3E] pb-4 sm:pb-5">
                 <div>
                     <h2 className="text-lg sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
@@ -130,18 +131,6 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                     <p className="text-[11px] sm:text-xs text-[#94A3B8] mt-1 font-mono">
                         Initialize anonymous pool contribution via ZK commitment
                     </p>
-                </div>
-                
-                {/* Official Assets Badges - Perfectly Sized & Aligned */}
-                <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
-                        <TonIcon className="w-3.5 h-3.5 shrink-0" />
-                        <span className="font-bold">TON NATIVE</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
-                        <GramCircularBadge className="w-3.5 h-3.5 shrink-0" />
-                        <span>GRAM BADGE</span>
-                    </div>
                 </div>
             </div>
 
@@ -161,7 +150,6 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                     {POOL_TIER_IDS.map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
-                        const isWhaleTier = Number(tier.poolAmount) >= 100;
                         const amountNumber = tier.poolAmount.replace(' TON', '');
                         const feeNumber = tier.fee.replace(' TON', '');
                         
@@ -176,24 +164,20 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                 }}
                                 className={`group py-2.5 sm:py-3.5 px-1.5 sm:px-2.5 rounded-xl border text-center transition-all duration-200 transform active:scale-[0.98] cursor-pointer overflow-hidden ${
                                     isSelected
-                                        ? 'bg-[#30A1F5] text-black border-[#30A1F5] shadow-lg shadow-[#30A1F5]/20 font-bold'
-                                        : 'bg-[#141C26] text-[#94A3B8] border-[#222E3E] hover:border-[#30A1F5]/50 hover:bg-[#1A2432] hover:text-white'
+                                        ? 'bg-[#162231] text-white border-[#30A1F5] shadow-lg shadow-[#30A1F5]/25 ring-1 ring-[#30A1F5]/60'
+                                        : 'bg-[#141C26] text-[#94A3B8] border-[#222E3E] hover:border-[#30A1F5]/40 hover:bg-[#1A2432] hover:text-white'
                                 }`}
                             >
                                 <div className="flex items-center justify-center gap-1 sm:gap-1.5">
-                                    {isWhaleTier ? (
-                                        <GramDiamondMark className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                    ) : (
-                                        <TonIcon className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                                    )}
-                                    <span className="text-xs sm:text-base font-bold font-mono tracking-tight whitespace-nowrap">
+                                    <GramDiamondMark className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                                    <span className="text-xs sm:text-base font-bold font-mono tracking-tight whitespace-nowrap text-white">
                                         {amountNumber}
                                     </span>
-                                    <span className={`text-[9px] sm:text-xs font-mono font-medium ${isSelected ? 'text-black/80' : 'text-[#94A3B8]'}`}>
-                                        TON
+                                    <span className={`text-[9px] sm:text-xs font-mono font-medium ${isSelected ? 'text-[#30A1F5] font-bold' : 'text-[#94A3B8]'}`}>
+                                        GRAM
                                     </span>
                                 </div>
-                                <div className={`text-[8px] sm:text-[9px] font-mono mt-0.5 sm:mt-1 truncate tracking-tight ${isSelected ? 'text-black/80 font-semibold' : 'text-[#64748B]'}`}>
+                                <div className={`text-[8px] sm:text-[9px] font-mono mt-0.5 sm:mt-1 truncate tracking-tight ${isSelected ? 'text-[#30A1F5]/90 font-medium' : 'text-[#64748B]'}`}>
                                     +{feeNumber} fee
                                 </div>
                             </button>
@@ -206,24 +190,24 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-3.5 sm:p-4 mb-6 sm:mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-[#94A3B8] uppercase">
-                        <TonIcon className="w-4 h-4 shrink-0" />
+                        <GramDiamondMark className="w-4 h-4 shrink-0" />
                         <span>Pool Denomination:</span>
                     </div>
-                    <span className="text-white font-bold">{currentTier.poolAmount}</span>
+                    <span className="text-white font-bold">{currentTier.poolAmount.replace(' TON', ' GRAM')}</span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-[#94A3B8] uppercase">
                         <Shield className="w-4 h-4 shrink-0 text-[#30A1F5]" />
                         <span>Protocol Gas &amp; Merkle Fee:</span>
                     </div>
-                    <span className="text-white">{currentTier.fee}</span>
+                    <span className="text-white">{currentTier.fee.replace(' TON', ' GRAM')}</span>
                 </div>
                 <div className="h-px bg-[#222E3E] my-2.5" />
                 <div className="flex items-center justify-between">
                     <span className="text-white font-bold uppercase tracking-wider">Total Transaction Value:</span>
                     <span className="text-white font-extrabold text-sm sm:text-base flex items-center gap-1.5">
-                        <TonIcon className="w-4 h-4 shrink-0 inline" />
-                        <span className="text-[#30A1F5]">{currentTier.total}</span>
+                        <GramDiamondMark className="w-4 h-4 shrink-0 inline" />
+                        <span className="text-[#30A1F5]">{currentTier.total.replace(' TON', ' GRAM')}</span>
                     </span>
                 </div>
             </div>
@@ -347,14 +331,14 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                     </>
                                 ) : !wallet ? (
                                     <>
-                                        <TonIcon className="w-4 h-4 shrink-0" />
-                                        <span>CONNECT WALLET [{currentTier.total}]</span>
+                                        <GramDiamondMark className="w-4 h-4 shrink-0" />
+                                        <span>CONNECT WALLET [{currentTier.total.replace(' TON', ' GRAM')}]</span>
                                         <ArrowRight className="w-4 h-4" />
                                     </>
                                 ) : (
                                     <>
-                                        <TonIcon className="w-4 h-4 shrink-0" />
-                                        <span>DEPOSIT [{currentTier.total}]</span>
+                                        <GramDiamondMark className="w-4 h-4 shrink-0" />
+                                        <span>DEPOSIT [{currentTier.total.replace(' TON', ' GRAM')}]</span>
                                         <ArrowRight className="w-4 h-4" />
                                     </>
                                 )}
