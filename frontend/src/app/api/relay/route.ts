@@ -11,7 +11,6 @@ import {
     getDynamicWithdrawGasFee,
 } from '@/lib/contracts';
 
-
 /**
  * Next.js API Route: /api/relay
  * 
@@ -61,16 +60,36 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        let recipientAddr: Address;
+        try {
+            recipientAddr = Address.parse(recipient);
+        } catch (_) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid recipient address provided.' },
+                { status: 400 }
+            );
+        }
+
+        let rootBig: bigint;
+        let nullifierBig: bigint;
+        let assetIdBig: bigint;
+        try {
+            rootBig = BigInt(root);
+            nullifierBig = BigInt(nullifierHash);
+            assetIdBig = BigInt(assetId || '0');
+        } catch (_) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid cryptographic parameters provided.' },
+                { status: 400 }
+            );
+        }
+
         const client = new TonClient({
             endpoint: TONCENTER_RPC,
             apiKey: TONCENTER_API_KEY || undefined,
         });
 
         const mixerAddr = Address.parse(MIXER_ADDRESS_STRING);
-        const recipientAddr = Address.parse(recipient);
-        const rootBig = BigInt(root);
-        const nullifierBig = BigInt(nullifierHash);
-        const assetIdBig = BigInt(assetId || '0');
 
         // On-chain verification: check nullifier
         try {
@@ -88,8 +107,14 @@ export async function POST(req: NextRequest) {
         }
 
         // Relayer wallet initialization
-        const mnemonicStr = process.env.RELAYER_MNEMONIC || '';
-        const mnemonic = mnemonicStr.trim().split(/\s+/);
+        const mnemonicStr = process.env.RELAYER_MNEMONIC?.trim();
+        if (!mnemonicStr || mnemonicStr.split(/\s+/).length < 12) {
+            return NextResponse.json(
+                { success: false, error: 'Gasless Relayer is unconfigured: RELAYER_MNEMONIC secret is not set in environment.' },
+                { status: 503 }
+            );
+        }
+        const mnemonic = mnemonicStr.split(/\s+/);
         const keyPair = await mnemonicToPrivateKey(mnemonic);
         const relayerContract = WalletContractV4.create({
             workchain: 0,

@@ -10,7 +10,6 @@ import {
     IS_MAINNET,
 } from '@/lib/contracts';
 
-
 export async function GET() {
     try {
         const externalUrl = process.env.RELAYER_SERVICE_URL;
@@ -27,13 +26,22 @@ export async function GET() {
             } catch (_) {}
         }
 
+        const mnemonicStr = process.env.RELAYER_MNEMONIC?.trim();
+        if (!mnemonicStr || mnemonicStr.split(/\s+/).length < 12) {
+            return NextResponse.json({
+                online: false,
+                network: TON_NETWORK,
+                mixerAddress: MIXER_ADDRESS_STRING,
+                error: 'Relayer mnemonic unconfigured in environment',
+            });
+        }
+
         const client = new TonClient({
             endpoint: TONCENTER_RPC,
             apiKey: TONCENTER_API_KEY || undefined,
         });
 
-        const mnemonicStr = process.env.RELAYER_MNEMONIC || '';
-        const mnemonic = mnemonicStr.trim().split(/\s+/);
+        const mnemonic = mnemonicStr.split(/\s+/);
         const keyPair = await mnemonicToPrivateKey(mnemonic);
         const relayerContract = WalletContractV4.create({
             workchain: 0,
