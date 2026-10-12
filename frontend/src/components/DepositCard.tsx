@@ -14,12 +14,11 @@ import {
     CheckCircle2,
     Eye,
     EyeOff,
-    Sparkles,
 } from 'lucide-react';
 import { createDepositNote, DepositNote } from '../lib/crypto';
 import { buildDepositTransaction } from '../lib/ton';
 import { UPFRONT_POOL_TIERS, POOL_TIER_IDS, PoolTierId } from '../lib/contracts';
-import { TonIcon, TonDiamond, GramDiamondMark, GramCircularBadge, ZkCircuitIcon, MerkleTreeIcon } from './TonIcons';
+import { TonIcon, GramDiamondMark, GramCircularBadge } from './TonIcons';
 
 interface DepositCardProps {
     onDepositSuccess?: () => void;
@@ -116,7 +115,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
 
     return (
         <div className="bg-[#10161F] p-6 sm:p-8 rounded-2xl border border-[#222E3E] text-white relative shadow-2xl transition-all duration-300">
-            {/* Header with ton.org Aesthetic & ton-assets Badges */}
+            {/* Header with ton.org Aesthetic & Clean Badges */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 border-b border-[#222E3E] pb-5">
                 <div>
                     <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2.5 uppercase tracking-wide">
@@ -130,14 +129,14 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                     </p>
                 </div>
                 
-                {/* Official Assets Badges */}
+                {/* Official Assets Badges - Perfectly Sized & Aligned */}
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
-                        <TonIcon className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-white text-[10px] font-mono tracking-wider shadow-sm">
+                        <TonIcon className="w-4 h-4 shrink-0" />
                         <span className="font-bold">TON NATIVE</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
-                        <GramCircularBadge className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-[#16202D] text-[#94A3B8] text-[10px] font-mono tracking-wider shadow-sm">
+                        <GramCircularBadge className="w-4 h-4 shrink-0" />
                         <span>GRAM BADGE</span>
                     </div>
                 </div>
@@ -146,8 +145,8 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             {/* Step 1: Select Denomination with Edged Corners & Smooth Hover */}
             <div className="mb-7">
                 <div className="flex items-center justify-between mb-3">
-                    <label className="text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
-                        <ZkCircuitIcon className="w-3.5 h-3.5 text-[#30A1F5]" />
+                    <label className="text-[11px] font-mono uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
+                        <Shield className="w-3.5 h-3.5 text-[#30A1F5]" />
                         <span>[1] SELECT ANONYMITY POOL</span>
                     </label>
                     <span className="text-[10px] font-mono text-[#64748B]">
@@ -159,6 +158,7 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                     {POOL_TIER_IDS.map((poolId) => {
                         const tier = UPFRONT_POOL_TIERS[poolId];
                         const isSelected = selectedPool === poolId;
+                        const isWhaleTier = Number(tier.poolAmount) >= 100;
                         
                         return (
                             <button
@@ -175,13 +175,11 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                         : 'bg-[#141C26] text-[#94A3B8] border-[#222E3E] hover:border-[#30A1F5]/50 hover:bg-[#1A2432] hover:text-white'
                                 }`}
                             >
-                                <div className="flex items-center justify-center gap-1.5">
-                                    {isSelected ? (
-                                        <TonIcon className="w-4 h-4" />
-                                    ) : Number(tier.poolAmount) >= 100 ? (
-                                        <GramDiamondMark className="w-3.5 h-3.5 opacity-80 group-hover:opacity-100 transition-opacity" />
+                                <div className="flex items-center justify-center gap-2">
+                                    {isWhaleTier ? (
+                                        <GramDiamondMark className="w-4 h-4 shrink-0" />
                                     ) : (
-                                        <TonDiamond className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                                        <TonIcon className="w-4 h-4 shrink-0" />
                                     )}
                                     <span className="text-sm sm:text-base font-bold font-mono tracking-tight">
                                         {tier.poolAmount}
@@ -199,15 +197,15 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
             {/* Dynamic Upfront Cost Breakdown Card with Edged Corners */}
             <div className="bg-[#141C26] rounded-xl border border-[#222E3E] p-4 mb-7 font-mono text-[11px] sm:text-xs shadow-inner">
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5 text-[#94A3B8] uppercase">
-                        <TonDiamond className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2 text-[#94A3B8] uppercase">
+                        <TonIcon className="w-4 h-4 shrink-0" />
                         <span>Pool Denomination:</span>
                     </div>
                     <span className="text-white font-bold">{currentTier.poolAmount}</span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5 text-[#94A3B8] uppercase">
-                        <MerkleTreeIcon className="w-3.5 h-3.5 text-[#30A1F5]" />
+                    <div className="flex items-center gap-2 text-[#94A3B8] uppercase">
+                        <Shield className="w-4 h-4 shrink-0 text-[#30A1F5]" />
                         <span>Protocol Gas &amp; Merkle Fee:</span>
                     </div>
                     <span className="text-white">{currentTier.fee}</span>
@@ -215,8 +213,8 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                 <div className="h-px bg-[#222E3E] my-2.5" />
                 <div className="flex items-center justify-between">
                     <span className="text-white font-bold uppercase tracking-wider">Total Transaction Value:</span>
-                    <span className="text-white font-extrabold text-sm sm:text-base flex items-center gap-1">
-                        <TonIcon className="w-4 h-4 inline" />
+                    <span className="text-white font-extrabold text-sm sm:text-base flex items-center gap-1.5">
+                        <TonIcon className="w-4 h-4 shrink-0 inline" />
                         <span className="text-[#30A1F5]">{currentTier.total}</span>
                     </span>
                 </div>
@@ -341,13 +339,13 @@ export function DepositCard({ onDepositSuccess }: DepositCardProps) {
                                     </>
                                 ) : !wallet ? (
                                     <>
-                                        <TonIcon className="w-4 h-4" />
+                                        <TonIcon className="w-4 h-4 shrink-0" />
                                         <span>CONNECT WALLET [{currentTier.total}]</span>
                                         <ArrowRight className="w-4 h-4" />
                                     </>
                                 ) : (
                                     <>
-                                        <TonIcon className="w-4 h-4" />
+                                        <TonIcon className="w-4 h-4 shrink-0" />
                                         <span>DEPOSIT [{currentTier.total}]</span>
                                         <ArrowRight className="w-4 h-4" />
                                     </>

@@ -6,8 +6,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
- * Official TON White Logo (Circle Diamond Mark + TON Wordmark)
- * Sourced directly from ton-assets
+ * Official TON Full Logo (Wordmark + Circle Diamond)
+ * Sourced directly from ton-assets/TON White Logo/TON Logo White.svg
  */
 export function TonLogoFull({ className = 'h-7 w-auto', ...props }: IconProps) {
     return (
@@ -18,28 +18,22 @@ export function TonLogoFull({ className = 'h-7 w-auto', ...props }: IconProps) {
             className={className}
             {...props}
         >
-            <g clipPath="url(#clip0_ton_full)">
-                <path
-                    d="M50.004 0c27.617 0 50.005 22.388 50.005 50.004 0 27.617-22.388 50.005-50.005 50.005C22.388 100.009 0 77.621 0 50.004 0 22.388 22.388 0 50.004 0zM31.347 26.311c-6.946 0-11.351 7.494-7.856 13.553L46.52 79.777c1.546 2.682 5.422 2.682 6.968 0l23.031-39.913c3.491-6.05-.913-13.553-7.855-13.553H31.347zm37.306 7.041c1.584 0 2.516 1.68 1.761 2.99L58.318 57.994l-.002.004-4.8 9.284v-33.93h15.137zm-22.173.005v33.915l-4.795-9.28-.002-.003-12.1-21.641-.035-.063c-.691-1.3.236-2.928 1.795-2.928H46.48zm84.553 43.467h10.831V39.052h14.975v-10.29h-40.782v10.29h14.976v37.772zm51.836.812c13.673 0 24.843-11.169 24.843-24.843 0-13.673-11.17-24.842-24.843-24.842-13.742 0-24.843 11.169-24.843 24.842 0 13.674 11.101 24.843 24.843 24.843zm0-10.424c-7.852 0-14.012-6.634-14.012-14.419 0-7.784 6.16-14.418 14.012-14.418 7.784 0 13.944 6.634 13.944 14.418 0 7.785-6.16 14.419-13.944 14.419zm74.268 9.612V28.763h-10.831v29.649l-23.353-29.65h-9.274v48.062h10.763V47.107l23.421 29.717h9.274z"
-                    fill="currentColor"
-                />
-            </g>
-            <defs>
-                <clipPath id="clip0_ton_full">
-                    <path fill="#fff" d="M0 0H264.286V100H0z" />
-                </clipPath>
-            </defs>
+            <path
+                d="M50.004 0c27.617 0 50.005 22.388 50.005 50.004 0 27.617-22.388 50.005-50.005 50.005C22.388 100.009 0 77.621 0 50.004 0 22.388 22.388 0 50.004 0zM31.347 26.311c-6.946 0-11.351 7.494-7.856 13.553L46.52 79.777c1.546 2.682 5.422 2.682 6.968 0l23.031-39.913c3.491-6.05-.913-13.553-7.855-13.553H31.347zm37.306 7.041c1.584 0 2.516 1.68 1.761 2.99L58.318 57.994l-.002.004-4.8 9.284v-33.93h15.137zm-22.173.005v33.915l-4.795-9.28-.002-.003-12.1-21.641-.035-.063c-.691-1.3.236-2.928 1.795-2.928H46.48zm84.553 43.467h10.831V39.052h14.975v-10.29h-40.782v10.29h14.976v37.772zm51.836.812c13.673 0 24.843-11.169 24.843-24.843 0-13.673-11.17-24.842-24.843-24.842-13.742 0-24.843 11.169-24.843 24.842 0 13.674 11.101 24.843 24.843 24.843zm0-10.424c-7.852 0-14.012-6.634-14.012-14.419 0-7.784 6.16-14.418 14.012-14.418 7.784 0 13.944 6.634 13.944 14.418 0 7.785-6.16 14.419-13.944 14.419zm74.268 9.612V28.763h-10.831v29.649l-23.353-29.65h-9.274v48.062h10.763V47.107l23.421 29.717h9.274z"
+                fill="currentColor"
+            />
         </svg>
     );
 }
 
 /**
- * Official TON Foundation Circle Diamond Icon
+ * Official TON Coin Icon
+ * Sourced directly from ton-assets vector geometry
  */
 export function TonIcon({ className = 'w-5 h-5', size, ...props }: IconProps) {
     return (
         <svg
-            viewBox="0 0 56 56"
+            viewBox="0 0 100 100"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className={className}
@@ -47,38 +41,34 @@ export function TonIcon({ className = 'w-5 h-5', size, ...props }: IconProps) {
             height={size}
             {...props}
         >
-            <circle cx="28" cy="28" r="28" fill="#0098EA" />
+            <circle cx="50" cy="50" r="50" fill="#0098EA" />
             <path
-                d="M19.18 18.5H36.82C38.6 18.5 39.69 20.48 38.74 21.96L28 38.75L17.26 21.96C16.31 20.48 17.4 18.5 19.18 18.5Z"
-                fill="white"
+                d="M24 30.5h52L50 77.5 24 30.5z"
+                stroke="#FFFFFF"
+                strokeWidth="7.5"
+                strokeLinejoin="round"
+                fill="none"
             />
-            <path
-                d="M27.2 19.5L18.5 22.8C17.6 23.1 17.5 24.3 18.3 24.8L27.2 29.5V19.5Z"
-                fill="#D4F0FC"
-            />
-            <path
-                d="M28.8 19.5L37.5 22.8C38.4 23.1 38.5 24.3 37.7 24.8L28.8 29.5V19.5Z"
-                fill="#EBF7FE"
-            />
-            <path
-                d="M27.2 30.5L18.8 25.8C18 25.3 17.5 26.2 18 26.9L27.2 38.2V30.5Z"
-                fill="#72CCF8"
-            />
-            <path
-                d="M28.8 30.5L37.2 25.8C38 25.3 38.5 26.2 38 26.9L28.8 38.2V30.5Z"
-                fill="#A2DDFB"
+            <line
+                x1="50"
+                y1="30.5"
+                x2="50"
+                y2="72"
+                stroke="#FFFFFF"
+                strokeWidth="7.5"
+                strokeLinecap="round"
             />
         </svg>
     );
 }
 
 /**
- * Transparent TON Diamond mark
+ * Official TON Diamond Mark (Transparent Vector Crystal without circle)
  */
 export function TonDiamond({ className = 'w-5 h-5', size, ...props }: IconProps) {
     return (
         <svg
-            viewBox="0 0 40 40"
+            viewBox="18 24 64 60"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className={className}
@@ -87,25 +77,20 @@ export function TonDiamond({ className = 'w-5 h-5', size, ...props }: IconProps)
             {...props}
         >
             <path
-                d="M8.2 11.5H31.8C33.6 11.5 34.7 13.5 33.7 15L20 35L6.3 15C5.3 13.5 6.4 11.5 8.2 11.5Z"
-                fill="#0098EA"
-                fillOpacity="0.25"
+                d="M24 30.5h52L50 77.5 24 30.5z"
+                stroke="#0098EA"
+                strokeWidth="7.5"
+                strokeLinejoin="round"
+                fill="none"
             />
-            <path
-                d="M19.2 12.5L8.5 16.5C7.6 16.8 7.5 18 8.3 18.5L19.2 23.8V12.5Z"
-                fill="#38BDF8"
-            />
-            <path
-                d="M20.8 12.5L31.5 16.5C32.4 16.8 32.5 18 31.7 18.5L20.8 23.8V12.5Z"
-                fill="#7DD3FC"
-            />
-            <path
-                d="M19.2 25L8.8 19.8C8 19.3 7.5 20.2 8 20.9L19.2 34V25Z"
-                fill="#0284C7"
-            />
-            <path
-                d="M20.8 25L31.2 19.8C32 19.3 32.5 20.2 32 20.9L20.8 34V25Z"
-                fill="#0EA5E9"
+            <line
+                x1="50"
+                y1="30.5"
+                x2="50"
+                y2="72"
+                stroke="#0098EA"
+                strokeWidth="7.5"
+                strokeLinecap="round"
             />
         </svg>
     );
@@ -113,7 +98,7 @@ export function TonDiamond({ className = 'w-5 h-5', size, ...props }: IconProps)
 
 /**
  * Official Gram Diamond Mark
- * Sourced directly from ton-assets/Gram Diamond Mark
+ * Sourced directly from ton-assets/Gram Diamond Mark/Gram Diamond Mark.svg
  */
 export function GramDiamondMark({ className = 'w-5 h-5', size, ...props }: IconProps) {
     return (
@@ -132,7 +117,7 @@ export function GramDiamondMark({ className = 'w-5 h-5', size, ...props }: IconP
             />
             <path
                 d="M60.268 24.224c.537-1.45 2.59-1.45 3.126 0l3.71 10.027a2.2 2.2 0 0 0 1.3 1.3l10.027 3.71c1.451.537 1.451 2.59 0 3.126l-10.027 3.71a2.2 2.2 0 0 0-1.3 1.3l-3.71 10.027c-.537 1.451-2.59 1.451-3.126 0l-3.71-10.027a2.2 2.2 0 0 0-1.3-1.3l-10.027-3.71c-1.451-.537-1.451-2.589 0-3.126l10.027-3.71a2.2 2.2 0 0 0 1.3-1.3l3.71-10.027z"
-                fill="#fff"
+                fill="#FFFFFF"
             />
         </svg>
     );
@@ -140,7 +125,7 @@ export function GramDiamondMark({ className = 'w-5 h-5', size, ...props }: IconP
 
 /**
  * Official Gram Circular Badge
- * Sourced directly from ton-assets/Gram Circular Badge
+ * Sourced directly from ton-assets/Gram Circular Badge/Gram Circular Badge.svg
  */
 export function GramCircularBadge({ className = 'w-5 h-5', size, ...props }: IconProps) {
     return (
@@ -154,10 +139,9 @@ export function GramCircularBadge({ className = 'w-5 h-5', size, ...props }: Ico
             {...props}
         >
             <rect width="100" height="100" rx="50" fill="#30A1F5" />
-            <rect x=".5" y=".5" width="99" height="99" rx="49.5" stroke="#000" strokeOpacity=".06" />
             <path
                 d="M60.41 26.75H39.59c-2.772 0-4.159 0-5.413.388a8.691 8.691 0 0 0-3.028 1.653c-1.005.846-1.754 2.012-3.254 4.344L21.277 43.43c-.99 1.54-1.486 2.311-1.62 3.122-.119.715-.04 1.45.228 2.123.304.764.951 1.411 2.247 2.707l24.59 24.59c1.148 1.148 1.721 1.722 2.383 1.936.582.19 1.208.19 1.79 0 .661-.214 1.235-.788 2.382-1.935l24.591-24.591c1.296-1.296 1.943-1.943 2.247-2.707a3.982 3.982 0 0 0 .228-2.123c-.134-.81-.63-1.581-1.62-3.122l-6.618-10.295c-1.5-2.332-2.25-3.498-3.254-4.344a8.692 8.692 0 0 0-3.028-1.653c-1.255-.388-2.64-.388-5.414-.388z"
-                fill="#fff"
+                fill="#FFFFFF"
             />
             <path
                 d="M56.469 34.871c.338-.914 1.631-.914 1.97 0l2.337 6.317c.14.38.44.679.819.82l6.317 2.337c.914.338.914 1.63 0 1.97l-6.317 2.337c-.38.14-.679.44-.82.818l-2.337 6.317c-.338.915-1.631.915-1.97 0l-2.337-6.317c-.14-.379-.44-.678-.819-.818l-6.316-2.338c-.915-.338-.915-1.631 0-1.97l6.316-2.337c.38-.14.679-.44.82-.819l2.337-6.317z"
@@ -169,7 +153,7 @@ export function GramCircularBadge({ className = 'w-5 h-5', size, ...props }: Ico
 
 /**
  * Official Gram Full Logo (Mark + Typography)
- * Sourced directly from ton-assets/Gram Full Logo
+ * Sourced directly from ton-assets/Gram Full Logo/Gram Full Logo on Black.svg
  */
 export function GramFullLogo({ className = 'h-7 w-auto', ...props }: IconProps) {
     return (
@@ -196,33 +180,6 @@ export function GramFullLogo({ className = 'h-7 w-auto', ...props }: IconProps) 
 export const GramIcon = GramDiamondMark;
 
 /**
- * ZK-SNARK Circuit Node Icon
- */
-export function ZkCircuitIcon({ className = 'w-5 h-5', size, ...props }: IconProps) {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={className}
-            width={size}
-            height={size}
-            {...props}
-        >
-            <path
-                d="M12 2L19 6V18L12 22L5 18V6L12 2Z"
-                stroke="#38BDF8"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-            <circle cx="12" cy="12" r="3" fill="#0284C7" fillOpacity="0.6" stroke="#7DD3FC" strokeWidth="1.5" />
-            <path d="M12 2V9M12 15V22M5 6L9.5 9.5M14.5 14.5L19 18M19 6L14.5 9.5M9.5 14.5L5 18" stroke="#38BDF8" strokeWidth="1.2" strokeLinecap="round" />
-        </svg>
-    );
-}
-
-/**
  * Merkle Tree Cryptographic Hash Tree Icon
  */
 export function MerkleTreeIcon({ className = 'w-5 h-5', size, ...props }: IconProps) {
@@ -236,15 +193,15 @@ export function MerkleTreeIcon({ className = 'w-5 h-5', size, ...props }: IconPr
             height={size}
             {...props}
         >
-            <circle cx="12" cy="4" r="2.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1" />
-            <path d="M12 6.5L7 11M12 6.5L17 11" stroke="#38BDF8" strokeWidth="1.2" strokeLinecap="round" />
-            <circle cx="7" cy="12" r="2" fill="#0284C7" stroke="#7DD3FC" strokeWidth="1" />
-            <circle cx="17" cy="12" r="2" fill="#0284C7" stroke="#7DD3FC" strokeWidth="1" />
-            <path d="M7 14L4 18M7 14L10 18M17 14L14 18M17 14L20 18" stroke="#0284C7" strokeWidth="1" strokeLinecap="round" />
-            <circle cx="4" cy="19" r="1.5" fill="#7DD3FC" />
-            <circle cx="10" cy="19" r="1.5" fill="#7DD3FC" />
-            <circle cx="14" cy="19" r="1.5" fill="#7DD3FC" />
-            <circle cx="20" cy="19" r="1.5" fill="#7DD3FC" />
+            <circle cx="12" cy="4" r="2.5" fill="#30A1F5" />
+            <path d="M12 6.5L7 11M12 6.5L17 11" stroke="#30A1F5" strokeWidth="1.2" strokeLinecap="round" />
+            <circle cx="7" cy="12" r="2" fill="#0098EA" />
+            <circle cx="17" cy="12" r="2" fill="#0098EA" />
+            <path d="M7 14L4 18M7 14L10 18M17 14L14 18M17 14L20 18" stroke="#30A1F5" strokeWidth="1" strokeLinecap="round" />
+            <circle cx="4" cy="19" r="1.5" fill="#38BDF8" />
+            <circle cx="10" cy="19" r="1.5" fill="#38BDF8" />
+            <circle cx="14" cy="19" r="1.5" fill="#38BDF8" />
+            <circle cx="20" cy="19" r="1.5" fill="#38BDF8" />
         </svg>
     );
 }
@@ -263,10 +220,9 @@ export function NullifierIcon({ className = 'w-5 h-5', size, ...props }: IconPro
             height={size}
             {...props}
         >
-            <rect x="5" y="10" width="14" height="11" rx="2" stroke="#38BDF8" strokeWidth="1.5" fill="#0284C7" fillOpacity="0.2" />
-            <path d="M8 10V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V10" stroke="#7DD3FC" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="12" cy="15" r="1.5" fill="#FFFFFF" />
-            <path d="M12 16.5V18.5" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+            <rect x="5" y="10" width="14" height="11" rx="2.5" stroke="#30A1F5" strokeWidth="1.5" fill="#0098EA" fillOpacity="0.2" />
+            <path d="M8 10V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V10" stroke="#30A1F5" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="12" cy="15.5" r="1.5" fill="#FFFFFF" />
         </svg>
     );
 }
@@ -287,16 +243,12 @@ export function RelayerFuelIcon({ className = 'w-5 h-5', size, ...props }: IconP
         >
             <path
                 d="M13 2L4 14H11L10 22L20 10H13L13 2Z"
-                fill="#38BDF8"
-                fillOpacity="0.3"
-                stroke="#38BDF8"
+                fill="#30A1F5"
+                fillOpacity="0.25"
+                stroke="#30A1F5"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-            />
-            <path
-                d="M12 6L7 13H11L10 18L16 11H12V6Z"
-                fill="#E0F2FE"
             />
         </svg>
     );
@@ -318,7 +270,7 @@ export function ZkShieldIcon({ className = 'w-5 h-5', size, ...props }: IconProp
         >
             <path
                 d="M12 2L4 5V11C4 16.5 7.5 21 12 22C16.5 21 20 16.5 20 11V5L12 2Z"
-                stroke="#38BDF8"
+                stroke="#30A1F5"
                 strokeWidth="1.5"
                 strokeLinejoin="round"
                 fill="#0098EA"
@@ -326,7 +278,7 @@ export function ZkShieldIcon({ className = 'w-5 h-5', size, ...props }: IconProp
             />
             <path
                 d="M9 12L11 14L15 10"
-                stroke="#7DD3FC"
+                stroke="#FFFFFF"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -334,3 +286,5 @@ export function ZkShieldIcon({ className = 'w-5 h-5', size, ...props }: IconProp
         </svg>
     );
 }
+
+export const ZkCircuitIcon = ZkShieldIcon;

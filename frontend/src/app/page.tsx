@@ -235,28 +235,6 @@ export default function Home() {
                     </AnimatePresence>
                 </div>
 
-                {/* Live Transactions Map preview section below deposit/withdraw tabs */}
-                {(activeTab === 'deposit' || activeTab === 'withdraw') && (
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Globe className="w-4 h-4 text-[#30A1F5]" />
-                                <h3 className="font-bold text-xs uppercase tracking-wider text-white font-mono">
-                                    Global Transactions &amp; Anonymity Relay Mesh
-                                </h3>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setActiveTab('map')}
-                                className="text-[10px] font-mono text-[#30A1F5] hover:underline uppercase flex items-center gap-1 cursor-pointer"
-                            >
-                                <span>EXPAND FULL VIEW</span>
-                                <ArrowRight className="w-3 h-3" />
-                            </button>
-                        </div>
-                        <TransactionsMap />
-                    </div>
-                )}
 
                 {/* Real-time Pool Stats Card (displayed on deposit & withdraw tabs) */}
                 {activeTab !== 'admin' && (
