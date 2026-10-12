@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/Navbar';
 import { DepositCard } from '../components/DepositCard';
 import { WithdrawCard } from '../components/WithdrawCard';
-import { TransactionsMap } from '../components/TransactionsMap';
+import { NetworkGlobe } from '../components/NetworkGlobe';
 import { AdminDashboard } from '../components/AdminDashboard';
 import { StatsCard } from '../components/StatsCard';
 import { PrivacyExplainer } from '../components/PrivacyExplainer';
@@ -60,7 +60,7 @@ export default function Home() {
             <Navbar activeTab={activeTab} onSelectTab={setActiveTab} />
 
             {/* Main Content Area */}
-            <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 relative z-10">
+            <main className={`flex-1 ${activeTab === 'map' ? 'max-w-5xl' : 'max-w-4xl'} w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 relative z-10 transition-all duration-300`}>
                 {/* Hero / Header Section styled in ton.org aesthetic */}
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -217,7 +217,7 @@ export default function Home() {
                                 exit={{ opacity: 0, y: -8 }}
                                 transition={{ duration: 0.25, ease: 'easeOut' }}
                             >
-                                <TransactionsMap />
+                                <NetworkGlobe />
                             </motion.div>
                         )}
 

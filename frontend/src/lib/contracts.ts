@@ -83,7 +83,7 @@ export type PoolTierId = (typeof POOL_TIER_IDS)[number];
 export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     '1.0': {
         id: '1.0',
-        label: '🐬 Standard',
+        label: 'Standard',
         category: 'standard',
         poolAmount: '1.0 TON',
         fee: '0.20 TON',
@@ -94,7 +94,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '1': {
         id: '1.0',
-        label: '🐬 Standard',
+        label: 'Standard',
         category: 'standard',
         poolAmount: '1.0 TON',
         fee: '0.20 TON',
@@ -105,7 +105,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '5.0': {
         id: '5.0',
-        label: '🦈 Shark',
+        label: 'Shark',
         category: 'standard',
         poolAmount: '5.0 TON',
         fee: '0.35 TON',
@@ -116,7 +116,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '5': {
         id: '5.0',
-        label: '🦈 Shark',
+        label: 'Shark',
         category: 'standard',
         poolAmount: '5.0 TON',
         fee: '0.35 TON',
@@ -127,7 +127,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '10.0': {
         id: '10.0',
-        label: '🐋 Orca',
+        label: 'Orca',
         category: 'standard',
         poolAmount: '10.0 TON',
         fee: '0.50 TON',
@@ -138,7 +138,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '10': {
         id: '10.0',
-        label: '🐋 Orca',
+        label: 'Orca',
         category: 'standard',
         poolAmount: '10.0 TON',
         fee: '0.50 TON',
@@ -149,7 +149,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '25.0': {
         id: '25.0',
-        label: '⚡ High Roller',
+        label: 'High Roller',
         category: 'standard',
         poolAmount: '25.0 TON',
         fee: '0.80 TON',
@@ -160,7 +160,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '25': {
         id: '25.0',
-        label: '⚡ High Roller',
+        label: 'High Roller',
         category: 'standard',
         poolAmount: '25.0 TON',
         fee: '0.80 TON',
@@ -171,7 +171,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '50.0': {
         id: '50.0',
-        label: '🐳 Whale',
+        label: 'Whale',
         category: 'whale',
         poolAmount: '50.0 TON',
         fee: '1.20 TON',
@@ -182,7 +182,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '50': {
         id: '50.0',
-        label: '🐳 Whale',
+        label: 'Whale',
         category: 'whale',
         poolAmount: '50.0 TON',
         fee: '1.20 TON',
@@ -193,7 +193,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '100.0': {
         id: '100.0',
-        label: '🌊 Jumbo',
+        label: 'Jumbo',
         category: 'whale',
         poolAmount: '100.0 TON',
         fee: '2.00 TON',
@@ -204,7 +204,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '100': {
         id: '100.0',
-        label: '🌊 Jumbo',
+        label: 'Jumbo',
         category: 'whale',
         poolAmount: '100.0 TON',
         fee: '2.00 TON',
@@ -215,7 +215,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '250.0': {
         id: '250.0',
-        label: '🌌 Titan',
+        label: 'Titan',
         category: 'whale',
         poolAmount: '250.0 TON',
         fee: '3.50 TON',
@@ -226,7 +226,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '250': {
         id: '250.0',
-        label: '🌌 Titan',
+        label: 'Titan',
         category: 'whale',
         poolAmount: '250.0 TON',
         fee: '3.50 TON',
@@ -237,7 +237,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '500.0': {
         id: '500.0',
-        label: '👑 Leviathan',
+        label: 'Leviathan',
         category: 'whale',
         poolAmount: '500.0 TON',
         fee: '5.00 TON',
@@ -248,7 +248,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '500': {
         id: '500.0',
-        label: '👑 Leviathan',
+        label: 'Leviathan',
         category: 'whale',
         poolAmount: '500.0 TON',
         fee: '5.00 TON',
@@ -259,7 +259,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '1000.0': {
         id: '1000.0',
-        label: '🪐 Mega Whale',
+        label: 'Mega Whale',
         category: 'whale',
         poolAmount: '1000.0 TON',
         fee: '8.00 TON',
@@ -270,7 +270,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '1000': {
         id: '1000.0',
-        label: '🪐 Mega Whale',
+        label: 'Mega Whale',
         category: 'whale',
         poolAmount: '1000.0 TON',
         fee: '8.00 TON',
@@ -282,7 +282,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     // Backward compatibility for micro tiers
     '0.05': {
         id: '0.05',
-        label: '🦐 Micro',
+        label: 'Micro',
         category: 'micro',
         poolAmount: '0.05 TON',
         fee: '0.01 TON',
@@ -293,7 +293,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '0.1': {
         id: '0.1',
-        label: '🦀 Shrimp',
+        label: 'Shrimp',
         category: 'micro',
         poolAmount: '0.1 TON',
         fee: '0.02 TON',
@@ -304,7 +304,7 @@ export const UPFRONT_POOL_TIERS: Record<string, PoolTier> = {
     },
     '0.5': {
         id: '0.5',
-        label: '🐟 Fish',
+        label: 'Fish',
         category: 'micro',
         poolAmount: '0.5 TON',
         fee: '0.08 TON',
